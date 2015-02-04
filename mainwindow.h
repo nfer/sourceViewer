@@ -22,8 +22,10 @@ protected:
 private slots:
     void newFile();
     void open();
+    void close();
+    void rename();
     bool save();
-    bool saveAs();
+    bool saveAs(bool rename = false);
     void about();
     void documentWasModified();
 
@@ -37,6 +39,7 @@ private:
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
+    void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
 
@@ -50,6 +53,8 @@ private:
     QToolBar *editToolBar;
     QAction *newAct;
     QAction *openAct;
+    QAction *closeAct;
+    QAction *renameAct;
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;

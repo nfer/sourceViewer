@@ -49,6 +49,23 @@ void MainWindow::open()
     }
 }
 
+void MainWindow::close()
+{
+    if (maybeSave()) {
+        if (curFile.isEmpty())
+            saveAs();
+        else
+            saveFile(curFile);
+    }
+
+    closeFile(curFile);
+}
+
+void MainWindow::rename()
+{
+    //FIXME
+}
+
 bool MainWindow::save()
 {
     if (curFile.isEmpty()) {
@@ -58,7 +75,7 @@ bool MainWindow::save()
     }
 }
 
-bool MainWindow::saveAs()
+bool MainWindow::saveAs(bool rename)
 {
     QFileDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
@@ -69,7 +86,10 @@ bool MainWindow::saveAs()
     if (files.isEmpty())
         return false;
 
-    return saveFile(files.at(0));
+    if(rename)
+        return saveFile(files.at(0));
+    else
+        return true;
 }
 
 void MainWindow::about()
@@ -97,13 +117,22 @@ void MainWindow::createActions()
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
+    closeAct = new QAction(tr("&Close"), this);
+    closeAct->setShortcuts(QKeySequence::listFromString(tr("Ctrl+W")));
+    closeAct->setStatusTip(tr("Closes the current file."));
+    connect(closeAct, SIGNAL(triggered()), this, SLOT(close()));
+
+    renameAct = new QAction(tr("Rename"), this);
+    renameAct->setStatusTip(tr("Renames a file on disk and in a project."));
+    connect(renameAct, SIGNAL(triggered()), this, SLOT(rename()));
+
     saveAct = new QAction(QIcon(":/images/save.png"), tr("&Save"), this);
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(tr("Save the document to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setShortcuts(QKeySequence::listFromString(tr("Ctrl+Shift+S")));
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
@@ -151,6 +180,10 @@ void MainWindow::createMenus()
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
+    fileMenu->addSeparator();
+    fileMenu->addAction(closeAct);
+    fileMenu->addAction(renameAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
@@ -240,6 +273,17 @@ void MainWindow::loadFile(const QString &fileName)
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File loaded"), 2000);
+}
+
+void MainWindow::closeFile(const QString &fileName)
+{
+    QFile file(fileName);
+    file.close();
+
+    textEdit->setPlainText("");
+
+    setCurrentFile("");
+    statusBar()->showMessage(tr("File closed"), 2000);
 }
 
 bool MainWindow::saveFile(const QString &fileName)

@@ -7,8 +7,9 @@
 QT        += widgets
 TARGET     = sourceViewer
 TEMPLATE   = app
-HEADERS   += mainwindow.h
+HEADERS   += mainwindow.h \
+             config.h
 RESOURCES  = sourceViewer.qrc
 SOURCES   += main.cpp\
-            mainwindow.cpp
+             mainwindow.cpp
 

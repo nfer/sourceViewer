@@ -1,5 +1,6 @@
 #include <QtWidgets>
 
+#include "config.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow()
@@ -272,10 +273,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
     textEdit->document()->setModified(false);
     setWindowModified(false);
 
-    QString shownName = curFile;
-    if (curFile.isEmpty())
-        shownName = "untitled.txt";
-    setWindowFilePath(shownName);
+    QString shownName = fileName;
+    if (fileName.isEmpty())
+        shownName = "untitled";
+    QString shownTitle = shownName + " - " + SV_PROGRAM_NAME;
+    setWindowTitle(shownTitle);
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

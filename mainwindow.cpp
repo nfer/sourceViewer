@@ -320,7 +320,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
     QString shownName = fileName;
     if (fileName.isEmpty())
         shownName = "untitled";
-    QString shownTitle = shownName + " - " + SV_PROGRAM_NAME;
+    QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
     setWindowTitle(shownTitle);
 }
 

@@ -25,7 +25,7 @@ private slots:
     void close();
     void rename();
     bool save();
-    bool saveAs(bool rename = false);
+    bool saveAs();
     void about();
     void documentWasModified();
 

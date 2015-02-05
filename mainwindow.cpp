@@ -1,4 +1,5 @@
 #include <QtWidgets>
+#include <QDebug>
 
 #include "config.h"
 #include "mainwindow.h"
@@ -52,13 +53,11 @@ void MainWindow::open()
 void MainWindow::close()
 {
     if (maybeSave()) {
-        if (curFile.isEmpty())
-            saveAs();
-        else
-            saveFile(curFile);
+        closeFile(curFile);
     }
-
-    closeFile(curFile);
+    else{
+        qWarning() << "DO NOT CLOSE FILE, as user click Cancel, or save failed.";
+    }
 }
 
 void MainWindow::rename()
@@ -75,7 +74,7 @@ bool MainWindow::save()
     }
 }
 
-bool MainWindow::saveAs(bool rename)
+bool MainWindow::saveAs()
 {
     QFileDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
@@ -83,13 +82,12 @@ bool MainWindow::saveAs(bool rename)
     dialog.exec();
     QStringList files = dialog.selectedFiles();
 
-    if (files.isEmpty())
+    if (files.isEmpty()){
+        qWarning() << "select nothing after QFileDialog.";
         return false;
+    }
 
-    if(rename)
-        return saveFile(files.at(0));
-    else
-        return true;
+    return saveFile(files.at(0));
 }
 
 void MainWindow::about()
@@ -245,8 +243,14 @@ bool MainWindow::maybeSave()
                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         if (ret == QMessageBox::Save)
             return save();
-        else if (ret == QMessageBox::Cancel)
+        else if (ret == QMessageBox::Cancel){
+            qWarning() << "user click Cancel, do nothing.";
             return false;
+        }
+        else{ //QMessageBox::Discard
+            qWarning() << "user click Discard, no need save file.";
+            return true;
+        }
     }
     return true;
 }
@@ -290,10 +294,11 @@ bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
+        qWarning() << tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString());
         return false;
     }
 

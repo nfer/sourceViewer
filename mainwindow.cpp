@@ -60,9 +60,20 @@ void MainWindow::close()
     }
 }
 
-void MainWindow::rename()
+bool MainWindow::rename()
 {
-    //FIXME
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.exec();
+    QStringList files = dialog.selectedFiles();
+
+    if (files.isEmpty()){
+        qWarning() << "select nothing after QFileDialog.";
+        return false;
+    }
+
+    return renameFile(files.at(0));
 }
 
 bool MainWindow::save()
@@ -316,6 +327,23 @@ bool MainWindow::saveFile(const QString &fileName)
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File saved"), 2000);
+    return true;
+}
+
+bool MainWindow::renameFile(const QString &fileName)
+{
+    QFile file(curFile);
+    if (!file.rename(fileName)) {
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+                             tr("Cannot rename file %1 to %2:\n%3.")
+                             .arg(curFile)
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    setCurrentFile(fileName);
+    statusBar()->showMessage(tr("File renamed"), 2000);
     return true;
 }
 

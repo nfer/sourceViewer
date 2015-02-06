@@ -23,7 +23,7 @@ private slots:
     void newFile();
     void open();
     void close();
-    void rename();
+    bool rename();
     bool save();
     bool saveAs();
     void about();
@@ -39,6 +39,7 @@ private:
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
+    bool renameFile(const QString &fileName);
     void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);

@@ -165,8 +165,11 @@ void MainWindow::createActions()
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
+    saveAct->setEnabled(false);
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
+    connect(textEdit, SIGNAL(modificationChanged(bool)),
+            saveAct, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(copyAvailable(bool)),
             cutAct, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(copyAvailable(bool)),
@@ -323,8 +326,13 @@ void MainWindow::setCurrentFile(const QString &fileName)
     setWindowModified(false);
 
     QString shownName = fileName;
-    if (fileName.isEmpty())
+    if (fileName.isEmpty()){
         shownName = "untitled";
+        renameAct->setEnabled(false);
+    }
+    else{
+        renameAct->setEnabled(true);
+    }
     QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
     setWindowTitle(shownTitle);
 }

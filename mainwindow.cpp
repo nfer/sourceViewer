@@ -76,6 +76,16 @@ bool MainWindow::rename()
     return renameFile(files.at(0));
 }
 
+void MainWindow::remove()
+{
+    if (maybeSave()) {
+        removeFile(curFile);
+    }
+    else{
+        qWarning() << "DO NOT REMOVE FILE, as user click Cancel, or save failed.";
+    }
+}
+
 bool MainWindow::save()
 {
     if (curFile.isEmpty()) {
@@ -131,9 +141,13 @@ void MainWindow::createActions()
     closeAct->setStatusTip(tr("Closes the current file."));
     connect(closeAct, SIGNAL(triggered()), this, SLOT(close()));
 
-    renameAct = new QAction(tr("Rename"), this);
+    renameAct = new QAction(tr("Rename..."), this);
     renameAct->setStatusTip(tr("Renames a file on disk and in a project."));
     connect(renameAct, SIGNAL(triggered()), this, SLOT(rename()));
+
+    removeAct = new QAction(tr("&Delete File..."), this);
+    removeAct->setStatusTip(tr("Deletes a file on disk and in a project."));
+    connect(removeAct, SIGNAL(triggered()), this, SLOT(remove()));
 
     saveAct = new QAction(QIcon(":/images/save.png"), tr("&Save"), this);
     saveAct->setShortcuts(QKeySequence::Save);
@@ -195,6 +209,7 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(closeAct);
     fileMenu->addAction(renameAct);
+    fileMenu->addAction(removeAct);
     fileMenu->addSeparator();
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
@@ -347,6 +362,23 @@ bool MainWindow::renameFile(const QString &fileName)
     return true;
 }
 
+bool MainWindow::removeFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.remove(fileName)) {
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+                             tr("Cannot delete file %1:\n%3.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    textEdit->setPlainText("");
+    setCurrentFile("");
+    statusBar()->showMessage(tr("File deleted"), 2000);
+    return true;
+}
+
 void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
@@ -357,9 +389,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
     if (fileName.isEmpty()){
         shownName = "untitled";
         renameAct->setEnabled(false);
+        removeAct->setEnabled(false);
     }
     else{
         renameAct->setEnabled(true);
+        removeAct->setEnabled(true);
     }
     QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
     setWindowTitle(shownTitle);

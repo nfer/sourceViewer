@@ -24,6 +24,7 @@ private slots:
     void open();
     void close();
     bool rename();
+    void remove();
     bool save();
     bool saveAs();
     void about();
@@ -40,6 +41,7 @@ private:
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
     bool renameFile(const QString &fileName);
+    bool removeFile(const QString &fileName);
     void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
@@ -56,6 +58,7 @@ private:
     QAction *openAct;
     QAction *closeAct;
     QAction *renameAct;
+    QAction *removeAct;
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;

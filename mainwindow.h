@@ -51,7 +51,10 @@ private:
 
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *encodingMenu;
     QMenu *helpMenu;
+
+    // file menu
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
     QAction *newAct;
@@ -62,9 +65,25 @@ private:
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
+
+    // edit menu
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
+
+    // encoding menu
+    QAction *encodeInAnsiAct;
+    QAction *encodeInUTF8NoBom;
+    QAction *encodeInUTF8;
+    QAction *encodeInUCS2BigEndian;
+    QAction *encodeInUCS2BigLittleian;
+    QAction *convertToAnsiAct;
+    QAction *convertToUTF8NoBom;
+    QAction *convertToUTF8;
+    QAction *convertToUCS2BigEndian;
+    QAction *convertToUCS2BigLittleian;
+
+    // help menu
     QAction *aboutAct;
     QAction *aboutQtAct;
 };

@@ -182,6 +182,36 @@ void MainWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
+    encodeInAnsiAct = new QAction(tr("Encode in ANSI"), this);
+    connect(encodeInAnsiAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    encodeInUTF8NoBom = new QAction(tr("Encode in UTF-8 without BOM"), this);
+    connect(encodeInUTF8NoBom, SIGNAL(triggered()), this, SLOT(about()));
+
+    encodeInUTF8 = new QAction(tr("Encode in UTF-8"), this);
+    connect(encodeInUTF8, SIGNAL(triggered()), this, SLOT(about()));
+
+    encodeInUCS2BigEndian = new QAction(tr("Encode in UCS-2 Big Endian"), this);
+    connect(encodeInUCS2BigEndian, SIGNAL(triggered()), this, SLOT(about()));
+
+    encodeInUCS2BigLittleian = new QAction(tr("Encode in UCS-2 Little Endian"), this);
+    connect(encodeInUCS2BigLittleian, SIGNAL(triggered()), this, SLOT(about()));
+
+    convertToAnsiAct = new QAction(tr("Convert to ANSI"), this);
+    connect(convertToAnsiAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    convertToUTF8NoBom = new QAction(tr("Convert to UTF-8 without BOM"), this);
+    connect(convertToUTF8NoBom, SIGNAL(triggered()), this, SLOT(about()));
+
+    convertToUTF8 = new QAction(tr("Convert to UTF-8"), this);
+    connect(convertToUTF8, SIGNAL(triggered()), this, SLOT(about()));
+
+    convertToUCS2BigEndian = new QAction(tr("Convert to UCS-2 Big Endian"), this);
+    connect(convertToUCS2BigEndian, SIGNAL(triggered()), this, SLOT(about()));
+
+    convertToUCS2BigLittleian = new QAction(tr("Convert to UCS-2 Little Endian"), this);
+    connect(convertToUCS2BigLittleian, SIGNAL(triggered()), this, SLOT(about()));
+
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -221,7 +251,18 @@ void MainWindow::createMenus()
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
 
-    menuBar()->addSeparator();
+    encodingMenu = menuBar()->addMenu(tr("E&ncoding"));
+    encodingMenu->addAction(encodeInAnsiAct);
+    encodingMenu->addAction(encodeInUTF8NoBom);
+    encodingMenu->addAction(encodeInUTF8);
+    encodingMenu->addAction(encodeInUCS2BigEndian);
+    encodingMenu->addAction(encodeInUCS2BigLittleian);
+    encodingMenu->addSeparator();
+    encodingMenu->addAction(convertToUCS2BigLittleian);
+    encodingMenu->addAction(convertToUCS2BigEndian);
+    encodingMenu->addAction(convertToUTF8);
+    encodingMenu->addAction(convertToUTF8NoBom);
+    encodingMenu->addAction(convertToAnsiAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);

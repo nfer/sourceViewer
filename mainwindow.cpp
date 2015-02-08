@@ -337,6 +337,15 @@ void MainWindow::loadFile(const QString &fileName)
     }
 
     QTextStream in(&file);
+
+    // check whether is UTF-8 encode
+    QString s = in.read(3);
+    qWarning() << "in.read(3)" << s;
+    if(s == "UTF"){
+        in.setCodec("UTF-8");
+    }
+    in.seek(0);
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif

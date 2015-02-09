@@ -342,7 +342,8 @@ void MainWindow::loadFile(const QString &fileName)
     QString s = in.read(3);
     qWarning() << "in.read(3)" << s;
     if(s == "UTF"){
-        in.setCodec("UTF-8");
+        codec = QTextCodec::codecForName("UTF-8");
+        in.setCodec(codec);
     }
     in.seek(0);
 
@@ -382,6 +383,9 @@ bool MainWindow::saveFile(const QString &fileName)
     }
 
     QTextStream out(&file);
+    if(NULL != codec){
+        out.setCodec(codec);
+    }
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif

@@ -47,6 +47,7 @@ private:
     QString strippedName(const QString &fullFileName);
 
     QPlainTextEdit *textEdit;
+    QTextCodec * codec;
     QString curFile;
 
     QMenu *fileMenu;

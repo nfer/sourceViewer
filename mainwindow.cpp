@@ -327,6 +327,10 @@ bool MainWindow::maybeSave()
 
 void MainWindow::loadFile(const QString &fileName)
 {
+    //close current file if needed
+    if(!curFile.isEmpty())
+        closeFile(curFile);
+
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
@@ -361,6 +365,10 @@ void MainWindow::loadFile(const QString &fileName)
 
 void MainWindow::closeFile(const QString &fileName)
 {
+    if(fileName.isEmpty())
+        return;
+
+    qWarning() << "close file : " << fileName;
     QFile file(fileName);
     file.close();
 

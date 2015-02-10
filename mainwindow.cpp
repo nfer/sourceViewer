@@ -21,6 +21,7 @@ MainWindow::MainWindow()
 
     setCurrentFile("");
     setUnifiedTitleAndToolBarOnMac(true);
+    codec = NULL;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -340,16 +341,12 @@ void MainWindow::loadFile(const QString &fileName)
         return;
     }
 
-    QTextStream in(&file);
+    getFileInfo(fileName);
 
-    // check whether is UTF-8 encode
-    QString s = in.read(3);
-    qWarning() << "in.read(3)" << s;
-    if(s == "UTF"){
-        codec = QTextCodec::codecForName("UTF-8");
+    QTextStream in(&file);
+    if(NULL != codec){
         in.setCodec(codec);
     }
-    in.seek(0);
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -371,6 +368,7 @@ void MainWindow::closeFile(const QString &fileName)
     qWarning() << "close file : " << fileName;
     QFile file(fileName);
     file.close();
+    codec = NULL;
 
     textEdit->setPlainText("");
 
@@ -464,5 +462,22 @@ void MainWindow::setCurrentFile(const QString &fileName)
 QString MainWindow::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
+}
+
+void MainWindow::getFileInfo(const QString &fileName)
+{
+    QProcess p(0);
+    p.start("file \""+fileName+"\"");
+    p.waitForStarted();
+    p.waitForFinished();
+    QString fileInfo = QString::fromLocal8Bit(p.readAllStandardOutput());
+//    qDebug() << fileInfo;
+
+    QString codecInfo = fileInfo.remove(fileName).remove(": ");
+    qDebug() << codecInfo;
+
+    if(codecInfo.contains("UTF-8 Unicode")){
+        codec = QTextCodec::codecForName("UTF-8");
+    }
 }
 

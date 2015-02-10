@@ -45,6 +45,7 @@ private:
     void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
+    void getFileInfo(const QString &fileName);
 
     QPlainTextEdit *textEdit;
     QTextCodec * codec;

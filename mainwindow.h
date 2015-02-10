@@ -49,6 +49,7 @@ private:
 
     QPlainTextEdit *textEdit;
     QTextCodec * codec;
+    bool hasBOM;
     QString curFile;
 
     QMenu *fileMenu;

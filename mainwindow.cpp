@@ -22,6 +22,7 @@ MainWindow::MainWindow()
     setCurrentFile("");
     setUnifiedTitleAndToolBarOnMac(true);
     codec = NULL;
+    hasBOM = false;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -369,6 +370,7 @@ void MainWindow::closeFile(const QString &fileName)
     QFile file(fileName);
     file.close();
     codec = NULL;
+    hasBOM = false;
 
     textEdit->setPlainText("");
 
@@ -391,6 +393,12 @@ bool MainWindow::saveFile(const QString &fileName)
     QTextStream out(&file);
     if(NULL != codec){
         out.setCodec(codec);
+        if(hasBOM && codec->name() == "UTF-8"){
+            QDataStream dataStream(&file);
+            char bom[3] = {0xEF, 0xBB, 0xBF};
+            dataStream.writeRawData(bom, 3);
+            qDebug() << "write UTF-8 with BOM:0xEF BB BF";
+        }
     }
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -478,6 +486,10 @@ void MainWindow::getFileInfo(const QString &fileName)
 
     if(codecInfo.contains("UTF-8 Unicode")){
         codec = QTextCodec::codecForName("UTF-8");
+    }
+
+    if(codecInfo.contains("with BOM")){
+        hasBOM = true;
     }
 }
 

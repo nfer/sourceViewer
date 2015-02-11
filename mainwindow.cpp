@@ -475,11 +475,17 @@ QString MainWindow::strippedName(const QString &fullFileName)
 void MainWindow::getFileInfo(const QString &fileName)
 {
     QProcess p(0);
+ #if defined (Q_OS_WIN32)
+    QString command = "windows\\file\\file.exe -m windows\\file\\magic \"" + fileName + "\"";
+    p.start(command);
+    qDebug() << "works on WIN32 platform, command : " << command;
+#else
     p.start("file \""+fileName+"\"");
+#endif
     p.waitForStarted();
     p.waitForFinished();
     QString fileInfo = QString::fromLocal8Bit(p.readAllStandardOutput());
-//    qDebug() << fileInfo;
+//    qDebug() << "command result: " << fileInfo;
 
     QString codecInfo = fileInfo.remove(fileName).remove(": ");
     qDebug() << codecInfo;

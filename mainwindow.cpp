@@ -395,7 +395,7 @@ bool MainWindow::saveFile(const QString &fileName)
         out.setCodec(codec);
         if(hasBOM && codec->name() == "UTF-8"){
             QDataStream dataStream(&file);
-            char bom[3] = {0xEF, 0xBB, 0xBF};
+            char bom[3] = {(char)0xEF, (char)0xBB, (char)0xBF};
             dataStream.writeRawData(bom, 3);
             qDebug() << "write UTF-8 with BOM:0xEF BB BF";
         }

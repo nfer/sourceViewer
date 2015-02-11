@@ -369,6 +369,11 @@ void MainWindow::closeFile(const QString &fileName)
     file.close();
     codec = NULL;
     hasBOM = false;
+    if(curEncodingAct){
+        curEncodingAct->setIcon(QIcon());
+        curEncodingAct->setIconVisibleInMenu(false);
+        curEncodingAct = NULL;
+    }
 
     textEdit->setPlainText("");
 
@@ -490,10 +495,29 @@ void MainWindow::getFileInfo(const QString &fileName)
 
     if(codecInfo.contains("UTF-8 Unicode")){
         codec = QTextCodec::codecForName("UTF-8");
+        if(codecInfo.contains("with BOM")){
+            hasBOM = true;
+            curEncodingAct = encodeInUTF8;
+        }
+        else{
+            curEncodingAct = encodeInUTF8NoBom;
+        }
+    }
+    else if(codecInfo.contains("ISO-8859")){
+        codec = QTextCodec::codecForName("ISO-8859");
+        curEncodingAct = encodeInAnsiAct;
+    }
+    else if(codecInfo.contains("ASCII")){
+        codec = QTextCodec::codecForName("ASCII");
+        curEncodingAct = encodeInAnsiAct;
+    }
+    else{
+        qWarning() << "unknown encoding : " << codecInfo;
     }
 
-    if(codecInfo.contains("with BOM")){
-        hasBOM = true;
+    if(curEncodingAct){
+        curEncodingAct->setIcon(QIcon(":/images/select.png"));
+        curEncodingAct->setIconVisibleInMenu(true);
     }
 }
 

@@ -85,6 +85,7 @@ private:
     QAction *convertToUTF8;
     QAction *convertToUCS2BigEndian;
     QAction *convertToUCS2BigLittleian;
+    QAction *curEncodingAct;
 
     // help menu
     QAction *aboutAct;

@@ -1,5 +1,3 @@
-#include <QtWidgets>
-#include <QDebug>
 
 #include "config.h"
 #include "mainwindow.h"

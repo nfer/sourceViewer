@@ -75,16 +75,16 @@ private:
     QAction *pasteAct;
 
     // encoding menu
-    QAction *encodeInAnsiAct;
-    QAction *encodeInUTF8NoBom;
-    QAction *encodeInUTF8;
-    QAction *encodeInUCS2BigEndian;
-    QAction *encodeInUCS2BigLittleian;
-    QAction *convertToAnsiAct;
-    QAction *convertToUTF8NoBom;
-    QAction *convertToUTF8;
-    QAction *convertToUCS2BigEndian;
-    QAction *convertToUCS2BigLittleian;
+    QAction *encodeInANSIAct;       // ANSI
+    QAction *encodeInUTF8WOBAct;    // UTF-8 without BOM
+    QAction *encodeInUTF8Act;       // UTF-8
+    QAction *encodeInUCS2BEAct;     // UCS-2 Big Endian
+    QAction *encodeInUCS2LEAct;     // UCS-2 Little Endian
+    QAction *convertToANSIAct;      // ANSI
+    QAction *convertToUTF8WOBAct;   // UTF-8 without BOM
+    QAction *convertToUTF8Act;      // UTF-8
+    QAction *convertToUCS2BEAct;    // UCS-2 Big Endian
+    QAction *convertToUCS2LEAct;    // UCS-2 Little Endian
     QAction *curEncodingAct;
 
     // help menu

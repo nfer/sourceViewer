@@ -1,1 +1,1 @@
-# a source insight UI-Like code editor
+# a Qt-based code editor

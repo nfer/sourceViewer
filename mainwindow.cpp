@@ -96,19 +96,33 @@ bool MainWindow::save()
     }
 }
 
-void MainWindow::encodeInANSI()
+void MainWindow::showInEncoding()
 {
-    loadFile(QString(curFile), QTextCodec::codecForLocale()); //reload file
-}
+    if (curEncodingAct != NULL){
+        if (curEncodingAct->isChecked()){
+            // still checked, means user click another action, set this one checked false
+            curEncodingAct->setChecked(false);
+        }
+        else {
+            // the checked from true to false, means user click the same one, do nothing but set it checked back
+            curEncodingAct->setChecked(true);
+            return;
+        }
+    }
 
-void MainWindow::encodeInUTF8()
-{
-    loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"), true); //reload file
-}
-
-void MainWindow::encodeInUTF8WOB()
-{
-    loadFile(QString(curFile), QTextCodec::codecForName("UTF-8")); //reload file
+    if (encodeInANSIAct->isChecked())
+        loadFile(QString(curFile), QTextCodec::codecForLocale());
+    else if (encodeInUTF8Act->isChecked())
+        loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"), true);
+    else if (encodeInUTF8WOBAct->isChecked())
+        loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"));
+    else{
+        if (curEncodingAct != NULL){
+            // as no other action checked, set curEncodingAct checked back
+            curEncodingAct->setChecked(true);
+        }
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Not support right now."));
+    }
 }
 
 bool MainWindow::saveAs()
@@ -199,19 +213,24 @@ void MainWindow::createActions()
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
     encodeInANSIAct = new QAction(tr("Encode in ANSI"), this);
-    connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(encodeInANSI()));
+    encodeInANSIAct->setCheckable(true);
+    connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUTF8WOBAct = new QAction(tr("Encode in UTF-8 without BOM"), this);
-    connect(encodeInUTF8WOBAct, SIGNAL(triggered()), this, SLOT(encodeInUTF8WOB()));
+    encodeInUTF8WOBAct->setCheckable(true);
+    connect(encodeInUTF8WOBAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUTF8Act = new QAction(tr("Encode in UTF-8"), this);
-    connect(encodeInUTF8Act, SIGNAL(triggered()), this, SLOT(encodeInUTF8()));
+    encodeInUTF8Act->setCheckable(true);
+    connect(encodeInUTF8Act, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUCS2BEAct = new QAction(tr("Encode in UCS-2 Big Endian"), this);
-    connect(encodeInUCS2BEAct, SIGNAL(triggered()), this, SLOT(about()));
+    encodeInUTF8Act->setCheckable(true);
+    connect(encodeInUCS2BEAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUCS2LEAct = new QAction(tr("Encode in UCS-2 Little Endian"), this);
-    connect(encodeInUCS2LEAct, SIGNAL(triggered()), this, SLOT(about()));
+    encodeInUTF8Act->setCheckable(true);
+    connect(encodeInUCS2LEAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     convertToANSIAct = new QAction(tr("Convert to ANSI"), this);
     connect(convertToANSIAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -534,8 +553,7 @@ void MainWindow::setEncodingIcon(const QTextCodec * codec, bool hasBOM)
 {
     // hide last encoding action icon
     if(curEncodingAct){
-        curEncodingAct->setIcon(QIcon());
-        curEncodingAct->setIconVisibleInMenu(false);
+        curEncodingAct->setChecked(false);
         curEncodingAct = NULL;
     }
 
@@ -556,7 +574,6 @@ void MainWindow::setEncodingIcon(const QTextCodec * codec, bool hasBOM)
     }
 
     if(curEncodingAct){
-        curEncodingAct->setIcon(QIcon(":/images/select.png"));
-        curEncodingAct->setIconVisibleInMenu(true);
+        curEncodingAct->setChecked(true);
     }
 }

@@ -27,9 +27,7 @@ private slots:
     void remove();
     bool save();
     bool saveAs();
-    void encodeInANSI();
-    void encodeInUTF8();
-    void encodeInUTF8WOB();
+    void showInEncoding();
     void about();
     void documentWasModified();
 

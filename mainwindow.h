@@ -27,6 +27,9 @@ private slots:
     void remove();
     bool save();
     bool saveAs();
+    void encodeInANSI();
+    void encodeInUTF8();
+    void encodeInUTF8WOB();
     void about();
     void documentWasModified();
 
@@ -38,7 +41,7 @@ private:
     void readSettings();
     void writeSettings();
     bool maybeSave();
-    void loadFile(const QString &fileName);
+    void loadFile(const QString &fileName, QTextCodec *codec = NULL, bool hasBOM = false);
     bool saveFile(const QString &fileName);
     bool renameFile(const QString &fileName);
     bool removeFile(const QString &fileName);
@@ -46,10 +49,11 @@ private:
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
     void getFileInfo(const QString &fileName);
+    void setEncodingIcon(const QTextCodec *codec, bool hasBOM = false);
 
     QPlainTextEdit *textEdit;
-    QTextCodec * codec;
-    bool hasBOM;
+    QTextCodec * mCodec;
+    bool mHasBOM;
     QString curFile;
 
     QMenu *fileMenu;

@@ -19,8 +19,9 @@ MainWindow::MainWindow()
 
     setCurrentFile("");
     setUnifiedTitleAndToolBarOnMac(true);
-    codec = NULL;
-    hasBOM = false;
+    curEncodingAct = NULL;
+    mCodec = NULL;
+    mHasBOM = false;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -93,6 +94,21 @@ bool MainWindow::save()
     } else {
         return saveFile(curFile);
     }
+}
+
+void MainWindow::encodeInANSI()
+{
+    loadFile(QString(curFile), QTextCodec::codecForLocale()); //reload file
+}
+
+void MainWindow::encodeInUTF8()
+{
+    loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"), true); //reload file
+}
+
+void MainWindow::encodeInUTF8WOB()
+{
+    loadFile(QString(curFile), QTextCodec::codecForName("UTF-8")); //reload file
 }
 
 bool MainWindow::saveAs()
@@ -183,13 +199,13 @@ void MainWindow::createActions()
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
     encodeInANSIAct = new QAction(tr("Encode in ANSI"), this);
-    connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(about()));
+    connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(encodeInANSI()));
 
     encodeInUTF8WOBAct = new QAction(tr("Encode in UTF-8 without BOM"), this);
-    connect(encodeInUTF8WOBAct, SIGNAL(triggered()), this, SLOT(about()));
+    connect(encodeInUTF8WOBAct, SIGNAL(triggered()), this, SLOT(encodeInUTF8WOB()));
 
     encodeInUTF8Act = new QAction(tr("Encode in UTF-8"), this);
-    connect(encodeInUTF8Act, SIGNAL(triggered()), this, SLOT(about()));
+    connect(encodeInUTF8Act, SIGNAL(triggered()), this, SLOT(encodeInUTF8()));
 
     encodeInUCS2BEAct = new QAction(tr("Encode in UCS-2 Big Endian"), this);
     connect(encodeInUCS2BEAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -325,7 +341,7 @@ bool MainWindow::maybeSave()
     return true;
 }
 
-void MainWindow::loadFile(const QString &fileName)
+void MainWindow::loadFile(const QString &fileName, QTextCodec *codec, bool hasBOM)
 {
     //close current file if needed
     if(!curFile.isEmpty())
@@ -340,11 +356,18 @@ void MainWindow::loadFile(const QString &fileName)
         return;
     }
 
-    getFileInfo(fileName);
-
     QTextStream in(&file);
-    if(NULL != codec){
-        in.setCodec(codec);
+
+    if(NULL == codec){
+        getFileInfo(fileName);
+    }
+    else{
+        mCodec = codec;
+        mHasBOM = hasBOM;
+    }
+
+    if(NULL != mCodec){
+        in.setCodec(mCodec);
     }
 
 #ifndef QT_NO_CURSOR
@@ -356,6 +379,7 @@ void MainWindow::loadFile(const QString &fileName)
 #endif
 
     setCurrentFile(fileName);
+    setEncodingIcon(mCodec, mHasBOM);
     statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
@@ -364,20 +388,16 @@ void MainWindow::closeFile(const QString &fileName)
     if(fileName.isEmpty())
         return;
 
-    qWarning() << "close file : " << fileName;
+//    qWarning() << "close file : " << fileName;
     QFile file(fileName);
     file.close();
-    codec = NULL;
-    hasBOM = false;
-    if(curEncodingAct){
-        curEncodingAct->setIcon(QIcon());
-        curEncodingAct->setIconVisibleInMenu(false);
-        curEncodingAct = NULL;
-    }
 
+    mCodec = NULL;
+    mHasBOM = false;
     textEdit->setPlainText("");
 
     setCurrentFile("");
+    setEncodingIcon(NULL);
     statusBar()->showMessage(tr("File closed"), 2000);
 }
 
@@ -394,9 +414,9 @@ bool MainWindow::saveFile(const QString &fileName)
     }
 
     QTextStream out(&file);
-    if(NULL != codec){
-        out.setCodec(codec);
-        if(hasBOM && codec->name() == "UTF-8"){
+    if(NULL != mCodec){
+        out.setCodec(mCodec);
+        if(mHasBOM && mCodec->name() == "UTF-8"){
             QDataStream dataStream(&file);
             char bom[3] = {(char)0xEF, (char)0xBB, (char)0xBF};
             dataStream.writeRawData(bom, 3);
@@ -494,25 +514,45 @@ void MainWindow::getFileInfo(const QString &fileName)
     qDebug() << codecInfo;
 
     if(codecInfo.contains("UTF-8 Unicode")){
-        codec = QTextCodec::codecForName("UTF-8");
+        mCodec = QTextCodec::codecForName("UTF-8");
         if(codecInfo.contains("with BOM")){
-            hasBOM = true;
-            curEncodingAct = encodeInUTF8Act;
-        }
-        else{
-            curEncodingAct = encodeInUTF8WOBAct;
+            mHasBOM = true;
         }
     }
     else if(codecInfo.contains("ISO-8859")){
-        codec = QTextCodec::codecForName("ISO-8859");
-        curEncodingAct = encodeInANSIAct;
+        mCodec = QTextCodec::codecForLocale(); //use local codec, show as ANSI
     }
     else if(codecInfo.contains("ASCII")){
-        codec = QTextCodec::codecForName("ASCII");
-        curEncodingAct = encodeInANSIAct;
+        mCodec = QTextCodec::codecForName("ASCII");
     }
     else{
         qWarning() << "unknown encoding : " << codecInfo;
+    }
+}
+
+void MainWindow::setEncodingIcon(const QTextCodec * codec, bool hasBOM)
+{
+    // hide last encoding action icon
+    if(curEncodingAct){
+        curEncodingAct->setIcon(QIcon());
+        curEncodingAct->setIconVisibleInMenu(false);
+        curEncodingAct = NULL;
+    }
+
+    if(NULL == codec)
+        return;
+
+    if(codec->name() == "UTF-8"){
+        if(hasBOM)
+            curEncodingAct = encodeInUTF8Act;
+        else
+            curEncodingAct = encodeInUTF8WOBAct;
+    }
+    else if(codec->name() == "GBK"){
+        curEncodingAct = encodeInANSIAct;
+    }
+    else{
+        qWarning() << "unknown encoding : " << codec;
     }
 
     if(curEncodingAct){
@@ -520,4 +560,3 @@ void MainWindow::getFileInfo(const QString &fileName)
         curEncodingAct->setIconVisibleInMenu(true);
     }
 }
-

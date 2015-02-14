@@ -116,6 +116,10 @@ void MainWindow::showInEncoding()
         loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"), true);
     else if (encodeInUTF8WOBAct->isChecked())
         loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"));
+    else if (encodeInUCS2BEAct->isChecked())
+        loadFile(QString(curFile), QTextCodec::codecForName("UTF-16BE"));
+    else if (encodeInUCS2LEAct->isChecked())
+        loadFile(QString(curFile), QTextCodec::codecForName("UTF-16LE"));
     else{
         if (curEncodingAct != NULL){
             // as no other action checked, set curEncodingAct checked back

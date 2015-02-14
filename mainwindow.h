@@ -28,6 +28,7 @@ private slots:
     bool save();
     bool saveAs();
     void showInEncoding();
+    void convertToEncoding();
     void about();
     void documentWasModified();
 

@@ -129,6 +129,41 @@ void MainWindow::showInEncoding()
     }
 }
 
+void MainWindow::convertToEncoding()
+{
+    mHasBOM = false;
+    textEdit->document()->setModified(true);
+    setWindowModified(true);
+
+    if (convertToANSIAct->isChecked()){
+        convertToANSIAct->setChecked(false);
+        mCodec = QTextCodec::codecForLocale();
+    }
+    else if (convertToUTF8Act->isChecked()){
+        convertToUTF8Act->setChecked(false);
+        mCodec = QTextCodec::codecForName("UTF-8");
+        mHasBOM = true;
+    }
+    else if (convertToUTF8WOBAct->isChecked()){
+        convertToUTF8WOBAct->setChecked(false);
+        mCodec = QTextCodec::codecForName("UTF-8");
+    }
+    else if (convertToUCS2BEAct->isChecked()){
+        convertToUCS2BEAct->setChecked(false);
+        mCodec = QTextCodec::codecForName("UTF-16BE");
+    }
+    else if (convertToUCS2LEAct->isChecked()){
+        convertToUCS2LEAct->setChecked(false);
+        mCodec = QTextCodec::codecForName("UTF-16LE");
+    }
+    else{
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Couldn't be here."));
+        return;
+    }
+
+    setEncodingIcon(mCodec, mHasBOM);
+}
+
 bool MainWindow::saveAs()
 {
     QFileDialog dialog(this);
@@ -237,19 +272,24 @@ void MainWindow::createActions()
     connect(encodeInUCS2LEAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     convertToANSIAct = new QAction(tr("Convert to ANSI"), this);
-    connect(convertToANSIAct, SIGNAL(triggered()), this, SLOT(about()));
+    convertToANSIAct->setCheckable(true);
+    connect(convertToANSIAct, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
     convertToUTF8WOBAct = new QAction(tr("Convert to UTF-8 without BOM"), this);
-    connect(convertToUTF8WOBAct, SIGNAL(triggered()), this, SLOT(about()));
+    convertToUTF8WOBAct->setCheckable(true);
+    connect(convertToUTF8WOBAct, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
     convertToUTF8Act = new QAction(tr("Convert to UTF-8"), this);
-    connect(convertToUTF8Act, SIGNAL(triggered()), this, SLOT(about()));
+    convertToUTF8Act->setCheckable(true);
+    connect(convertToUTF8Act, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
     convertToUCS2BEAct = new QAction(tr("Convert to UCS-2 Big Endian"), this);
-    connect(convertToUCS2BEAct, SIGNAL(triggered()), this, SLOT(about()));
+    convertToUCS2BEAct->setCheckable(true);
+    connect(convertToUCS2BEAct, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
     convertToUCS2LEAct = new QAction(tr("Convert to UCS-2 Little Endian"), this);
-    connect(convertToUCS2LEAct, SIGNAL(triggered()), this, SLOT(about()));
+    convertToUCS2LEAct->setCheckable(true);
+    connect(convertToUCS2LEAct, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));

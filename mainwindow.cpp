@@ -225,11 +225,11 @@ void MainWindow::createActions()
     connect(encodeInUTF8Act, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUCS2BEAct = new QAction(tr("Encode in UCS-2 Big Endian"), this);
-    encodeInUTF8Act->setCheckable(true);
+    encodeInUCS2BEAct->setCheckable(true);
     connect(encodeInUCS2BEAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     encodeInUCS2LEAct = new QAction(tr("Encode in UCS-2 Little Endian"), this);
-    encodeInUTF8Act->setCheckable(true);
+    encodeInUCS2LEAct->setCheckable(true);
     connect(encodeInUCS2LEAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
 
     convertToANSIAct = new QAction(tr("Convert to ANSI"), this);
@@ -438,8 +438,23 @@ bool MainWindow::saveFile(const QString &fileName)
         if(mHasBOM && mCodec->name() == "UTF-8"){
             QDataStream dataStream(&file);
             char bom[3] = {(char)0xEF, (char)0xBB, (char)0xBF};
-            dataStream.writeRawData(bom, 3);
+            dataStream.writeRawData(bom, sizeof(bom));
             qDebug() << "write UTF-8 with BOM:0xEF BB BF";
+        }
+        else if (mCodec->name() == "UTF-16BE"){
+            QDataStream dataStream(&file);
+            char bom[2] = {(char)0xFE, (char)0xFF};
+            dataStream.writeRawData(bom, sizeof(bom));
+            qDebug() << "write UCS-2 Big Endian with BOM:0xFE FF.";
+        }
+        else if (mCodec->name() == "UTF-16LE"){
+            QDataStream dataStream(&file);
+            char bom[2] = {(char)0xFF, (char)0xFE};
+            dataStream.writeRawData(bom, sizeof(bom));
+            qDebug() << "write UCS-2 Little Endian with BOM:0xFF FE.";
+        }
+        else {
+            qDebug() << "use default encoding(GBK) write to file.";
         }
     }
 #ifndef QT_NO_CURSOR
@@ -544,6 +559,17 @@ void MainWindow::getFileInfo(const QString &fileName)
     else if(codecInfo.contains("ASCII")){
         mCodec = QTextCodec::codecForName("ASCII");
     }
+    else if(codecInfo.contains("UTF-16 Unicode")){
+        if (codecInfo.contains("Big-endian")){
+            mCodec = QTextCodec::codecForName("UTF-16BE");
+        }
+        else if (codecInfo.contains("Little-endian")){
+            mCodec = QTextCodec::codecForName("UTF-16LE");
+        }
+        else {
+            mCodec = QTextCodec::codecForName("UTF-16");
+        }
+    }
     else{
         qWarning() << "unknown encoding : " << codecInfo;
     }
@@ -569,8 +595,14 @@ void MainWindow::setEncodingIcon(const QTextCodec * codec, bool hasBOM)
     else if(codec->name() == "GBK"){
         curEncodingAct = encodeInANSIAct;
     }
+    else if(codec->name() == "UTF-16BE"){
+        curEncodingAct = encodeInUCS2BEAct;
+    }
+    else if(codec->name() == "UTF-16LE"){
+        curEncodingAct = encodeInUCS2LEAct;
+    }
     else{
-        qWarning() << "unknown encoding : " << codec;
+        qWarning() << "[setEncodingIcon] unknown encoding : " << codec;
     }
 
     if(curEncodingAct){

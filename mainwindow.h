@@ -74,6 +74,8 @@ private:
     QAction *exitAct;
 
     // edit menu
+    QAction *undoAct;
+    QAction *redoAct;
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;

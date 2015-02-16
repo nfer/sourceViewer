@@ -248,6 +248,16 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
+    undoAct = new QAction(tr("&Undo"), this);
+    undoAct->setShortcuts(QKeySequence::Undo);
+    undoAct->setStatusTip(tr("Reverses the last editing operation."));
+    connect(undoAct, SIGNAL(triggered()), textEdit, SLOT(undo()));
+
+    redoAct = new QAction(tr("&Redo"), this);
+    redoAct->setShortcuts(QKeySequence::Redo);
+    redoAct->setStatusTip(tr("Recreates the last editing operation after an Undo command."));
+    connect(redoAct, SIGNAL(triggered()), textEdit, SLOT(redo()));
+
     cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
@@ -323,6 +333,10 @@ void MainWindow::createActions()
             cutAct, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(copyAvailable(bool)),
             copyAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(undoAvailable(bool)),
+            undoAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(redoAvailable(bool)),
+            redoAct, SLOT(setEnabled(bool)));
 }
 
 void MainWindow::createMenus()
@@ -341,6 +355,9 @@ void MainWindow::createMenus()
     fileMenu->addAction(exitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(undoAct);
+    editMenu->addAction(redoAct);
+    editMenu->addSeparator();
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);

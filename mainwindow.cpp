@@ -164,6 +164,21 @@ void MainWindow::convertToEncoding()
     setEncodingIcon(mCodec, mHasBOM);
 }
 
+void MainWindow::enableEncodingAcion(bool enabled)
+{
+    encodeInANSIAct->setEnabled(enabled);
+    encodeInUTF8WOBAct->setEnabled(enabled);
+    encodeInUTF8Act->setEnabled(enabled);
+    encodeInUCS2BEAct->setEnabled(enabled);
+    encodeInUCS2LEAct->setEnabled(enabled);
+
+    convertToANSIAct->setEnabled(enabled);
+    convertToUTF8WOBAct->setEnabled(enabled);
+    convertToUTF8Act->setEnabled(enabled);
+    convertToUCS2BEAct->setEnabled(enabled);
+    convertToUCS2LEAct->setEnabled(enabled);
+}
+
 bool MainWindow::saveAs()
 {
     QFileDialog dialog(this);
@@ -337,11 +352,11 @@ void MainWindow::createMenus()
     encodingMenu->addAction(encodeInUCS2BEAct);
     encodingMenu->addAction(encodeInUCS2LEAct);
     encodingMenu->addSeparator();
-    encodingMenu->addAction(convertToUCS2LEAct);
-    encodingMenu->addAction(convertToUCS2BEAct);
-    encodingMenu->addAction(convertToUTF8Act);
-    encodingMenu->addAction(convertToUTF8WOBAct);
     encodingMenu->addAction(convertToANSIAct);
+    encodingMenu->addAction(convertToUTF8WOBAct);
+    encodingMenu->addAction(convertToUTF8Act);
+    encodingMenu->addAction(convertToUCS2BEAct);
+    encodingMenu->addAction(convertToUCS2LEAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
@@ -559,10 +574,12 @@ void MainWindow::setCurrentFile(const QString &fileName)
         shownName = "untitled";
         renameAct->setEnabled(false);
         removeAct->setEnabled(false);
+        enableEncodingAcion(false);
     }
     else{
         renameAct->setEnabled(true);
         removeAct->setEnabled(true);
+        enableEncodingAcion(true);
     }
     QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
     setWindowTitle(shownTitle);

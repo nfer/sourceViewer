@@ -252,11 +252,13 @@ void MainWindow::createActions()
     undoAct->setShortcuts(QKeySequence::Undo);
     undoAct->setStatusTip(tr("Reverses the last editing operation."));
     connect(undoAct, SIGNAL(triggered()), textEdit, SLOT(undo()));
+    undoAct->setEnabled(false);
 
     redoAct = new QAction(tr("&Redo"), this);
     redoAct->setShortcuts(QKeySequence::Redo);
     redoAct->setStatusTip(tr("Recreates the last editing operation after an Undo command."));
     connect(redoAct, SIGNAL(triggered()), textEdit, SLOT(redo()));
+    redoAct->setEnabled(false);
 
     cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);

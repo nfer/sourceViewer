@@ -27,6 +27,8 @@ private slots:
     void remove();
     bool save();
     bool saveAs();
+    void undoAll();
+    void redoAll();
     void showInEncoding();
     void convertToEncoding();
     void about();
@@ -76,6 +78,8 @@ private:
     // edit menu
     QAction *undoAct;
     QAction *redoAct;
+    QAction *undoAllAct;
+    QAction *redoAllAct;
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;

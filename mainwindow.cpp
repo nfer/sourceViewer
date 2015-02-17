@@ -129,6 +129,18 @@ void MainWindow::showInEncoding()
     }
 }
 
+void MainWindow::undoAll()
+{
+    while(textEdit->document()->isUndoAvailable())
+        textEdit->document()->undo();
+}
+
+void MainWindow::redoAll()
+{
+    while(textEdit->document()->isRedoAvailable())
+        textEdit->document()->redo();
+}
+
 void MainWindow::convertToEncoding()
 {
     mHasBOM = false;
@@ -260,6 +272,16 @@ void MainWindow::createActions()
     connect(redoAct, SIGNAL(triggered()), textEdit, SLOT(redo()));
     redoAct->setEnabled(false);
 
+    undoAllAct = new QAction(tr("U&ndo All"), this);
+    undoAllAct->setStatusTip(tr("Undoes all edits to the current file."));
+    connect(undoAllAct, SIGNAL(triggered()), this, SLOT(undoAll()));
+    undoAllAct->setEnabled(false);
+
+    redoAllAct = new QAction(tr("R&edo All"), this);
+    redoAllAct->setStatusTip(tr("Redoes all edits to the current file."));
+    connect(redoAllAct, SIGNAL(triggered()), this, SLOT(redoAll()));
+    redoAllAct->setEnabled(false);
+
     cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
@@ -339,6 +361,10 @@ void MainWindow::createActions()
             undoAct, SLOT(setEnabled(bool)));
     connect(textEdit, SIGNAL(redoAvailable(bool)),
             redoAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(undoAvailable(bool)),
+            undoAllAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(redoAvailable(bool)),
+            redoAllAct, SLOT(setEnabled(bool)));
 }
 
 void MainWindow::createMenus()
@@ -359,6 +385,8 @@ void MainWindow::createMenus()
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(undoAct);
     editMenu->addAction(redoAct);
+    editMenu->addAction(undoAllAct);
+    editMenu->addAction(redoAllAct);
     editMenu->addSeparator();
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);

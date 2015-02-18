@@ -60,6 +60,7 @@ private:
 
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *eolConvMenu;
     QMenu *encodingMenu;
     QMenu *helpMenu;
 
@@ -83,6 +84,9 @@ private:
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
+    QAction *convertToWinAct;
+    QAction *convertToUnixAct;
+    QAction *convertToMacAct;
 
     // encoding menu
     QAction *encodeInANSIAct;       // ANSI

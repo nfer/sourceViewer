@@ -300,6 +300,15 @@ void MainWindow::createActions()
                               "selection"));
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
+    convertToWinAct = new QAction(tr("Convert to Windows Format"), this);
+    connect(convertToWinAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+
+    convertToUnixAct = new QAction(tr("Convert to UNIX Format"), this);
+    connect(convertToUnixAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+
+    convertToMacAct = new QAction(tr("Convert to MAC Format"), this);
+    connect(convertToMacAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+
     encodeInANSIAct = new QAction(tr("Encode in ANSI"), this);
     encodeInANSIAct->setCheckable(true);
     connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
@@ -391,6 +400,11 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
+    editMenu->addSeparator();
+    eolConvMenu = editMenu->addMenu(tr("EOL Conversion"));
+    eolConvMenu->addAction(convertToWinAct);
+    eolConvMenu->addAction(convertToUnixAct);
+    eolConvMenu->addAction(convertToMacAct);
 
     encodingMenu = menuBar()->addMenu(tr("E&ncoding"));
     encodingMenu->addAction(encodeInANSIAct);

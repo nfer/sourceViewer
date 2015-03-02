@@ -31,6 +31,7 @@ private slots:
     void redoAll();
     void showInEncoding();
     void convertToEncoding();
+    void convertToEOL();
     void about();
     void documentWasModified();
 
@@ -87,6 +88,7 @@ private:
     QAction *convertToWinAct;
     QAction *convertToUnixAct;
     QAction *convertToMacAct;
+    QAction *curEOLAct;
 
     // encoding menu
     QAction *encodeInANSIAct;       // ANSI

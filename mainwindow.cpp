@@ -22,6 +22,7 @@ MainWindow::MainWindow()
     curEncodingAct = NULL;
     mCodec = NULL;
     mHasBOM = false;
+    curEOLAct = NULL;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -174,6 +175,45 @@ void MainWindow::convertToEncoding()
     }
 
     setEncodingIcon(mCodec, mHasBOM);
+}    
+
+void MainWindow::convertToEOL()
+{
+    textEdit->document()->setModified(true);
+    setWindowModified(true);
+
+    if (curEOLAct != NULL){
+        if (curEOLAct->isChecked()){
+            // still checked, means user click another action, set this one checked false
+            curEOLAct->setChecked(false);
+        }
+        else {
+            // the checked from true to false, means user click the same one, do nothing but set it checked back
+            curEOLAct->setChecked(true);
+            statusBar()->showMessage(tr("Item is already checked."), 2000);
+            return;
+        }
+    }
+
+    if (convertToWinAct->isChecked())
+    {
+        curEOLAct = convertToWinAct;
+    }
+    else if (convertToUnixAct->isChecked())
+    {
+        curEOLAct = convertToUnixAct;
+    }
+    else if (convertToMacAct->isChecked())
+    {
+        curEOLAct = convertToMacAct;
+    }
+    else{
+        if (curEOLAct != NULL){
+            // as no other action checked, set curEOLAct checked back
+            curEOLAct->setChecked(true);
+        }
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Couldn't be here."));
+    }
 }
 
 void MainWindow::enableEncodingAcion(bool enabled)
@@ -301,13 +341,16 @@ void MainWindow::createActions()
     connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
 
     convertToWinAct = new QAction(tr("Convert to Windows Format"), this);
-    connect(convertToWinAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+    convertToWinAct->setCheckable(true);
+    connect(convertToWinAct, SIGNAL(triggered()), this, SLOT(convertToEOL()));
 
     convertToUnixAct = new QAction(tr("Convert to UNIX Format"), this);
-    connect(convertToUnixAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+    convertToUnixAct->setCheckable(true);
+    connect(convertToUnixAct, SIGNAL(triggered()), this, SLOT(convertToEOL()));
 
     convertToMacAct = new QAction(tr("Convert to MAC Format"), this);
-    connect(convertToMacAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
+    convertToMacAct->setCheckable(true);
+    connect(convertToMacAct, SIGNAL(triggered()), this, SLOT(convertToEOL()));
 
     encodeInANSIAct = new QAction(tr("Encode in ANSI"), this);
     encodeInANSIAct->setCheckable(true);
@@ -537,6 +580,10 @@ void MainWindow::closeFile(const QString &fileName)
 
     setCurrentFile("");
     setEncodingIcon(NULL);
+    if(curEOLAct){
+        curEOLAct->setChecked(false);
+        curEOLAct = NULL;
+    }
     statusBar()->showMessage(tr("File closed"), 2000);
 }
 
@@ -636,11 +683,13 @@ void MainWindow::setCurrentFile(const QString &fileName)
         renameAct->setEnabled(false);
         removeAct->setEnabled(false);
         enableEncodingAcion(false);
+        eolConvMenu->setEnabled(false);
     }
     else{
         renameAct->setEnabled(true);
         removeAct->setEnabled(true);
         enableEncodingAcion(true);
+        eolConvMenu->setEnabled(true);
     }
     QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
     setWindowTitle(shownTitle);

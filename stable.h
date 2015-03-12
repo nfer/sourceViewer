@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QtWidgets>
 #include <QDebug>
+#include <QDockWidget>
 #endif // __cplusplus
 
 #endif // STABLE_H

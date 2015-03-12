@@ -1,6 +1,7 @@
 
 #include "config.h"
 #include "mainwindow.h"
+#include "windowswatch.h"
 
 MainWindow::MainWindow()
 {
@@ -11,8 +12,10 @@ MainWindow::MainWindow()
     createMenus();
     createToolBars();
     createStatusBar();
+    setupDockWidgets();
 
     readSettings();
+    loadLayout(tr("mainwindow.layout"));
 
     connect(textEdit->document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
@@ -29,10 +32,85 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
         writeSettings();
+        saveLayout(tr("mainwindow.layout"));
         event->accept();
     } else {
         event->ignore();
     }
+}
+
+void MainWindow::saveLayout(QString fileName)
+{
+    qWarning() << tr("saveLayout with fileName") << fileName;
+    if (fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly)) {
+        QString msg = tr("Failed to open %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        qWarning() << tr("Error") << msg;
+        return;
+    }
+
+    QByteArray geo_data = saveGeometry();
+    QByteArray layout_data = saveState();
+
+    bool ok = file.putChar((uchar)geo_data.size());
+    if (ok)
+        ok = file.write(geo_data) == geo_data.size();
+    if (ok)
+        ok = file.write(layout_data) == layout_data.size();
+
+    if (!ok) {
+        QString msg = tr("Error writing to %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        qWarning() << tr("Error") << msg;
+        return;
+    }
+}
+
+void MainWindow::loadLayout(QString fileName)
+{
+    qWarning() << tr("loadLayout with fileName") << fileName;
+    if (fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        QString msg = tr("Failed to open %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        qWarning() << tr("Error") << msg;
+        return;
+    }
+
+    uchar geo_size;
+    QByteArray geo_data;
+    QByteArray layout_data;
+
+    bool ok = file.getChar((char*)&geo_size);
+    if (ok) {
+        geo_data = file.read(geo_size);
+        ok = geo_data.size() == geo_size;
+    }
+    if (ok) {
+        layout_data = file.readAll();
+        ok = layout_data.size() > 0;
+    }
+
+    if (ok)
+        ok = restoreGeometry(geo_data);
+    if (ok)
+        ok = restoreState(layout_data);
+
+    if (!ok) {
+        QString msg = tr("Error reading %1")
+                        .arg(fileName);
+        qWarning() << tr("Error") << msg;
+        return;
+    }
+    qWarning() << tr("loadLayout OK");
 }
 
 void MainWindow::newFile()
@@ -175,7 +253,7 @@ void MainWindow::convertToEncoding()
     }
 
     setEncodingIcon(mCodec, mHasBOM);
-}    
+}
 
 void MainWindow::convertToEOL()
 {
@@ -462,6 +540,8 @@ void MainWindow::createMenus()
     encodingMenu->addAction(convertToUCS2BEAct);
     encodingMenu->addAction(convertToUCS2LEAct);
 
+    viewMenu = menuBar()->addMenu(tr("&View"));
+
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
@@ -483,6 +563,25 @@ void MainWindow::createToolBars()
 void MainWindow::createStatusBar()
 {
     statusBar()->showMessage(tr("Ready"));
+}
+
+void MainWindow::setupDockWidgets()
+{
+    WindowSwatch *projectWindow = new WindowSwatch(tr("projectWindow"), this);
+    addDockWidget(Qt::LeftDockWidgetArea, projectWindow);
+    viewMenu->addAction(projectWindow->toggleViewAction());
+
+    WindowSwatch *symbolWindow = new WindowSwatch(tr("symbolWindow"), this);
+    addDockWidget(Qt::RightDockWidgetArea, symbolWindow);
+    viewMenu->addAction(symbolWindow->toggleViewAction());
+
+    WindowSwatch *contextWindows = new WindowSwatch(tr("contextWindows"), this);
+    addDockWidget(Qt::BottomDockWidgetArea, contextWindows);
+    viewMenu->addAction(contextWindows->toggleViewAction());
+
+    WindowSwatch *relationWindow = new WindowSwatch(tr("relationWindow"), this);
+    addDockWidget(Qt::BottomDockWidgetArea, relationWindow);
+    viewMenu->addAction(relationWindow->toggleViewAction());
 }
 
 void MainWindow::readSettings()

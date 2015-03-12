@@ -40,6 +40,7 @@ private:
     void createMenus();
     void createToolBars();
     void createStatusBar();
+    void setupDockWidgets();
     void readSettings();
     void writeSettings();
     bool maybeSave();
@@ -54,6 +55,10 @@ private:
     void setEncodingIcon(const QTextCodec *codec, bool hasBOM = false);
     void enableEncodingAcion(bool enabled);
 
+    void saveLayout(QString fileName);
+    void loadLayout(QString fileName);
+
+
     QPlainTextEdit *textEdit;
     QTextCodec * mCodec;
     bool mHasBOM;
@@ -63,6 +68,7 @@ private:
     QMenu *editMenu;
     QMenu *eolConvMenu;
     QMenu *encodingMenu;
+    QMenu *viewMenu;
     QMenu *helpMenu;
 
     // file menu
@@ -106,6 +112,8 @@ private:
     // help menu
     QAction *aboutAct;
     QAction *aboutQtAct;
+
+    // view menu
 };
 
-#endif
+#endif //MAINWINDOW_H

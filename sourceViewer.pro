@@ -9,9 +9,11 @@ TARGET     = sourceViewer
 TEMPLATE   = app
 HEADERS   += mainwindow.h \
              config.h \
-             stable.h
+             stable.h \
+             windowswatch.h
 RESOURCES  = sourceViewer.qrc
 SOURCES   += main.cpp\
-             mainwindow.cpp
+             mainwindow.cpp \
+             windowswatch.cpp
 
 PRECOMPILED_HEADER = stable.h

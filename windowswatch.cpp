@@ -43,4 +43,4 @@ WindowSwatch::WindowSwatch(const QString &dockName, QWidget *parent, Qt::WindowF
     setWidget(swatch);
 }
 
-#include "colorswatch.moc"
+#include "windowswatch.moc"

@@ -41,6 +41,8 @@ WindowSwatch::WindowSwatch(const QString &dockName, QWidget *parent, Qt::WindowF
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
     setWidget(swatch);
+
+    setFeatures(features() & ~DockWidgetFloatable);
 }
 
 #include "windowswatch.moc"

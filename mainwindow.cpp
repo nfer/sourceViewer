@@ -110,7 +110,6 @@ void MainWindow::loadLayout(QString fileName)
         qWarning() << tr("Error") << msg;
         return;
     }
-    qWarning() << tr("loadLayout OK");
 }
 
 void MainWindow::newFile()

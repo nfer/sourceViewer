@@ -113,6 +113,15 @@ void MainWindow::loadLayout(QString fileName)
     }
 }
 
+void MainWindow::setEditBackgroundColor(const QColor &acolor)
+{
+    // set background color
+    setAutoFillBackground(true);
+    QPalette p = this->palette();
+    p.setColor(QPalette::Base, acolor);
+    textEdit->setPalette(p);
+}
+
 void MainWindow::newFile()
 {
     if (maybeSave()) {
@@ -780,6 +789,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
     QString shownName = fileName;
     if (fileName.isEmpty()){
+        textEdit->setReadOnly(true);
+        setEditBackgroundColor(QColor("#C7C7C7"));
         shownName = "untitled";
         renameAct->setEnabled(false);
         removeAct->setEnabled(false);
@@ -787,6 +798,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
         eolConvMenu->setEnabled(false);
     }
     else{
+        textEdit->setReadOnly(false);
+        setEditBackgroundColor(QColor("#FFFFFF"));
         renameAct->setEnabled(true);
         removeAct->setEnabled(true);
         enableEncodingAcion(true);

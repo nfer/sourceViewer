@@ -57,6 +57,7 @@ private:
 
     void saveLayout(QString fileName);
     void loadLayout(QString fileName);
+    void setEditBackgroundColor(const QColor &acolor);
 
 
     QPlainTextEdit *textEdit;

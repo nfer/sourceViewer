@@ -6,11 +6,13 @@ TARGET     = sourceViewer
 HEADERS   += mainwindow.h \
              config.h \
              stable.h \
-             windowswatch.h
+             windowswatch.h \
+             filelistframe.h
 
 SOURCES   += main.cpp\
              mainwindow.cpp \
-             windowswatch.cpp
+             windowswatch.cpp \
+             filelistframe.cpp
 
 RESOURCES  = sourceViewer.qrc
 

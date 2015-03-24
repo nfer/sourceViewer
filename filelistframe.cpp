@@ -1,0 +1,155 @@
+
+#include "filelistframe.h"
+
+class StandardItemListView : public QListView
+{
+    Q_OBJECT
+
+public:
+    void currentChanged(const QModelIndex & current,
+                        const QModelIndex & previous);
+
+    void setModel(QStandardItemModel *model);
+private:
+    QStandardItemModel * mStandardItemModel;
+};
+
+void StandardItemListView::setModel(QStandardItemModel * model)
+{
+    QListView::setModel(model);
+    mStandardItemModel = model;
+}
+
+void StandardItemListView::currentChanged(const QModelIndex & current,
+                            const QModelIndex & previous)
+{
+    mStandardItemModel->itemFromIndex(current)->setBackground(QBrush(QColor(0,0,255)));
+
+    if(previous.row() == -1)
+    {
+        // do nothing
+    }
+    else if(previous.row() % 2 == 1)
+    {
+        mStandardItemModel->itemFromIndex(previous)->setBackground(QBrush(QColor(242,242,242)));
+    }
+    else{
+        mStandardItemModel->itemFromIndex(previous)->setBackground(QBrush(Qt::white));
+    }
+}
+
+class FileListDock : public QFrame
+{
+    Q_OBJECT
+public:
+    FileListDock(QWidget *parent);
+
+    virtual QSize sizeHint() const;
+
+private:
+    QComboBox * comboBox;
+    StandardItemListView * listView;
+    QStandardItemModel *standardItemModel;
+
+private slots:
+    void currentIndexChanged(int index);
+    void currentTextChanged(const QString & text);
+    void doubleClicked(const QModelIndex & index);
+
+protected:
+    QSize szHint;
+};
+
+FileListDock::FileListDock(QWidget *parent)
+    : QFrame(parent)
+{
+    szHint = QSize(125, 75);
+    setMinimumSize(10, 10);
+
+    // set background color
+    setAutoFillBackground(true);
+    QPalette p = this->palette();
+    p.setColor(QPalette::Window, QColor("#D8D8D8"));
+    setPalette(p);
+
+    comboBox = new QComboBox;
+    comboBox->setEditable(true);
+    QStringList strings;
+    strings << "Biao" << "Biao Huang" << "Mac" << "MacBook" << "MacBook Pro" << "Mac Pro";
+    comboBox->addItems(strings);
+    comboBox->setCurrentText("");
+    connect(comboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(currentIndexChanged(int)));
+    connect(comboBox, SIGNAL(currentTextChanged(const QString & )),
+            this, SLOT(currentTextChanged(const QString & )));
+
+    listView = new StandardItemListView;
+    standardItemModel = new QStandardItemModel;
+    QStringList strList;
+    strList.append("string1");
+    strList.append("string2");
+    strList.append("string3");
+    strList.append("string4");
+    strList.append("string5");
+    strList.append("string6");
+    strList.append("string7");
+    strList << "string8";
+    strList += "string9";
+    int nCount = strList.size();
+    for(int i = 0; i < nCount; i++)
+    {
+        QString string = static_cast<QString>(strList.at(i));
+        QStandardItem *item = new QStandardItem(string);
+        if(i % 2 == 1)
+        {
+            item->setBackground(QBrush(QColor(242,242,242)));
+        }
+        standardItemModel->appendRow(item);
+    }
+    listView->setModel(standardItemModel);
+    listView->setSelectionMode(QAbstractItemView::NoSelection);
+    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(listView, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(doubleClicked(const QModelIndex & )));
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(comboBox);
+    mainLayout->addWidget(listView);
+    setLayout(mainLayout);
+}
+
+QSize FileListDock::sizeHint() const
+{
+    return szHint;
+}
+
+void FileListDock::currentIndexChanged(int index)
+{
+    qWarning() << "currentIndexChanged(int index) " << index;
+}
+
+void FileListDock::currentTextChanged(const QString & text)
+{
+    qWarning() << "currentTextChanged(const QString & text) " << text;
+}
+
+void FileListDock::doubleClicked(const QModelIndex & index)
+{
+    qWarning() << "doubleClicked(const QModelIndex & index) " << index;
+}
+
+FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)
+    : QDockWidget(parent, flags)
+{
+    setObjectName(dockName + QLatin1String(" Dock Widget"));
+    setWindowTitle(dockName);
+
+    QFrame *swatch = new FileListDock(this);
+    swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
+
+    setWidget(swatch);
+
+    setFeatures(features() & ~DockWidgetFloatable);
+}
+
+#include "filelistframe.moc"

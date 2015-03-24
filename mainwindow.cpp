@@ -2,6 +2,7 @@
 #include "config.h"
 #include "mainwindow.h"
 #include "windowswatch.h"
+#include "fileListFrame.h"
 
 MainWindow::MainWindow()
 {
@@ -568,12 +569,12 @@ void MainWindow::createStatusBar()
 
 void MainWindow::setupDockWidgets()
 {
-    WindowSwatch *projectWindow = new WindowSwatch(tr("projectWindow"), this);
-    addDockWidget(Qt::LeftDockWidgetArea, projectWindow);
+    FileListFrame *projectWindow = new FileListFrame(tr("projectWindow"), this);
+    addDockWidget(Qt::RightDockWidgetArea, projectWindow);
     viewMenu->addAction(projectWindow->toggleViewAction());
 
     WindowSwatch *symbolWindow = new WindowSwatch(tr("symbolWindow"), this);
-    addDockWidget(Qt::RightDockWidgetArea, symbolWindow);
+    addDockWidget(Qt::LeftDockWidgetArea, symbolWindow);
     viewMenu->addAction(symbolWindow->toggleViewAction());
 
     WindowSwatch *contextWindows = new WindowSwatch(tr("contextWindows"), this);

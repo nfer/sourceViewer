@@ -9,6 +9,10 @@ class FileListFrame : public QDockWidget
 
 public:
     explicit FileListFrame(const QString &dockName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
+    void setListFile(const QString &fileName);
+
+private:
+    QFrame *mDock;
 };
 
 #endif //FILELISTFRAME_H

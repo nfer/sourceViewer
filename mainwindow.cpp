@@ -581,6 +581,7 @@ void MainWindow::setupDockWidgets()
     FileListFrame *projectWindow = new FileListFrame(tr("projectWindow"), this);
     addDockWidget(Qt::RightDockWidgetArea, projectWindow);
     viewMenu->addAction(projectWindow->toggleViewAction());
+    projectWindow->setListFile("F:/Qt/project/build-sourceViewer-Desktop_Qt_5_3_MinGW_32bit-Debug/mainwindow.filelist");
 
     WindowSwatch *symbolWindow = new WindowSwatch(tr("symbolWindow"), this);
     addDockWidget(Qt::LeftDockWidgetArea, symbolWindow);

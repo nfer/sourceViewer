@@ -43,10 +43,10 @@ class FileListDock : public QFrame
     Q_OBJECT
 public:
     FileListDock(QWidget *parent);
-
-    virtual QSize sizeHint() const;
+    void setListFile(const QString &fileName);
 
 private:
+    virtual QSize sizeHint() const;
     QComboBox * comboBox;
     StandardItemListView * listView;
     QStandardItemModel *standardItemModel;
@@ -85,16 +85,36 @@ FileListDock::FileListDock(QWidget *parent)
 
     listView = new StandardItemListView;
     standardItemModel = new QStandardItemModel;
+    listView->setModel(standardItemModel);
+    listView->setSelectionMode(QAbstractItemView::NoSelection);
+    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(listView, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(doubleClicked(const QModelIndex & )));
+
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(comboBox);
+    mainLayout->addWidget(listView);
+    setLayout(mainLayout);
+}
+
+void FileListDock::setListFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    QTextStream in(&file);
     QStringList strList;
-    strList.append("string1");
-    strList.append("string2");
-    strList.append("string3");
-    strList.append("string4");
-    strList.append("string5");
-    strList.append("string6");
-    strList.append("string7");
-    strList << "string8";
-    strList += "string9";
+    while(!in.atEnd()){
+        QString line=in.readLine();
+        strList.append(line);
+    }
+
     int nCount = strList.size();
     for(int i = 0; i < nCount; i++)
     {
@@ -106,16 +126,6 @@ FileListDock::FileListDock(QWidget *parent)
         }
         standardItemModel->appendRow(item);
     }
-    listView->setModel(standardItemModel);
-    listView->setSelectionMode(QAbstractItemView::NoSelection);
-    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(listView, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(doubleClicked(const QModelIndex & )));
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(comboBox);
-    mainLayout->addWidget(listView);
-    setLayout(mainLayout);
 }
 
 QSize FileListDock::sizeHint() const
@@ -144,12 +154,17 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
     setObjectName(dockName + QLatin1String(" Dock Widget"));
     setWindowTitle(dockName);
 
-    QFrame *swatch = new FileListDock(this);
-    swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    mDock = new FileListDock(this);
+    mDock->setFrameStyle(QFrame::Box | QFrame::Sunken);
 
-    setWidget(swatch);
+    setWidget(mDock);
 
     setFeatures(features() & ~DockWidgetFloatable);
+}
+
+void FileListFrame::setListFile(const QString &fileName)
+{
+    ((FileListDock*)mDock)->setListFile(fileName);
 }
 
 #include "filelistframe.moc"

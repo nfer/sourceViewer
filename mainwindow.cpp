@@ -347,6 +347,11 @@ void MainWindow::documentWasModified()
     setWindowModified(textEdit->document()->isModified());
 }
 
+void MainWindow::openSelectFile(const QString & fileName)
+{
+    loadFile(fileName);
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -582,6 +587,8 @@ void MainWindow::setupDockWidgets()
     addDockWidget(Qt::RightDockWidgetArea, projectWindow);
     viewMenu->addAction(projectWindow->toggleViewAction());
     projectWindow->setListFile("F:/Qt/project/build-sourceViewer-Desktop_Qt_5_3_MinGW_32bit-Debug/mainwindow.filelist");
+    connect(projectWindow, SIGNAL(onFileSelected(const QString &)),
+            this, SLOT(openSelectFile(const QString &)));
 
     WindowSwatch *symbolWindow = new WindowSwatch(tr("symbolWindow"), this);
     addDockWidget(Qt::LeftDockWidgetArea, symbolWindow);

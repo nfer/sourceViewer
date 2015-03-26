@@ -51,6 +51,9 @@ private:
     StandardItemListView * listView;
     QStandardItemModel *standardItemModel;
 
+signals:
+    void onFileSelected(const QString &);
+
 private slots:
     void currentIndexChanged(int index);
     void currentTextChanged(const QString & text);
@@ -145,7 +148,7 @@ void FileListDock::currentTextChanged(const QString & text)
 
 void FileListDock::doubleClicked(const QModelIndex & index)
 {
-    qWarning() << "doubleClicked(const QModelIndex & index) " << index;
+    emit onFileSelected(standardItemModel->itemFromIndex(index)->text());
 }
 
 FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)
@@ -156,6 +159,9 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
 
     mDock = new FileListDock(this);
     mDock->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    connect(mDock, SIGNAL(onFileSelected(const QString &)),
+            this, SLOT(fileSelected(const QString &)));
+
 
     setWidget(mDock);
 
@@ -165,6 +171,11 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
 void FileListFrame::setListFile(const QString &fileName)
 {
     ((FileListDock*)mDock)->setListFile(fileName);
+}
+
+void FileListFrame::fileSelected(const QString &fileName)
+{
+    emit onFileSelected(fileName);
 }
 
 #include "filelistframe.moc"

@@ -34,6 +34,7 @@ private slots:
     void convertToEOL();
     void about();
     void documentWasModified();
+    void openSelectFile(const QString & fileName);
 
 private:
     void createActions();

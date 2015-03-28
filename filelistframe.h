@@ -10,11 +10,12 @@ class FileListFrame : public QDockWidget
 public:
     explicit FileListFrame(const QString &dockName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     void setListFile(const QString &fileName);
+
 signals:
     void onFileSelected(const QString &);
 
 private slots:
-    void fileSelected(const QString &fileName);
+    void dockFileSelected(const QString &fileName);
 
 private:
     QFrame *mDock;

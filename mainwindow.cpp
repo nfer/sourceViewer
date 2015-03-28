@@ -497,6 +497,34 @@ void MainWindow::createActions()
     convertToUCS2LEAct->setCheckable(true);
     connect(convertToUCS2LEAct, SIGNAL(triggered()), this, SLOT(convertToEncoding()));
 
+    newProjAct = new QAction(tr("&New Project..."), this);
+    newProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+N")));
+    newProjAct->setStatusTip(tr("Creates a new project."));
+
+    openProjAct = new QAction(tr("&Open Project..."), this);
+    openProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+P")));
+    openProjAct->setStatusTip(tr("Opens an existing project."));
+
+    closeProjAct = new QAction(tr("&Close Project"), this);
+    closeProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+W")));
+    closeProjAct->setStatusTip(tr("Closes the current project."));
+
+    removeProjAct = new QAction(tr("&Remove Project..."), this);
+    removeProjAct->setStatusTip(tr("Deletes a project."));
+
+    manageProjFileAct = new QAction(tr("&Add and Remove Project Files..."), this);
+    manageProjFileAct->setStatusTip(tr("Adds and removes files from current project."));
+
+    syncProjAct = new QAction(tr("&Synchronize Files..."), this);
+    syncProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+S")));
+    syncProjAct->setStatusTip(tr("Synchronizes the current project with changes made to files outside the editor."));
+
+    rebuildProjAct = new QAction(tr("R&ebuild Project..."), this);
+    rebuildProjAct->setStatusTip(tr("Rebuilds project date files."));
+
+    projSettingAct = new QAction(tr("Pro&ject Settings..."), this);
+    projSettingAct->setStatusTip(tr("Specifies options for Project."));
+
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -567,6 +595,19 @@ void MainWindow::createMenus()
     encodingMenu->addAction(convertToUTF8Act);
     encodingMenu->addAction(convertToUCS2BEAct);
     encodingMenu->addAction(convertToUCS2LEAct);
+
+    projectMenu = menuBar()->addMenu(tr("&Project"));
+    projectMenu->addAction(newProjAct);
+    projectMenu->addAction(openProjAct);
+    projectMenu->addAction(closeProjAct);
+    projectMenu->addAction(removeProjAct);
+    projectMenu->addSeparator();
+    projectMenu->addAction(manageProjFileAct);
+    projectMenu->addAction(syncProjAct);
+    projectMenu->addSeparator();
+    projectMenu->addAction(rebuildProjAct);
+    projectMenu->addSeparator();
+    projectMenu->addAction(projSettingAct);
 
     viewMenu = menuBar()->addMenu(tr("&View"));
 

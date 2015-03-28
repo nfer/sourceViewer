@@ -71,6 +71,7 @@ private:
     QMenu *editMenu;
     QMenu *eolConvMenu;
     QMenu *encodingMenu;
+    QMenu *projectMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
 
@@ -112,6 +113,16 @@ private:
     QAction *convertToUCS2BEAct;    // UCS-2 Big Endian
     QAction *convertToUCS2LEAct;    // UCS-2 Little Endian
     QAction *curEncodingAct;
+
+    // project menu
+    QAction *newProjAct;
+    QAction *openProjAct;
+    QAction *closeProjAct;
+    QAction *removeProjAct;
+    QAction *manageProjFileAct;
+    QAction *syncProjAct;
+    QAction *rebuildProjAct;
+    QAction *projSettingAct;
 
     // help menu
     QAction *aboutAct;

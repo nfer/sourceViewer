@@ -184,6 +184,14 @@ bool MainWindow::save()
     }
 }
 
+void MainWindow::getEncoding()
+{
+    if (!curFile.isEmpty()) {
+        getFileInfo(curFile);
+        loadFile(curFile, mCodec, mHasBOM);
+    }
+}
+
 void MainWindow::showInEncoding()
 {
     if (curEncodingAct != NULL){
@@ -199,15 +207,15 @@ void MainWindow::showInEncoding()
     }
 
     if (encodeInANSIAct->isChecked())
-        loadFile(QString(curFile), QTextCodec::codecForLocale());
+        loadFile(curFile, QTextCodec::codecForLocale());
     else if (encodeInUTF8Act->isChecked())
-        loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"), true);
+        loadFile(curFile, QTextCodec::codecForName("UTF-8"), true);
     else if (encodeInUTF8WOBAct->isChecked())
-        loadFile(QString(curFile), QTextCodec::codecForName("UTF-8"));
+        loadFile(curFile, QTextCodec::codecForName("UTF-8"));
     else if (encodeInUCS2BEAct->isChecked())
-        loadFile(QString(curFile), QTextCodec::codecForName("UTF-16BE"));
+        loadFile(curFile, QTextCodec::codecForName("UTF-16BE"));
     else if (encodeInUCS2LEAct->isChecked())
-        loadFile(QString(curFile), QTextCodec::codecForName("UTF-16LE"));
+        loadFile(curFile, QTextCodec::codecForName("UTF-16LE"));
     else{
         if (curEncodingAct != NULL){
             // as no other action checked, set curEncodingAct checked back
@@ -305,6 +313,8 @@ void MainWindow::convertToEOL()
 
 void MainWindow::enableEncodingAcion(bool enabled)
 {
+    getEncodingAct->setEnabled(enabled);
+
     encodeInANSIAct->setEnabled(enabled);
     encodeInUTF8WOBAct->setEnabled(enabled);
     encodeInUTF8Act->setEnabled(enabled);
@@ -444,6 +454,9 @@ void MainWindow::createActions()
     convertToMacAct->setCheckable(true);
     connect(convertToMacAct, SIGNAL(triggered()), this, SLOT(convertToEOL()));
 
+    getEncodingAct = new QAction(tr("Get encoding"), this);
+    connect(getEncodingAct, SIGNAL(triggered()), this, SLOT(getEncoding()));
+
     encodeInANSIAct = new QAction(tr("Encode in ANSI"), this);
     encodeInANSIAct->setCheckable(true);
     connect(encodeInANSIAct, SIGNAL(triggered()), this, SLOT(showInEncoding()));
@@ -542,6 +555,7 @@ void MainWindow::createMenus()
     eolConvMenu->addAction(convertToMacAct);
 
     encodingMenu = menuBar()->addMenu(tr("E&ncoding"));
+    encodingMenu->addAction(getEncodingAct);
     encodingMenu->addAction(encodeInANSIAct);
     encodingMenu->addAction(encodeInUTF8WOBAct);
     encodingMenu->addAction(encodeInUTF8Act);
@@ -643,25 +657,26 @@ bool MainWindow::maybeSave()
 
 void MainWindow::loadFile(const QString &fileName, QTextCodec *codec, bool hasBOM)
 {
+    // creat a new QString, if fileName is same with curFile
+    // after closeFile(curFile), we can still reopen it
+    QString newFileName(fileName);
+
     //close current file if needed
     if(!curFile.isEmpty())
         closeFile(curFile);
 
-    QFile file(fileName);
+    QFile file(newFileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(fileName)
+                             .arg(newFileName)
                              .arg(file.errorString()));
         return;
     }
 
     QTextStream in(&file);
 
-    if(NULL == codec){
-        getFileInfo(fileName);
-    }
-    else{
+    if(NULL != codec){
         mCodec = codec;
         mHasBOM = hasBOM;
     }
@@ -678,7 +693,7 @@ void MainWindow::loadFile(const QString &fileName, QTextCodec *codec, bool hasBO
     QApplication::restoreOverrideCursor();
 #endif
 
-    setCurrentFile(fileName);
+    setCurrentFile(newFileName);
     setEncodingIcon(mCodec, mHasBOM);
     statusBar()->showMessage(tr("File loaded"), 2000);
 }

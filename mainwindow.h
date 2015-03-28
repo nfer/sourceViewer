@@ -29,6 +29,7 @@ private slots:
     bool saveAs();
     void undoAll();
     void redoAll();
+    void getEncoding();
     void showInEncoding();
     void convertToEncoding();
     void convertToEOL();
@@ -99,6 +100,7 @@ private:
     QAction *curEOLAct;
 
     // encoding menu
+    QAction *getEncodingAct;
     QAction *encodeInANSIAct;       // ANSI
     QAction *encodeInUTF8WOBAct;    // UTF-8 without BOM
     QAction *encodeInUTF8Act;       // UTF-8

@@ -7,12 +7,14 @@ HEADERS   += mainwindow.h \
              config.h \
              stable.h \
              windowswatch.h \
-             filelistframe.h
+             filelistframe.h \
+             projectManager.h
 
 SOURCES   += main.cpp\
              mainwindow.cpp \
              windowswatch.cpp \
-             filelistframe.cpp
+             filelistframe.cpp \
+             projectManager.cpp
 
 RESOURCES  = sourceViewer.qrc
 

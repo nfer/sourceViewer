@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "windowswatch.h"
 #include "fileListFrame.h"
+#include "projectManager.h"
 
 MainWindow::MainWindow()
 {
@@ -362,6 +363,13 @@ void MainWindow::openSelectFile(const QString & fileName)
     loadFile(fileName);
 }
 
+void MainWindow::newProject()
+{
+    NewProjectDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.exec();
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -500,6 +508,7 @@ void MainWindow::createActions()
     newProjAct = new QAction(tr("&New Project..."), this);
     newProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+N")));
     newProjAct->setStatusTip(tr("Creates a new project."));
+    connect(newProjAct, SIGNAL(triggered()), this, SLOT(newProject()));
 
     openProjAct = new QAction(tr("&Open Project..."), this);
     openProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+P")));

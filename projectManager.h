@@ -45,6 +45,7 @@
 #include <QDir>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
 class QLineEdit;
 class QLabel;
 class QPushButton;
@@ -63,10 +64,10 @@ private slots:
 private:
     QPushButton *createButton(const QString &text, const char *member);
 
-    QLineEdit   * mProjNameInput;
-    QLineEdit   * mProjStorePathInput;
-    QLabel      * mProjName;
-    QLabel      * mProjStorePath;
+    QLineEdit   * mNameEdit;
+    QLineEdit   * mStorePathEdit;
+    QLabel      * mNameLabel;
+    QLabel      * mStorePathLabel;
     QPushButton * mOKButton;
     QPushButton * mCancelButton;
     QPushButton * mBrowseButton;

@@ -49,20 +49,20 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
     mBrowseButton = createButton(tr("Browse..."), SLOT(browse()));
 
-    mProjName = new QLabel(tr("New Project Name..."));
-    mProjStorePath = new QLabel(tr("Where do you want to store the project data file?"));
+    mNameLabel = new QLabel(tr("New Project Name..."));
+    mStorePathLabel = new QLabel(tr("Where do you want to store the project data file?"));
 
-    mProjNameInput = new QLineEdit(tr("Unitled Project"));
-    mProjNameInput->setFixedWidth(360);
-    mProjStorePathInput = new QLineEdit(tr("Unitled Project Path"));
-    mProjStorePathInput->setFixedWidth(360);
+    mNameEdit = new QLineEdit(tr("Unitled Project"));
+    mNameEdit->setFixedWidth(360);
+    mStorePathEdit = new QLineEdit(QDir::currentPath());
+    mStorePathEdit->setFixedWidth(360);
 
     QVBoxLayout *leftLayout = new QVBoxLayout();
     leftLayout->setSpacing(4);
-    leftLayout->addWidget(mProjName);
-    leftLayout->addWidget(mProjNameInput);
-    leftLayout->addWidget(mProjStorePath);
-    leftLayout->addWidget(mProjStorePathInput);
+    leftLayout->addWidget(mNameLabel);
+    leftLayout->addWidget(mNameEdit);
+    leftLayout->addWidget(mStorePathLabel);
+    leftLayout->addWidget(mStorePathEdit);
     leftLayout->insertSpacing(2, 15);
     QVBoxLayout *rightLayout = new QVBoxLayout();
     rightLayout->addWidget(mOKButton);
@@ -83,6 +83,13 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
 
 void NewProjectDialog::browse()
 {
+    QString directory = QFileDialog::getExistingDirectory(this,
+                                   tr("Browse Files"),
+                                   mStorePathEdit->text());
+
+    if (!directory.isEmpty()) {
+        mStorePathEdit->setText(directory);
+    }
 }
 
 void NewProjectDialog::find()

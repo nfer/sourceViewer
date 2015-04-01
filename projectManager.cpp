@@ -59,12 +59,14 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
 
     QVBoxLayout *leftLayout = new QVBoxLayout();
     leftLayout->setSpacing(4);
+    leftLayout->setAlignment(Qt::AlignTop);
     leftLayout->addWidget(mNameLabel);
     leftLayout->addWidget(mNameEdit);
     leftLayout->addWidget(mStorePathLabel);
     leftLayout->addWidget(mStorePathEdit);
-    leftLayout->insertSpacing(2, 15);
+    leftLayout->insertSpacing(2, 12);
     QVBoxLayout *rightLayout = new QVBoxLayout();
+    rightLayout->setSpacing(12);
     rightLayout->addWidget(mOKButton);
     rightLayout->addWidget(mCancelButton);
     rightLayout->addWidget(mBrowseButton);

@@ -46,7 +46,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
 {
     mOKButton = createButton(tr("OK"), SLOT(browse()));
-    mCancelButton = createButton(tr("Cancel"), SLOT(find()));
+    mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
     mBrowseButton = createButton(tr("Browse..."), SLOT(browse()));
 
     mProjName = new QLabel(tr("New Project Name..."));

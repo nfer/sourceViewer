@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/images/Source Viewer.png"));
+    app.setAttribute(Qt::AA_DontShowIconsInMenus);
     MainWindow mainWin;
     mainWin.show();
     return app.exec();

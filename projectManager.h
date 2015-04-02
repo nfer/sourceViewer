@@ -61,6 +61,7 @@ public:
 private slots:
     void browse();
     void find();
+    void onNameChanged(const QString & text);
 private:
     QPushButton *createButton(const QString &text, const char *member);
 

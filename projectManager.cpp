@@ -56,6 +56,9 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     QString defaultName = "Unitled Project";
     mNameEdit = new QLineEdit(defaultName);
     mNameEdit->setFixedWidth(360);
+    connect(mNameEdit, SIGNAL(textChanged(const QString & )),
+                this, SLOT(onNameChanged(const QString & )));
+
     QString defaultPath = getSVProjectsLocation() + "/" + defaultName;
     mStorePathEdit = new QLineEdit(defaultPath);
     mStorePathEdit->setFixedWidth(360);
@@ -99,6 +102,12 @@ void NewProjectDialog::browse()
 
 void NewProjectDialog::find()
 {
+}
+
+void NewProjectDialog::onNameChanged(const QString & text)
+{
+    QString storePath = getSVProjectsLocation() + "/" + text;
+    mStorePathEdit->setText(storePath);
 }
 
 QPushButton *NewProjectDialog::createButton(const QString &text, const char *member)

@@ -1,6 +1,35 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef SV_CONFIG_H
+#define SV_CONFIG_H
 
-const char * SV_PROGRAM_NAME = "Source Viewer";
+#include "stable.h"
 
-#endif // CONFIG_H
+#define SV_PROGRAM_NAME "Source Viewer"
+
+inline QString getSVDocumentsLocation()
+{
+    QStringList list = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    QString location = list.at(0) + "/" + SV_PROGRAM_NAME;
+
+    QDir dir = QDir(location);
+    if (!dir.exists()){
+        dir.mkdir(location);
+        qWarning() << "create Documents location: " << location;
+    }
+
+    return location;
+}
+
+inline QString getSVProjectsLocation()
+{
+    QString location = getSVDocumentsLocation() + "/Projects";
+
+    QDir dir = QDir(location);
+    if (!dir.exists()){
+        dir.mkdir(location);
+        qWarning() << "create Projects location: " << location;
+    }
+
+    return location;
+}
+
+#endif // SV_CONFIG_H

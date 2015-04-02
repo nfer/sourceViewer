@@ -41,6 +41,7 @@
 #include <QtWidgets>
 
 #include "projectManager.h"
+#include "config.h"
 
 NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
@@ -52,9 +53,11 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     mNameLabel = new QLabel(tr("New Project Name..."));
     mStorePathLabel = new QLabel(tr("Where do you want to store the project data file?"));
 
-    mNameEdit = new QLineEdit(tr("Unitled Project"));
+    QString defaultName = "Unitled Project";
+    mNameEdit = new QLineEdit(defaultName);
     mNameEdit->setFixedWidth(360);
-    mStorePathEdit = new QLineEdit(QDir::currentPath());
+    QString defaultPath = getSVProjectsLocation() + "/" + defaultName;
+    mStorePathEdit = new QLineEdit(defaultPath);
     mStorePathEdit->setFixedWidth(360);
 
     QVBoxLayout *leftLayout = new QVBoxLayout();

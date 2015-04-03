@@ -100,8 +100,15 @@ void NewProjectDialog::browse()
     }
 }
 
-void NewProjectDialog::find()
+void NewProjectDialog::accept()
 {
+    QString location = mStorePathEdit->text();
+    QDir dir = QDir(location);
+    if (!dir.exists()){
+        dir.mkdir(location);
+        qDebug() << "create Projects location: " << location;
+    }
+    QDialog::accept();
 }
 
 void NewProjectDialog::onNameChanged(const QString & text)

@@ -13,7 +13,7 @@ inline QString getSVDocumentsLocation()
     QDir dir = QDir(location);
     if (!dir.exists()){
         dir.mkdir(location);
-        qWarning() << "create Documents location: " << location;
+        qDebug() << "create Documents location: " << location;
     }
 
     return location;
@@ -26,7 +26,7 @@ inline QString getSVProjectsLocation()
     QDir dir = QDir(location);
     if (!dir.exists()){
         dir.mkdir(location);
-        qWarning() << "create Projects location: " << location;
+        qDebug() << "create Projects workspace: " << location;
     }
 
     return location;

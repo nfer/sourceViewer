@@ -45,7 +45,6 @@
 #include <QDir>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QLineEdit;
 class QLabel;
 class QPushButton;
@@ -57,6 +56,9 @@ class NewProjectDialog : public QDialog
 
 public:
     NewProjectDialog(QWidget *parent = 0);
+    QString getStorePath(){
+        return mStorePathEdit->text();
+    }
 
 private slots:
     void browse();

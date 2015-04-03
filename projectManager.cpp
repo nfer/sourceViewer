@@ -46,7 +46,7 @@
 NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
 {
-    mOKButton = createButton(tr("OK"), SLOT(browse()));
+    mOKButton = createButton(tr("OK"), SLOT(accept()));
     mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
     mBrowseButton = createButton(tr("Browse..."), SLOT(browse()));
 

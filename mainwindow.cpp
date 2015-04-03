@@ -367,7 +367,12 @@ void MainWindow::newProject()
 {
     NewProjectDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
-    dialog.exec();
+    if (dialog.exec() == QDialog::Accepted){
+        qDebug() << "Project Store Path is : " + dialog.getStorePath();
+    }
+    else{
+        qDebug() << "NewProjectDialog is Rejected.";
+    }
 }
 
 void MainWindow::createActions()

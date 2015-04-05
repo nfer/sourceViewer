@@ -4,6 +4,7 @@
 
 #include "stable.h"
 #include "StandardItemListView.h"
+#include "FileSystemModel.h"
 
 class NewProjectDialog : public QDialog
 {
@@ -44,8 +45,8 @@ private:
     QLabel             * mCurPath;
     QTreeView          * mDirTreeView;
     QTreeView          * mCurDirTreeView;
-    QFileSystemModel   * mDirTreeModel;
-    QFileSystemModel   * mCurDirTreeModel;
+    FileSystemModel    * mDirTreeModel;
+    FileSystemModel    * mCurDirTreeModel;
     QLabel             * mFileListTitle;
     QListView          * mFileListView;
     QStandardItemModel * mFileListModel;

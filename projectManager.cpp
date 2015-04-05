@@ -88,18 +88,28 @@ QPushButton *NewProjectDialog::createButton(const QString &text, const char *mem
 AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     : QDialog(parent)
 {
-    mDirTreeModel = new QFileSystemModel();
+    QStringList dirTreeHeaderList;
+    dirTreeHeaderList << "Directory";
+    mDirTreeModel = new FileSystemModel(dirTreeHeaderList);
     mDirTreeModel->setRootPath("");
     mDirTreeModel->setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
     mDirTreeView = new QTreeView();
     mDirTreeView->setModel(mDirTreeModel);
+    mDirTreeView->hideColumn(1);
+    mDirTreeView->hideColumn(2);
+    mDirTreeView->hideColumn(3);
 
-    mCurDirTreeModel = new QFileSystemModel();
+    QStringList curDirTreeHeaderList;
+    curDirTreeHeaderList << "File Name";
+    mCurDirTreeModel = new FileSystemModel(curDirTreeHeaderList);
     mCurDirTreeModel->setRootPath(storePath);
     mCurDirTreeModel->setFilter(QDir::AllEntries | QDir::NoDot);
     mCurDirTreeView = new QTreeView();
     mCurDirTreeView->setModel(mCurDirTreeModel);
-    mCurDirTreeView->setRootIndex(mCurDirTreeModel->index(storePath)); 
+    mCurDirTreeView->setRootIndex(mCurDirTreeModel->index(storePath));
+    mCurDirTreeView->hideColumn(1);
+    mCurDirTreeView->hideColumn(2);
+    mCurDirTreeView->hideColumn(3);
 
     mCurPath = new QLabel(storePath);
     mFileListTitle = new QLabel(tr("Project Files : (0)"));

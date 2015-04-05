@@ -365,13 +365,19 @@ void MainWindow::openSelectFile(const QString & fileName)
 
 void MainWindow::newProject()
 {
-    NewProjectDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    if (dialog.exec() == QDialog::Accepted){
-        qDebug() << "Project Store Path is : " + dialog.getStorePath();
-    }
-    else{
+    NewProjectDialog newProjectDialog(this);
+    newProjectDialog.setWindowModality(Qt::WindowModal);
+    if (newProjectDialog.exec() == QDialog::Rejected){
         qDebug() << "NewProjectDialog is Rejected.";
+        return;
+    }
+    qDebug() << "Project Store Path is : " + newProjectDialog.getStorePath();
+
+    AddFilesDialog addFilesDialog(newProjectDialog.getStorePath(), this);
+    addFilesDialog.setWindowModality(Qt::WindowModal);
+    if (addFilesDialog.exec() == QDialog::Rejected){
+        qDebug() << "AddFilesDialog is Rejected.";
+        return;
     }
 }
 

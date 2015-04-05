@@ -1,42 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** You may use this file under the terms of the BSD license as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of Digia Plc and its Subsidiary(-ies) nor the names
-**     of its contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
 
 #include <QtWidgets>
 
@@ -118,6 +79,82 @@ void NewProjectDialog::onNameChanged(const QString & text)
 }
 
 QPushButton *NewProjectDialog::createButton(const QString &text, const char *member)
+{
+    QPushButton *button = new QPushButton(text);
+    connect(button, SIGNAL(clicked()), this, member);
+    return button;
+}
+
+AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
+    : QDialog(parent)
+{
+    mDirTreeModel = new QFileSystemModel();
+    mDirTreeModel->setRootPath("");
+    mDirTreeModel->setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+    mDirTreeView = new QTreeView();
+    mDirTreeView->setModel(mDirTreeModel);
+
+    mCurDirTreeModel = new QFileSystemModel();
+    mCurDirTreeModel->setRootPath(storePath);
+    mCurDirTreeModel->setFilter(QDir::AllEntries | QDir::NoDot);
+    mCurDirTreeView = new QTreeView();
+    mCurDirTreeView->setModel(mCurDirTreeModel);
+    mCurDirTreeView->setRootIndex(mCurDirTreeModel->index(storePath)); 
+
+    mCurPath = new QLabel(storePath);
+    mFileListTitle = new QLabel(tr("Project Files : (0)"));
+
+    mFileListView = new StandardItemListView;
+    mFileListModel = new QStandardItemModel;
+    mFileListView->setModel(mFileListModel);
+    mFileListView->setSelectionMode(QAbstractItemView::NoSelection);
+    mFileListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    mAddButton = createButton(tr("Add"), SLOT(accept()));
+    mAddAllButton = createButton(tr("AddAll"), SLOT(accept()));
+    mAddTreeButton = createButton(tr("AddTree"), SLOT(accept()));
+    mRemoveButton = createButton(tr("Remove"), SLOT(accept()));
+    mRemoveAllButton = createButton(tr("RemoveAll"), SLOT(accept()));
+    mRemoveTreeButton = createButton(tr("RemoveTree"), SLOT(accept()));
+
+    mOKButton = createButton(tr("OK"), SLOT(accept()));
+    mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
+
+    QVBoxLayout *addFilesButtonLayout = new QVBoxLayout();
+    addFilesButtonLayout->addWidget(mOKButton);
+    addFilesButtonLayout->addWidget(mAddButton);
+    addFilesButtonLayout->addWidget(mAddAllButton);
+    addFilesButtonLayout->addWidget(mAddTreeButton);
+
+    QHBoxLayout *addFilesLayout = new QHBoxLayout();
+    addFilesLayout->addWidget(mDirTreeView);
+    addFilesLayout->addWidget(mCurDirTreeView);
+    addFilesLayout->addLayout(addFilesButtonLayout);
+
+    QVBoxLayout *removeFilesButtonLayout = new QVBoxLayout();
+    removeFilesButtonLayout->addWidget(mRemoveButton);
+    removeFilesButtonLayout->addWidget(mRemoveAllButton);
+    removeFilesButtonLayout->addWidget(mRemoveTreeButton);
+    removeFilesButtonLayout->addWidget(mCancelButton);
+
+    QHBoxLayout *removeFilesLayout = new QHBoxLayout();
+    removeFilesLayout->addWidget(mFileListView);
+    removeFilesLayout->addLayout(removeFilesButtonLayout);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(mCurPath);
+    mainLayout->addLayout(addFilesLayout);
+    mainLayout->addWidget(mFileListTitle);
+    mainLayout->insertSpacing(2, 20);
+    mainLayout->addLayout(removeFilesLayout);
+    setLayout(mainLayout);
+
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    setWindowTitle(tr("New Project"));
+}
+
+QPushButton *AddFilesDialog::createButton(const QString &text, const char *member)
 {
     QPushButton *button = new QPushButton(text);
     connect(button, SIGNAL(clicked()), this, member);

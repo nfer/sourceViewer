@@ -174,8 +174,8 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
 
 void AddFilesDialog::showFolder()
 {
-    mCurrentDir = QDir(mCurrentPath);
-    QStringList files = mCurrentDir.entryList(QStringList(), QDir::AllEntries | QDir::NoDot);
+    QDir dir = QDir(mCurrentPath);
+    QStringList files = dir.entryList(QStringList(), QDir::AllEntries | QDir::NoDot);
     showFiles(files);
 }
 
@@ -184,12 +184,13 @@ void AddFilesDialog::openFolderOfItem(int row, int /* column */)
     QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
     QString itemText = item->text();
 
+    QDir dir = QDir(mCurrentPath);
     if(itemText == ".."){
-        mCurrentDir.cdUp();
-        mCurrentPath = mCurrentDir.path();
+        dir.cdUp();
+        mCurrentPath = dir.path();
     }
     else{
-        mCurrentPath = mCurrentDir.absoluteFilePath(itemText);
+        mCurrentPath = dir.absoluteFilePath(itemText);
     }
 
     mCurPathLabel->setText(mCurrentPath);
@@ -201,8 +202,9 @@ void AddFilesDialog::showFiles(const QStringList &files)
     while (mCurDirTableWidget->rowCount() != 0)
         mCurDirTableWidget->removeRow(0);
 
+    QDir dir = QDir(mCurrentPath);
     for (int i = 0; i < files.size(); ++i) {
-        QFile file(mCurrentDir.absoluteFilePath(files[i]));
+        QFile file(dir.absoluteFilePath(files[i]));
         qint64 size = QFileInfo(file).size();
 
         QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);

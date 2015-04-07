@@ -67,7 +67,6 @@ private:
     QPushButton * mCancelButton;
 
     QString       mCurrentPath;
-    QDir          mCurrentDir;
 };
 
 #endif

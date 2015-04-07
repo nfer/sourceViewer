@@ -86,7 +86,8 @@ QPushButton *NewProjectDialog::createButton(const QString &text, const char *mem
 }
 
 AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
-    : QDialog(parent)
+    : QDialog(parent),
+    mCurrentPath(storePath)
 {
     QStringList dirTreeHeaderList;
     dirTreeHeaderList << "Directory";
@@ -99,19 +100,24 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
 
-    QStringList curDirTreeHeaderList;
-    curDirTreeHeaderList << "File Name";
-    mCurDirTreeModel = new FileSystemModel(curDirTreeHeaderList);
-    mCurDirTreeModel->setRootPath(storePath);
-    mCurDirTreeModel->setFilter(QDir::AllEntries | QDir::NoDot);
-    mCurDirTreeView = new QTreeView();
-    mCurDirTreeView->setModel(mCurDirTreeModel);
-    mCurDirTreeView->setRootIndex(mCurDirTreeModel->index(storePath));
-    mCurDirTreeView->hideColumn(1);
-    mCurDirTreeView->hideColumn(2);
-    mCurDirTreeView->hideColumn(3);
+    mCurDirTableWidget = new QTableWidget(0, 1);
+    mCurDirTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mCurDirTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mCurDirTableWidget->horizontalHeader()->setHighlightSections(false);
 
-    mCurPath = new QLabel(storePath);
+    QStringList labels;
+    labels << tr("File Name");
+    mCurDirTableWidget->setHorizontalHeaderLabels(labels);
+    mCurDirTableWidget->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft);
+
+    mCurDirTableWidget->verticalHeader()->hide();
+    mCurDirTableWidget->setShowGrid(false);
+    mCurDirTableWidget->horizontalHeader()->setStretchLastSection(true);
+    mCurDirTableWidget->verticalHeader()->setDefaultSectionSize(20);
+    connect(mCurDirTableWidget, SIGNAL(cellActivated(int,int)),
+            this, SLOT(openFolderOfItem(int,int)));
+
+    mCurPathLabel = new QLabel(mCurrentPath);
     mFileListTitle = new QLabel(tr("Project Files : (0)"));
 
     mFileListView = new StandardItemListView;
@@ -138,7 +144,7 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
 
     QHBoxLayout *addFilesLayout = new QHBoxLayout();
     addFilesLayout->addWidget(mDirTreeView);
-    addFilesLayout->addWidget(mCurDirTreeView);
+    addFilesLayout->addWidget(mCurDirTableWidget);
     addFilesLayout->addLayout(addFilesButtonLayout);
 
     QVBoxLayout *removeFilesButtonLayout = new QVBoxLayout();
@@ -152,7 +158,7 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     removeFilesLayout->addLayout(removeFilesButtonLayout);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(mCurPath);
+    mainLayout->addWidget(mCurPathLabel);
     mainLayout->addLayout(addFilesLayout);
     mainLayout->addWidget(mFileListTitle);
     mainLayout->insertSpacing(2, 20);
@@ -162,6 +168,54 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     setWindowTitle(tr("New Project"));
+
+    showFolder();
+}
+
+void AddFilesDialog::showFolder()
+{
+    mCurrentDir = QDir(mCurrentPath);
+    QStringList files = mCurrentDir.entryList(QStringList(), QDir::AllEntries | QDir::NoDot);
+    showFiles(files);
+}
+
+void AddFilesDialog::openFolderOfItem(int row, int /* column */)
+{
+    QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
+    QString itemText = item->text();
+
+    if(itemText == ".."){
+        mCurrentDir.cdUp();
+        mCurrentPath = mCurrentDir.path();
+    }
+    else{
+        mCurrentPath = mCurrentDir.absoluteFilePath(itemText);
+    }
+
+    mCurPathLabel->setText(mCurrentPath);
+    showFolder();
+}
+
+void AddFilesDialog::showFiles(const QStringList &files)
+{
+    while (mCurDirTableWidget->rowCount() != 0)
+        mCurDirTableWidget->removeRow(0);
+
+    for (int i = 0; i < files.size(); ++i) {
+        QFile file(mCurrentDir.absoluteFilePath(files[i]));
+        qint64 size = QFileInfo(file).size();
+
+        QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
+        fileNameItem->setFlags(fileNameItem->flags() ^ Qt::ItemIsEditable);
+        QTableWidgetItem *sizeItem = new QTableWidgetItem(tr("%1 KB")
+                                             .arg(int((size + 1023) / 1024)));
+        sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
+
+        mCurDirTableWidget->insertRow(i);
+        mCurDirTableWidget->setItem(i, 0, fileNameItem);
+        mCurDirTableWidget->setItem(i, 1, sizeItem);
+    }
 }
 
 QPushButton *AddFilesDialog::createButton(const QString &text, const char *member)

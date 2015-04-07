@@ -39,12 +39,17 @@ class AddFilesDialog : public QDialog
 public:
     AddFilesDialog(const QString &storePath, QWidget *parent = 0);
 
+private slots:
+    void showFolder();
+    void openFolderOfItem(int row, int column);
+
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
+    void showFiles(const QStringList &files);
 
-    QLabel             * mCurPath;
+    QLabel             * mCurPathLabel;
     QTreeView          * mDirTreeView;
-    QTreeView          * mCurDirTreeView;
+    QTableWidget       * mCurDirTableWidget;
     FileSystemModel    * mDirTreeModel;
     FileSystemModel    * mCurDirTreeModel;
     QLabel             * mFileListTitle;
@@ -60,6 +65,9 @@ private:
 
     QPushButton * mOKButton;
     QPushButton * mCancelButton;
+
+    QString       mCurrentPath;
+    QDir          mCurrentDir;
 };
 
 #endif

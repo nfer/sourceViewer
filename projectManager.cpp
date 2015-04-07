@@ -115,7 +115,7 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mCurDirTableWidget->horizontalHeader()->setStretchLastSection(true);
     mCurDirTableWidget->verticalHeader()->setDefaultSectionSize(20);
     connect(mCurDirTableWidget, SIGNAL(cellActivated(int,int)),
-            this, SLOT(openFolderOfItem(int,int)));
+            this, SLOT(cdDirOrAddFileToProject(int,int)));
 
     mCurPathLabel = new QLabel(mCurrentPath);
     mFileListTitle = new QLabel(tr("Project Files : (0)"));
@@ -179,22 +179,28 @@ void AddFilesDialog::showFolder()
     showFiles(files);
 }
 
-void AddFilesDialog::openFolderOfItem(int row, int /* column */)
+void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
 {
     QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
     QString itemText = item->text();
 
     QDir dir = QDir(mCurrentPath);
-    if(itemText == ".."){
-        dir.cdUp();
-        mCurrentPath = dir.path();
+    QString childPath = dir.absoluteFilePath(itemText);
+    if (QFileInfo(childPath).isDir()){
+        if(itemText == ".."){
+            dir.cdUp();
+            mCurrentPath = dir.path();
+        }
+        else{
+            mCurrentPath = childPath;
+        }
+        mCurPathLabel->setText(mCurrentPath);
+        showFolder();
     }
     else{
-        mCurrentPath = dir.absoluteFilePath(itemText);
+        //TODO: add this file to project file list
+        qDebug() << "This is a file";
     }
-
-    mCurPathLabel->setText(mCurrentPath);
-    showFolder();
 }
 
 void AddFilesDialog::showFiles(const QStringList &files)

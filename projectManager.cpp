@@ -1,5 +1,6 @@
 
 #include <QtWidgets>
+#include <QFileIconProvider>
 
 #include "projectManager.h"
 #include "config.h"
@@ -210,19 +211,24 @@ void AddFilesDialog::showFiles(const QStringList &files)
 
     QDir dir = QDir(mCurrentPath);
     for (int i = 0; i < files.size(); ++i) {
-        QFile file(dir.absoluteFilePath(files[i]));
-        qint64 size = QFileInfo(file).size();
-
-        QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
-        fileNameItem->setFlags(fileNameItem->flags() ^ Qt::ItemIsEditable);
-        QTableWidgetItem *sizeItem = new QTableWidgetItem(tr("%1 KB")
-                                             .arg(int((size + 1023) / 1024)));
-        sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
-
         mCurDirTableWidget->insertRow(i);
+
+        QFile file(dir.absoluteFilePath(files[i]));
+        QFileInfo fileInfo = QFileInfo(file);
+
+        // File Name
+        QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
+        QFileIconProvider fileIcon;
+        fileNameItem->setIcon(fileIcon.icon(fileInfo));
         mCurDirTableWidget->setItem(i, 0, fileNameItem);
-        mCurDirTableWidget->setItem(i, 1, sizeItem);
+
+//        // File Size
+//        qint64 size = fileInfo.size();
+//        QTableWidgetItem *sizeItem = new QTableWidgetItem(tr("%1 KB")
+//                                             .arg(int((size + 1023) / 1024)));
+//        sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+//        sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
+//        mCurDirTableWidget->setItem(i, 1, sizeItem);
     }
 }
 

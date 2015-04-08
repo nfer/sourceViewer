@@ -100,6 +100,8 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mDirTreeView->hideColumn(1);
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
+    connect(mDirTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+            this, SLOT(dirSelected(const QModelIndex &, const QModelIndex &)));
 
     mCurDirTableWidget = new QTableWidget(0, 1);
     mCurDirTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -202,6 +204,12 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
         //TODO: add this file to project file list
         qDebug() << "This is a file";
     }
+}
+
+void AddFilesDialog::dirSelected(const QModelIndex & current, const QModelIndex & /* previous */)
+{
+    mCurrentPath = mDirTreeModel->filePath(current);
+    showFolder();
 }
 
 void AddFilesDialog::showFiles(const QStringList &files)

@@ -42,6 +42,7 @@ public:
 private slots:
     void showFolder();
     void cdDirOrAddFileToProject(int row, int column);
+    void dirSelected(const QModelIndex & current, const QModelIndex &previous);
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);

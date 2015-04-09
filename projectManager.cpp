@@ -100,6 +100,9 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mDirTreeView->hideColumn(1);
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
+    QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
+    mDirTreeView->scrollTo(curIndex);
+    mDirTreeView->setCurrentIndex(curIndex);
     connect(mDirTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(dirSelected(const QModelIndex &, const QModelIndex &)));
 

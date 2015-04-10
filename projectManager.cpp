@@ -107,6 +107,8 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mCurDirTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mCurDirTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mCurDirTableWidget->horizontalHeader()->setHighlightSections(false);
+    connect(mCurDirTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int )),
+            this, SLOT(sortCurDir(int)));
 
     QStringList labels;
     labels << tr("File Name");
@@ -217,6 +219,15 @@ void AddFilesDialog::dirSelected(const QModelIndex & current, const QModelIndex 
     showFolder();
 }
 
+void AddFilesDialog::sortCurDir(int index)
+{
+    //qDebug() << "sortCurDir " << index << ", current sort order " << mSortOrder;
+
+    if (mSortOrder == Qt::AscendingOrder) mSortOrder = Qt::DescendingOrder;
+    else mSortOrder = Qt::AscendingOrder;
+    mCurDirTableWidget->sortItems(index, mSortOrder);
+}
+
 void AddFilesDialog::showFiles(const QStringList &files)
 {
     while (mCurDirTableWidget->rowCount() != 0)
@@ -244,6 +255,8 @@ void AddFilesDialog::showFiles(const QStringList &files)
 //        sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
 //        mCurDirTableWidget->setItem(i, 1, sizeItem);
     }
+
+    mSortOrder = Qt::AscendingOrder;
 }
 
 QPushButton *AddFilesDialog::createButton(const QString &text, const char *member)

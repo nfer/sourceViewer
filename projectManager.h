@@ -43,6 +43,7 @@ private slots:
     void showFolder();
     void cdDirOrAddFileToProject(int row, int column);
     void dirSelected(const QModelIndex & current, const QModelIndex &previous);
+    void sortCurDir(int index);
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
@@ -68,6 +69,8 @@ private:
     QPushButton * mCancelButton;
 
     QString       mCurrentPath;
+
+    Qt::SortOrder mSortOrder;
 };
 
 #endif

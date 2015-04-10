@@ -48,6 +48,7 @@ private slots:
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
     void showFiles(const QStringList &files);
+    bool eventFilter(QObject*obj,QEvent*event);
 
     QLabel             * mCurPathLabel;
     QTreeView          * mDirTreeView;

@@ -100,6 +100,7 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mDirTreeView->hideColumn(1);
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
+    mDirTreeView->installEventFilter(this);
     connect(mDirTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(dirSelected(const QModelIndex &, const QModelIndex &)));
 
@@ -107,6 +108,7 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mCurDirTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mCurDirTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mCurDirTableWidget->horizontalHeader()->setHighlightSections(false);
+    mCurDirTableWidget->installEventFilter(this);
     connect(mCurDirTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int )),
             this, SLOT(sortCurDir(int)));
 
@@ -256,6 +258,7 @@ void AddFilesDialog::showFiles(const QStringList &files)
 //        mCurDirTableWidget->setItem(i, 1, sizeItem);
     }
 
+    mCurDirTableWidget->setCurrentCell(0, 0);
     mSortOrder = Qt::AscendingOrder;
 }
 
@@ -264,4 +267,55 @@ QPushButton *AddFilesDialog::createButton(const QString &text, const char *membe
     QPushButton *button = new QPushButton(text);
     connect(button, SIGNAL(clicked()), this, member);
     return button;
+}
+
+bool AddFilesDialog::eventFilter(QObject*obj,QEvent*event)
+{
+    if(obj == mCurDirTableWidget && event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);//将事件转化为键盘事件
+        int key = keyEvent->key();
+        switch(key)
+        {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+            cdDirOrAddFileToProject(mCurDirTableWidget->currentRow(), 0);
+            return true;
+
+        case Qt::Key_Backtab:
+            this->focusNextPrevChild(false);
+            return true;
+
+        case Qt::Key_Tab:
+            this->focusNextPrevChild(true);
+            return true;
+
+        default:
+            return QObject::eventFilter(obj,event);
+        }
+    }
+    else if(obj == mDirTreeView && event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);//将事件转化为键盘事件
+        int key = keyEvent->key();
+        switch(key)
+        {
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+        {
+            QModelIndex index = mDirTreeView->currentIndex();
+            if (mDirTreeView->isExpanded(index))
+                mDirTreeView->collapse(index);
+            else
+                mDirTreeView->expand(index);
+        }
+            return true;
+
+        default:
+            return QObject::eventFilter(obj,event);
+        }
+    }
+    else{
+        return QObject::eventFilter(obj,event);
+    }
 }

@@ -100,9 +100,6 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     mDirTreeView->hideColumn(1);
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
-    QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
-    mDirTreeView->scrollTo(curIndex);
-    mDirTreeView->setCurrentIndex(curIndex);
     connect(mDirTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(dirSelected(const QModelIndex &, const QModelIndex &)));
 
@@ -175,7 +172,9 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
 
     setWindowTitle(tr("New Project"));
 
-    showFolder();
+    QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
+    mDirTreeView->setCurrentIndex(curIndex);
+    mDirTreeView->scrollTo(curIndex);
 }
 
 void AddFilesDialog::showFolder()
@@ -189,6 +188,7 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
 {
     QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
     QString itemText = item->text();
+    //qDebug() << "cdDirOrAddFileToProject " << row << ", itemText " << itemText;
 
     QDir dir = QDir(mCurrentPath);
     QString childPath = dir.absoluteFilePath(itemText);
@@ -200,8 +200,9 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
         else{
             mCurrentPath = childPath;
         }
-        mCurPathLabel->setText(mCurrentPath);
-        showFolder();
+        QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
+        mDirTreeView->scrollTo(curIndex);
+        mDirTreeView->setCurrentIndex(curIndex);
     }
     else{
         //TODO: add this file to project file list
@@ -212,6 +213,7 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
 void AddFilesDialog::dirSelected(const QModelIndex & current, const QModelIndex & /* previous */)
 {
     mCurrentPath = mDirTreeModel->filePath(current);
+    //qDebug() << "dirSelectede " << current << ", mCurrentPath " << mCurrentPath;
     showFolder();
 }
 
@@ -220,6 +222,7 @@ void AddFilesDialog::showFiles(const QStringList &files)
     while (mCurDirTableWidget->rowCount() != 0)
         mCurDirTableWidget->removeRow(0);
 
+    mCurPathLabel->setText(mCurrentPath);
     QDir dir = QDir(mCurrentPath);
     for (int i = 0; i < files.size(); ++i) {
         mCurDirTableWidget->insertRow(i);

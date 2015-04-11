@@ -209,8 +209,10 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
         mDirTreeView->setCurrentIndex(curIndex);
     }
     else{
-        //TODO: add this file to project file list
-        qDebug() << "This is a file";
+        QStandardItem *item = new QStandardItem(childPath);
+        mCurDirTableWidget->removeRow(row);
+        mFileListModel->appendRow(item);
+        mFileListModel->sort(0);
     }
 }
 
@@ -237,17 +239,29 @@ void AddFilesDialog::showFiles(const QStringList &files)
 
     mCurPathLabel->setText(mCurrentPath);
     QDir dir = QDir(mCurrentPath);
-    for (int i = 0; i < files.size(); ++i) {
-        mCurDirTableWidget->insertRow(i);
 
-        QFile file(dir.absoluteFilePath(files[i]));
+    int rowCount = 0;
+    for (int i = 0; i < files.size(); ++i) {
+        QString fullPath = dir.absoluteFilePath(files[i]);
+
+        if (mFileListModel->rowCount() != 0){
+            QList<QStandardItem *> list = mFileListModel->findItems(fullPath);
+            if (list.size() != 0){
+//                qDebug() << "already has this file in file list." << fullPath;
+                continue;
+            }
+        }
+
+        QFile file(fullPath);
         QFileInfo fileInfo = QFileInfo(file);
 
         // File Name
         QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
         QFileIconProvider fileIcon;
         fileNameItem->setIcon(fileIcon.icon(fileInfo));
-        mCurDirTableWidget->setItem(i, 0, fileNameItem);
+
+        mCurDirTableWidget->insertRow(rowCount);
+        mCurDirTableWidget->setItem(rowCount, 0, fileNameItem);
 
 //        // File Size
 //        qint64 size = fileInfo.size();
@@ -256,6 +270,8 @@ void AddFilesDialog::showFiles(const QStringList &files)
 //        sizeItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
 //        sizeItem->setFlags(sizeItem->flags() ^ Qt::ItemIsEditable);
 //        mCurDirTableWidget->setItem(i, 1, sizeItem);
+
+        rowCount++;
     }
 
     mCurDirTableWidget->setCurrentCell(0, 0);

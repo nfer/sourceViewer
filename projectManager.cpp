@@ -86,8 +86,10 @@ QPushButton *NewProjectDialog::createButton(const QString &text, const char *mem
     return button;
 }
 
-AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
+AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storePath, QWidget *parent)
     : QDialog(parent),
+    mProjectName(projectName),
+    mStorePath(storePath),
     mCurrentPath(storePath)
 {
     QStringList dirTreeHeaderList;
@@ -179,6 +181,38 @@ AddFilesDialog::AddFilesDialog(const QString &storePath, QWidget *parent)
     QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
     mDirTreeView->setCurrentIndex(curIndex);
     mDirTreeView->scrollTo(curIndex);
+}
+
+void AddFilesDialog::accept()
+{
+    QString fileName = mStorePath + "/" + mProjectName + ".filelist";
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        qWarning() << tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString());
+        return ;
+    }
+
+    QTextStream out(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+
+    QStandardItem * item;
+    for (int i=0; i < mFileListModel->rowCount(); i++){
+        item = mFileListModel->item(i);
+//        qDebug() << "i " << i << ", item: " << item->text();
+        out << item->text() << '\n';
+    }
+
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    QDialog::accept();
 }
 
 void AddFilesDialog::showFolder()

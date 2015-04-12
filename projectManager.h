@@ -12,6 +12,9 @@ class NewProjectDialog : public QDialog
 
 public:
     NewProjectDialog(QWidget *parent = 0);
+    QString getProjectName(){
+        return mNameEdit->text();
+    }
     QString getStorePath(){
         return mStorePathEdit->text();
     }
@@ -37,9 +40,10 @@ class AddFilesDialog : public QDialog
     Q_OBJECT
 
 public:
-    AddFilesDialog(const QString &storePath, QWidget *parent = 0);
+    AddFilesDialog(const QString &projectName, const QString &storePath, QWidget *parent = 0);
 
 private slots:
+    void accept();
     void showFolder();
     void cdDirOrAddFileToProject(int row, int column);
     void dirSelected(const QModelIndex & current, const QModelIndex &previous);
@@ -69,6 +73,8 @@ private:
     QPushButton * mOKButton;
     QPushButton * mCancelButton;
 
+    QString       mProjectName;
+    QString       mStorePath;
     QString       mCurrentPath;
 
     Qt::SortOrder mSortOrder;

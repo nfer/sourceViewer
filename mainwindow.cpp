@@ -43,7 +43,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::saveLayout(QString fileName)
 {
-    qWarning() << tr("saveLayout with fileName") << fileName;
+//    qDebug() << tr("saveLayout with fileName") << fileName;
     if (fileName.isEmpty())
         return;
     QFile file(fileName);
@@ -75,7 +75,7 @@ void MainWindow::saveLayout(QString fileName)
 
 void MainWindow::loadLayout(QString fileName)
 {
-    qWarning() << tr("loadLayout with fileName") << fileName;
+//    qDebug() << tr("loadLayout with fileName") << fileName;
     if (fileName.isEmpty())
         return;
     QFile file(fileName);
@@ -371,9 +371,10 @@ void MainWindow::newProject()
         qDebug() << "NewProjectDialog is Rejected.";
         return;
     }
-    qDebug() << "Project Store Path is : " + newProjectDialog.getStorePath();
+//    qDebug() << "Project Store Path is : " + newProjectDialog.getStorePath();
 
-    AddFilesDialog addFilesDialog(newProjectDialog.getStorePath(), this);
+    AddFilesDialog addFilesDialog(newProjectDialog.getProjectName(),
+                newProjectDialog.getStorePath(), this);
     addFilesDialog.setWindowModality(Qt::WindowModal);
     if (addFilesDialog.exec() == QDialog::Rejected){
         qDebug() << "AddFilesDialog is Rejected.";

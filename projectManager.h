@@ -45,16 +45,20 @@ public:
 private slots:
     void accept();
     void showFolder();
-    void cdDirOrAddFileToProject(int row, int column);
+    void curDirCellActivated(int row, int column);
     void dirSelected(const QModelIndex & current, const QModelIndex &previous);
     void sortCurDir(int index);
+    void curPathInput();
+    void cdDirOrAddFile();
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
     void showFiles(const QStringList &files);
     bool eventFilter(QObject*obj,QEvent*event);
+    void updateTreeView(const QString & path);
+    void cdDirOrAddFileToList(QString itemText);
 
-    QLabel             * mCurPathLabel;
+    QLineEdit          * mCurPathEdit;
     QTreeView          * mDirTreeView;
     QTableWidget       * mCurDirTableWidget;
     FileSystemModel    * mDirTreeModel;

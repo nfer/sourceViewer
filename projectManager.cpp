@@ -92,6 +92,10 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mStorePath(storePath),
     mCurrentPath(storePath)
 {
+    mCurPathEdit = new QLineEdit(storePath);
+    connect(mCurPathEdit, SIGNAL(returnPressed()),
+            this, SLOT(curPathInput()));
+
     QStringList dirTreeHeaderList;
     dirTreeHeaderList << "Directory";
     mDirTreeModel = new FileSystemModel(dirTreeHeaderList);
@@ -124,9 +128,8 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mCurDirTableWidget->horizontalHeader()->setStretchLastSection(true);
     mCurDirTableWidget->verticalHeader()->setDefaultSectionSize(20);
     connect(mCurDirTableWidget, SIGNAL(cellActivated(int,int)),
-            this, SLOT(cdDirOrAddFileToProject(int,int)));
+            this, SLOT(curDirCellActivated(int,int)));
 
-    mCurPathLabel = new QLabel(mCurrentPath);
     mFileListTitle = new QLabel(tr("Project Files : (0)"));
 
     mFileListView = new StandardItemListView;
@@ -135,7 +138,8 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mFileListView->setSelectionMode(QAbstractItemView::NoSelection);
     mFileListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    mAddButton = createButton(tr("Add"), SLOT(accept()));
+    mAddButton = createButton(tr("Add"), SLOT(cdDirOrAddFile()));
+    mAddButton->setDefault(true);
     mAddAllButton = createButton(tr("AddAll"), SLOT(accept()));
     mAddTreeButton = createButton(tr("AddTree"), SLOT(accept()));
     mRemoveButton = createButton(tr("Remove"), SLOT(accept()));
@@ -145,8 +149,12 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mOKButton = createButton(tr("OK"), SLOT(accept()));
     mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
 
+    QHBoxLayout *curPathLayout = new QHBoxLayout();
+    curPathLayout->addWidget(mCurPathEdit);
+    curPathLayout->addWidget(mOKButton);
+
     QVBoxLayout *addFilesButtonLayout = new QVBoxLayout();
-    addFilesButtonLayout->addWidget(mOKButton);
+//    addFilesButtonLayout->addWidget(mOKButton);
     addFilesButtonLayout->addWidget(mAddButton);
     addFilesButtonLayout->addWidget(mAddAllButton);
     addFilesButtonLayout->addWidget(mAddTreeButton);
@@ -160,14 +168,14 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     removeFilesButtonLayout->addWidget(mRemoveButton);
     removeFilesButtonLayout->addWidget(mRemoveAllButton);
     removeFilesButtonLayout->addWidget(mRemoveTreeButton);
-    removeFilesButtonLayout->addWidget(mCancelButton);
+//    removeFilesButtonLayout->addWidget(mCancelButton);
 
     QHBoxLayout *removeFilesLayout = new QHBoxLayout();
     removeFilesLayout->addWidget(mFileListView);
     removeFilesLayout->addLayout(removeFilesButtonLayout);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(mCurPathLabel);
+    mainLayout->addLayout(curPathLayout);
     mainLayout->addLayout(addFilesLayout);
     mainLayout->addWidget(mFileListTitle);
     mainLayout->insertSpacing(2, 20);
@@ -178,9 +186,7 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
 
     setWindowTitle(tr("New Project"));
 
-    QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
-    mDirTreeView->setCurrentIndex(curIndex);
-    mDirTreeView->scrollTo(curIndex);
+    updateTreeView(storePath);
 }
 
 void AddFilesDialog::accept()
@@ -222,12 +228,17 @@ void AddFilesDialog::showFolder()
     showFiles(files);
 }
 
-void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
+void AddFilesDialog::curDirCellActivated(int row, int /* column */)
 {
     QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
-    QString itemText = item->text();
-    //qDebug() << "cdDirOrAddFileToProject " << row << ", itemText " << itemText;
+    if (NULL != item){
+        //qDebug() << "cdDirOrAddFileToProject " << row << ", item->text() " << item->text();
+        cdDirOrAddFileToList(item->text());
+    }
+}
 
+void AddFilesDialog::cdDirOrAddFileToList(QString itemText)
+{
     QDir dir = QDir(mCurrentPath);
     QString childPath = dir.absoluteFilePath(itemText);
     if (QFileInfo(childPath).isDir()){
@@ -238,13 +249,12 @@ void AddFilesDialog::cdDirOrAddFileToProject(int row, int /* column */)
         else{
             mCurrentPath = childPath;
         }
-        QModelIndex curIndex = mDirTreeModel->index(mCurrentPath);
-        mDirTreeView->scrollTo(curIndex);
-        mDirTreeView->setCurrentIndex(curIndex);
+
+        updateTreeView(mCurrentPath);
     }
     else{
+        mCurDirTableWidget->removeRow(mCurDirTableWidget->currentRow());
         QStandardItem *item = new QStandardItem(childPath);
-        mCurDirTableWidget->removeRow(row);
         mFileListModel->appendRow(item);
         mFileListModel->sort(0);
     }
@@ -266,12 +276,27 @@ void AddFilesDialog::sortCurDir(int index)
     mCurDirTableWidget->sortItems(index, mSortOrder);
 }
 
+void AddFilesDialog::curPathInput()
+{
+//    qDebug() << "curPathInput " << mCurPathEdit->text();
+    updateTreeView(mCurPathEdit->text());
+}
+
+void AddFilesDialog::cdDirOrAddFile()
+{
+    int row = mCurDirTableWidget->currentRow();
+//    qDebug() << "cdDirOrAddFile() " << row;
+    if (-1 != row){
+        curDirCellActivated(row, 0);
+    }
+}
+
 void AddFilesDialog::showFiles(const QStringList &files)
 {
     while (mCurDirTableWidget->rowCount() != 0)
         mCurDirTableWidget->removeRow(0);
 
-    mCurPathLabel->setText(mCurrentPath);
+    mCurPathEdit->setText(mCurrentPath);
     QDir dir = QDir(mCurrentPath);
 
     int rowCount = 0;
@@ -308,7 +333,7 @@ void AddFilesDialog::showFiles(const QStringList &files)
         rowCount++;
     }
 
-    mCurDirTableWidget->setCurrentCell(0, 0);
+//    mCurDirTableWidget->setCurrentCell(0, 0);
     mSortOrder = Qt::AscendingOrder;
 }
 
@@ -319,35 +344,52 @@ QPushButton *AddFilesDialog::createButton(const QString &text, const char *membe
     return button;
 }
 
+void AddFilesDialog::updateTreeView(const QString & path)
+{
+    QModelIndex curIndex = mDirTreeModel->index(path);
+    if (curIndex.isValid()){
+        mDirTreeView->scrollTo(curIndex);
+        mDirTreeView->setCurrentIndex(curIndex);
+        mDirTreeView->expand(curIndex);
+    }
+}
+
 bool AddFilesDialog::eventFilter(QObject*obj,QEvent*event)
 {
-    if(obj == mCurDirTableWidget && event->type() == QEvent::KeyPress)
+    // here we only handle KeyPress event
+    if (event->type() != QEvent::KeyPress)
+        return QObject::eventFilter(obj,event);
+
+    QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);
+    int key = keyEvent->key();
+    bool ret = false;
+
+    if(obj == mCurDirTableWidget)
     {
-        QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);//将事件转化为键盘事件
-        int key = keyEvent->key();
         switch(key)
         {
         case Qt::Key_Return:
         case Qt::Key_Enter:
-            cdDirOrAddFileToProject(mCurDirTableWidget->currentRow(), 0);
-            return true;
+            curDirCellActivated(mCurDirTableWidget->currentRow(), 0);
+            ret = true;
+            break;
 
         case Qt::Key_Backtab:
             this->focusNextPrevChild(false);
-            return true;
+            ret = true;
+            break;
 
         case Qt::Key_Tab:
             this->focusNextPrevChild(true);
-            return true;
+            ret = true;
+            break;
 
         default:
-            return QObject::eventFilter(obj,event);
+            break;
         }
     }
-    else if(obj == mDirTreeView && event->type() == QEvent::KeyPress)
+    else if(obj == mDirTreeView)
     {
-        QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);//将事件转化为键盘事件
-        int key = keyEvent->key();
         switch(key)
         {
         case Qt::Key_Return:
@@ -359,13 +401,19 @@ bool AddFilesDialog::eventFilter(QObject*obj,QEvent*event)
             else
                 mDirTreeView->expand(index);
         }
-            return true;
+            ret = true;
+            break;
 
         default:
-            return QObject::eventFilter(obj,event);
+            break;
         }
     }
     else{
-        return QObject::eventFilter(obj,event);
+        //return QObject::eventFilter(obj,event);
     }
+
+    if (ret)
+        return true;
+    else
+        return QObject::eventFilter(obj,event);
 }

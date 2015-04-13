@@ -50,6 +50,7 @@ private slots:
     void sortCurDir(int index);
     void curPathInput();
     void cdDirOrAddFile();
+    void addAll();
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
@@ -57,6 +58,7 @@ private:
     bool eventFilter(QObject*obj,QEvent*event);
     void updateTreeView(const QString & path);
     void cdDirOrAddFileToList(QString itemText);
+    void searchFiles(QString path, QStringList& fileList, bool isRecursively = false);
 
     QLineEdit          * mCurPathEdit;
     QTreeView          * mDirTreeView;
@@ -82,6 +84,24 @@ private:
     QString       mCurrentPath;
 
     Qt::SortOrder mSortOrder;
+};
+
+class AddAllDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    AddAllDialog(QWidget *parent = 0);
+    bool isRecursively(){
+        return (mRecursively->checkState() == Qt::Checked);
+    }
+
+private:
+    QPushButton *createButton(const QString &text, const char *member = NULL);
+
+    QCheckBox   * mRecursively;
+    QPushButton * mOKButton;
+    QPushButton * mCancelButton;
 };
 
 #endif

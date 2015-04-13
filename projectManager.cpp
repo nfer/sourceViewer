@@ -140,7 +140,7 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
 
     mAddButton = createButton(tr("Add"), SLOT(cdDirOrAddFile()));
     mAddButton->setDefault(true);
-    mAddAllButton = createButton(tr("AddAll"), SLOT(accept()));
+    mAddAllButton = createButton(tr("AddAll"), SLOT(addAll()));
     mAddTreeButton = createButton(tr("AddTree"), SLOT(accept()));
     mRemoveButton = createButton(tr("Remove"), SLOT(accept()));
     mRemoveAllButton = createButton(tr("RemoveAll"), SLOT(accept()));
@@ -291,6 +291,55 @@ void AddFilesDialog::cdDirOrAddFile()
     }
 }
 
+void AddFilesDialog::addAll()
+{
+    AddAllDialog dialog(this);
+    if (dialog.exec() == QDialog::Rejected){
+        qDebug() << "AddAllDialog is Rejected.";
+        return;
+    }
+//    qDebug() << "isRecursively() " << dialog.isRecursively();
+
+    QStringList files;
+    searchFiles(mCurrentPath, files, dialog.isRecursively());
+
+    for(int i=0;i<files.count();i++)
+    {
+//        qDebug()<<files.at(i);
+        // FIXME1: check duplicate in mFileListModel
+        // FIXME2: remove items in mCurDirTableWidget
+        QStandardItem *item = new QStandardItem(files.at(i));
+        mFileListModel->appendRow(item);
+    }
+    mFileListModel->sort(0);
+}
+
+void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRecursively)
+{
+//    qDebug() << "isRecursively() " << isRecursively;
+    QDir dir(path);
+    QStringList curFileList = dir.entryList(QDir::Files);
+
+    QString fullPath;
+    for ( int i=0; i<curFileList.count(); i++){
+        fullPath = path + "/" + curFileList.at(i);
+        curFileList.replace(i, fullPath);
+    }
+    fileList += curFileList;
+
+    QStringList dirList;
+    dirList = dir.entryList(QDir::Dirs);
+    dirList.removeAt(1);    //remove ".."
+    dirList.removeAt(0);    //remove "."
+
+    if (isRecursively){
+        // Recursively Add Children
+        for ( int i=0; i<dirList.count(); i++){
+            searchFiles(path + "/" + dirList.at(i), fileList, isRecursively);
+        }
+    }
+}
+
 void AddFilesDialog::showFiles(const QStringList &files)
 {
     while (mCurDirTableWidget->rowCount() != 0)
@@ -416,4 +465,39 @@ bool AddFilesDialog::eventFilter(QObject*obj,QEvent*event)
         return true;
     else
         return QObject::eventFilter(obj,event);
+}
+
+AddAllDialog::AddAllDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    mRecursively = new QCheckBox("&Recursively add sub-directories", this);
+    mRecursively->setFixedWidth(240);
+
+    mOKButton = createButton(tr("&OK"), SLOT(accept()));
+    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+
+    QVBoxLayout *leftLayout = new QVBoxLayout();
+    leftLayout->setAlignment(Qt::AlignTop);
+    leftLayout->addWidget(mRecursively);
+
+    QVBoxLayout *rightLayout = new QVBoxLayout();
+    rightLayout->addWidget(mOKButton);
+    rightLayout->addWidget(mCancelButton);
+
+    QHBoxLayout *mainLayout = new QHBoxLayout();
+    mainLayout->addLayout(leftLayout);
+    mainLayout->addLayout(rightLayout);
+    setLayout(mainLayout);
+
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowModality(Qt::WindowModal);
+
+    setWindowTitle(tr("Add To Project"));
+}
+
+QPushButton *AddAllDialog::createButton(const QString &text, const char *member)
+{
+    QPushButton *button = new QPushButton(text);
+    connect(button, SIGNAL(clicked()), this, member);
+    return button;
 }

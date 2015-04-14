@@ -51,6 +51,8 @@ private slots:
     void curPathInput();
     void cdDirOrAddFile();
     void addAll();
+    void addTree();
+    void curDirItemChanged(QTableWidgetItem * current, QTableWidgetItem * previous);
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);

@@ -303,11 +303,23 @@ void AddFilesDialog::addAll()
     QStringList files;
     searchFiles(mCurrentPath, files, dialog.isRecursively());
 
+    QDir dir(mCurrentPath);
+    QStringList curFileList = dir.entryList(QDir::Files);
+
+    for(int i=0; i<curFileList.count(); i++){
+//        qDebug()<< "curFileList" << curFileList.at(i);
+        QList<QTableWidgetItem *> list = mCurDirTableWidget->findItems(curFileList.at(i), Qt::MatchExactly);
+        if (list.count() != 0){
+//            qDebug()<< "list[0] " << list[0]->text();
+            mCurDirTableWidget->setCurrentItem(list[0]);
+            mCurDirTableWidget->removeRow(mCurDirTableWidget->currentRow());
+        }
+    }
+
     for(int i=0;i<files.count();i++)
     {
 //        qDebug()<<files.at(i);
         // FIXME1: check duplicate in mFileListModel
-        // FIXME2: remove items in mCurDirTableWidget
         QStandardItem *item = new QStandardItem(files.at(i));
         mFileListModel->appendRow(item);
     }

@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <QFileSystemModel>
+#include <QtWidgets>
+#include <QFileIconProvider>
 #endif // __cplusplus
 
 #endif // STABLE_H

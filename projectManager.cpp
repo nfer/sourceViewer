@@ -1,6 +1,5 @@
 
-#include <QtWidgets>
-#include <QFileIconProvider>
+#include "stable.h"
 
 #include "projectManager.h"
 #include "config.h"
@@ -298,32 +297,31 @@ void AddFilesDialog::addAll()
         qDebug() << "AddAllDialog is Rejected.";
         return;
     }
-//    qDebug() << "isRecursively() " << dialog.isRecursively();
 
+    // add all files(isRecursively) to mFileListModel
     QStringList files;
     searchFiles(mCurrentPath, files, dialog.isRecursively());
+    for(int i=0;i<files.count();i++)
+    {
+        // if file not in
+        QList<QStandardItem *> list = mFileListModel->findItems(files.at(i), Qt::MatchExactly);
+        if (list.count() == 0){
+            QStandardItem *item = new QStandardItem(files.at(i));
+            mFileListModel->appendRow(item);
+        }
+    }
+    mFileListModel->sort(0);
 
+    // remove all files in mCurDirTableWidget
     QDir dir(mCurrentPath);
     QStringList curFileList = dir.entryList(QDir::Files);
-
     for(int i=0; i<curFileList.count(); i++){
-//        qDebug()<< "curFileList" << curFileList.at(i);
         QList<QTableWidgetItem *> list = mCurDirTableWidget->findItems(curFileList.at(i), Qt::MatchExactly);
         if (list.count() != 0){
-//            qDebug()<< "list[0] " << list[0]->text();
             mCurDirTableWidget->setCurrentItem(list[0]);
             mCurDirTableWidget->removeRow(mCurDirTableWidget->currentRow());
         }
     }
-
-    for(int i=0;i<files.count();i++)
-    {
-//        qDebug()<<files.at(i);
-        // FIXME1: check duplicate in mFileListModel
-        QStandardItem *item = new QStandardItem(files.at(i));
-        mFileListModel->appendRow(item);
-    }
-    mFileListModel->sort(0);
 }
 
 void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRecursively)

@@ -3,7 +3,6 @@
 #define PROJECTMANAGER_H
 
 #include "stable.h"
-#include "StandardItemListView.h"
 #include "FileSystemModel.h"
 
 class NewProjectDialog : public QDialog

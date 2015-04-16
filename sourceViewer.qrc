@@ -7,5 +7,6 @@
     <file>images/paste.png</file>
     <file>images/save.png</file>
     <file>images/Source Viewer.png</file>
+    <file>qss/main.qss</file>
 </qresource>
 </RCC>

@@ -9,7 +9,6 @@ HEADERS   += mainwindow.h \
              windowswatch.h \
              filelistframe.h \
              projectManager.h \
-             StandardItemListView.h \
              FileSystemModel.h
 
 SOURCES   += main.cpp\
@@ -17,7 +16,6 @@ SOURCES   += main.cpp\
              windowswatch.cpp \
              filelistframe.cpp \
              projectManager.cpp \
-             StandardItemListView.cpp \
              FileSystemModel.cpp
 
 RESOURCES  = sourceViewer.qrc

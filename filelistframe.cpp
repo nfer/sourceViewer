@@ -1,6 +1,5 @@
 
 #include "filelistframe.h"
-#include "StandardItemListView.h"
 
 class FileListDock : public QFrame
 {
@@ -12,7 +11,7 @@ public:
 private:
     virtual QSize sizeHint() const;
     QComboBox            * mFileComboBox;
-    StandardItemListView * mFileListView;
+    QListView            * mFileListView;
     QStandardItemModel   * mFileListModel;
 
 signals:
@@ -44,11 +43,12 @@ FileListDock::FileListDock(QWidget *parent)
     connect(mFileComboBox, SIGNAL(currentTextChanged(const QString & )),
             this, SLOT(currentTextChanged(const QString & )));
 
-    mFileListView = new StandardItemListView;
+    mFileListView = new QListView;
     mFileListModel = new QStandardItemModel;
     mFileListView->setModel(mFileListModel);
-    mFileListView->setSelectionMode(QAbstractItemView::NoSelection);
+    mFileListView->setSelectionBehavior(QAbstractItemView::SelectRows);
     mFileListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mFileListView->setAlternatingRowColors(true);
     connect(mFileListView, SIGNAL(doubleClicked(const QModelIndex &)),
             this, SLOT(listViewDoubleClicked(const QModelIndex & )));
 

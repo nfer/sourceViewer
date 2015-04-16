@@ -106,25 +106,24 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mDirTreeView->hideColumn(2);
     mDirTreeView->hideColumn(3);
     mDirTreeView->installEventFilter(this);
+    mDirTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mDirTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(mDirTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             this, SLOT(dirSelected(const QModelIndex &, const QModelIndex &)));
 
     mCurDirTableWidget = new QTableWidget(0, 1);
     mCurDirTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
     mCurDirTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    mCurDirTableWidget->horizontalHeader()->setHighlightSections(false);
+    mCurDirTableWidget->setShowGrid(false); // do not show grid line
     mCurDirTableWidget->installEventFilter(this);
+
+    mCurDirTableWidget->setHorizontalHeaderLabels(QStringList("File Name"));
+    mCurDirTableWidget->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft);
+    mCurDirTableWidget->horizontalHeader()->setHighlightSections(false);
+    mCurDirTableWidget->horizontalHeader()->setStretchLastSection(true);
     connect(mCurDirTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int )),
             this, SLOT(sortCurDir(int)));
-
-    QStringList labels;
-    labels << tr("File Name");
-    mCurDirTableWidget->setHorizontalHeaderLabels(labels);
-    mCurDirTableWidget->horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft);
-
     mCurDirTableWidget->verticalHeader()->hide();
-    mCurDirTableWidget->setShowGrid(false);
-    mCurDirTableWidget->horizontalHeader()->setStretchLastSection(true);
     mCurDirTableWidget->verticalHeader()->setDefaultSectionSize(20);
     connect(mCurDirTableWidget, SIGNAL(cellActivated(int,int)),
             this, SLOT(curDirCellActivated(int,int)));
@@ -133,11 +132,12 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
 
     mFileListTitle = new QLabel(tr("Project Files : (0)"));
 
-    mFileListView = new StandardItemListView;
+    mFileListView = new QListView;
     mFileListModel = new QStandardItemModel;
     mFileListView->setModel(mFileListModel);
-    mFileListView->setSelectionMode(QAbstractItemView::NoSelection);
+    mFileListView->setSelectionBehavior(QAbstractItemView::SelectRows);
     mFileListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mFileListView->setAlternatingRowColors(true);
 
     mAddButton = createButton(tr("Add"), SLOT(cdDirOrAddFile()));
     mAddButton->setDefault(true);

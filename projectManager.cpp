@@ -125,8 +125,8 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
             this, SLOT(sortCurDir(int)));
     mCurDirTableWidget->verticalHeader()->hide();
     mCurDirTableWidget->verticalHeader()->setDefaultSectionSize(20);
-    connect(mCurDirTableWidget, SIGNAL(cellActivated(int,int)),
-            this, SLOT(curDirCellActivated(int,int)));
+    connect(mCurDirTableWidget, SIGNAL(cellDoubleClicked(int,int)),
+            this, SLOT(curDirDoubleClicked(int,int)));
     connect(mCurDirTableWidget, SIGNAL(currentItemChanged(QTableWidgetItem * , QTableWidgetItem * )),
             this, SLOT(curDirItemChanged(QTableWidgetItem * , QTableWidgetItem * )));
 
@@ -138,25 +138,32 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     mFileListView->setSelectionBehavior(QAbstractItemView::SelectRows);
     mFileListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     mFileListView->setAlternatingRowColors(true);
+    connect(mFileListView, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(fileListDoubleClicked(const QModelIndex &)));
 
-    mAddButton = createButton(tr("Add"), SLOT(cdDirOrAddFile()));
-    mAddButton->setDefault(true);
+    mAddFileButton = createButton(tr("Add"), SLOT(addFile()));
     mAddAllButton = createButton(tr("AddAll"), SLOT(addAll()));
     mAddTreeButton = createButton(tr("AddTree"), SLOT(addTree()));
-    mRemoveButton = createButton(tr("Remove"), SLOT(accept()));
-    mRemoveAllButton = createButton(tr("RemoveAll"), SLOT(accept()));
-    mRemoveTreeButton = createButton(tr("RemoveTree"), SLOT(accept()));
+    mRemoveFileButton = createButton(tr("Remove"), SLOT(removeFile()));
+    mRemoveAllButton = createButton(tr("RemoveAll"), SLOT(removeAll()));
+    mRemoveTreeButton = createButton(tr("RemoveTree"), SLOT(removeTree()));
+    mAddFileButton->setDefault(true);
+
+    // set default disable state
+    mAddFileButton->setDisabled(true);
+    mAddTreeButton->setDisabled(true);
+    mRemoveFileButton->setDisabled(true);
+    mRemoveAllButton->setDisabled(true);
+    mRemoveTreeButton->setDisabled(true);
 
     mOKButton = createButton(tr("OK"), SLOT(accept()));
-    mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
 
     QHBoxLayout *curPathLayout = new QHBoxLayout();
     curPathLayout->addWidget(mCurPathEdit);
     curPathLayout->addWidget(mOKButton);
 
     QVBoxLayout *addFilesButtonLayout = new QVBoxLayout();
-//    addFilesButtonLayout->addWidget(mOKButton);
-    addFilesButtonLayout->addWidget(mAddButton);
+    addFilesButtonLayout->addWidget(mAddFileButton);
     addFilesButtonLayout->addWidget(mAddAllButton);
     addFilesButtonLayout->addWidget(mAddTreeButton);
 
@@ -166,10 +173,9 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
     addFilesLayout->addLayout(addFilesButtonLayout);
 
     QVBoxLayout *removeFilesButtonLayout = new QVBoxLayout();
-    removeFilesButtonLayout->addWidget(mRemoveButton);
+    removeFilesButtonLayout->addWidget(mRemoveFileButton);
     removeFilesButtonLayout->addWidget(mRemoveAllButton);
     removeFilesButtonLayout->addWidget(mRemoveTreeButton);
-//    removeFilesButtonLayout->addWidget(mCancelButton);
 
     QHBoxLayout *removeFilesLayout = new QHBoxLayout();
     removeFilesLayout->addWidget(mFileListView);
@@ -229,13 +235,49 @@ void AddFilesDialog::showFolder()
     showFiles(files);
 }
 
-void AddFilesDialog::curDirCellActivated(int row, int /* column */)
+void AddFilesDialog::curDirDoubleClicked(int row, int /* column */)
 {
     QTableWidgetItem *item = mCurDirTableWidget->item(row, 0);
     if (NULL != item){
-        //qDebug() << "cdDirOrAddFileToProject " << row << ", item->text() " << item->text();
         cdDirOrAddFileToList(item->text());
     }
+}
+
+void AddFilesDialog::fileListDoubleClicked(const QModelIndex & index)
+{
+    if (!index.isValid()){
+        qDebug() << "fileListDoubleClicked, but index isn't valid.";
+        return;
+    }
+
+    QStandardItem * item = mFileListModel->itemFromIndex(index);
+    if (NULL == item || item->text().isEmpty()){
+        qDebug() << "fileListDoubleClicked, but item is NULL.";
+        return;
+    }
+
+    QFileInfo fileInfo(item->text());
+    if (fileInfo.path() == mCurrentPath){
+        // add this file to mCurDirTableWidget
+        int rowCount = mCurDirTableWidget->rowCount();
+
+        QTableWidgetItem *fileNameItem = new QTableWidgetItem(fileInfo.fileName());
+        QFileIconProvider fileIcon;
+        fileNameItem->setIcon(fileIcon.icon(fileInfo));
+
+        mCurDirTableWidget->insertRow(rowCount);
+        mCurDirTableWidget->setItem(rowCount, 0, fileNameItem);
+
+        mCurDirTableWidget->sortItems(0, mSortOrder);
+    }
+
+    mFileListModel->removeRow(index.row());
+    if (mFileListModel->rowCount() == 0){
+        mRemoveFileButton->setDisabled(true);
+        mRemoveAllButton->setDisabled(true);
+    }
+
+    updateFileListTitle();
 }
 
 void AddFilesDialog::cdDirOrAddFileToList(QString itemText)
@@ -255,9 +297,15 @@ void AddFilesDialog::cdDirOrAddFileToList(QString itemText)
     }
     else{
         mCurDirTableWidget->removeRow(mCurDirTableWidget->currentRow());
+
         QStandardItem *item = new QStandardItem(childPath);
         mFileListModel->appendRow(item);
         mFileListModel->sort(0);
+
+        updateFileListTitle();
+
+        mRemoveFileButton->setDisabled(false);
+        mRemoveAllButton->setDisabled(false);
     }
 }
 
@@ -283,12 +331,11 @@ void AddFilesDialog::curPathInput()
     updateTreeView(mCurPathEdit->text());
 }
 
-void AddFilesDialog::cdDirOrAddFile()
+void AddFilesDialog::addFile()
 {
     int row = mCurDirTableWidget->currentRow();
-//    qDebug() << "cdDirOrAddFile() " << row;
     if (-1 != row){
-        curDirCellActivated(row, 0);
+        curDirDoubleClicked(row, 0);
     }
 }
 
@@ -312,7 +359,14 @@ void AddFilesDialog::addAll()
             mFileListModel->appendRow(item);
         }
     }
-    mFileListModel->sort(0);
+
+    if (mFileListModel->rowCount() != 0){
+        mFileListModel->sort(0);
+        mRemoveFileButton->setDisabled(false);
+        mRemoveAllButton->setDisabled(false);
+
+        updateFileListTitle();
+    }
 
     // remove all files in mCurDirTableWidget
     QDir dir(mCurrentPath);
@@ -330,7 +384,6 @@ void AddFilesDialog::addTree()
 {
     QTableWidgetItem * item = mCurDirTableWidget->currentItem();
     if (NULL == item){
-        qDebug() << "addTree: mCurDirTableWidget->currentItem() is NULL";
         return;
     }
     QString folder = item->text();
@@ -347,29 +400,87 @@ void AddFilesDialog::addTree()
             mFileListModel->appendRow(item);
         }
     }
-    mFileListModel->sort(0);
+
+    if (mFileListModel->rowCount() != 0){
+        mFileListModel->sort(0);
+        mRemoveFileButton->setDisabled(false);
+        mRemoveAllButton->setDisabled(false);
+
+        updateFileListTitle();
+    }
+}
+
+void AddFilesDialog::removeFile()
+{
+    QModelIndex index = mFileListView->currentIndex();
+    if (index.isValid()){
+        fileListDoubleClicked(index);
+    }
+}
+
+void AddFilesDialog::removeAll()
+{
+    mFileListModel->clear();
+
+    showFolder();
+
+    if (mFileListModel->rowCount() == 0){
+        mRemoveFileButton->setDisabled(true);
+        mRemoveAllButton->setDisabled(true);
+    }
+
+    updateFileListTitle();
+}
+
+void AddFilesDialog::removeTree()
+{
+    QTableWidgetItem * item = mCurDirTableWidget->currentItem();
+    if (NULL == item){
+        return;
+    }
+    QString folder = item->text();
+
+    // add all files(isRecursively) to mFileListModel
+    QStringList files;
+    searchFiles(mCurrentPath + "/" + folder, files, true);
+    for(int i=0;i<files.count();i++)
+    {
+        // if file in mFileListView, remove it
+        QList<QStandardItem *> list = mFileListModel->findItems(files.at(i), Qt::MatchExactly);
+        if (list.count() != 0){
+            QModelIndex index = mFileListModel->indexFromItem(list[0]);
+            mFileListModel->removeRow(index.row());
+        }
+    }
+
+    if (mFileListModel->rowCount() == 0){
+        mRemoveFileButton->setDisabled(true);
+        mRemoveAllButton->setDisabled(true);
+    }
+
+    updateFileListTitle();
 }
 
 void AddFilesDialog::curDirItemChanged(QTableWidgetItem * current, QTableWidgetItem * /* previous */)
 {
-    if (current == NULL){
+    if (current == NULL || current->text() == ".."){
+        mAddFileButton->setDisabled(true);
         mAddTreeButton->setDisabled(true);
+        mRemoveTreeButton->setDisabled(true);
         return ;
     }
 
-    QString fileName = current->text();
-    if (fileName == ".."){
-        mAddTreeButton->setDisabled(true);
-        return ;
-    }
-
-    QFileInfo fileInfo(mCurrentPath + "/" + fileName);
+    QFileInfo fileInfo(mCurrentPath + "/" + current->text());
     if (fileInfo.isDir()){
         mAddTreeButton->setDisabled(false);
+        mRemoveTreeButton->setDisabled(false);
     }
     else{
         mAddTreeButton->setDisabled(true);
+        mRemoveTreeButton->setDisabled(true);
     }
+
+    mAddFileButton->setDisabled(false);
 }
 
 void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRecursively)
@@ -396,6 +507,11 @@ void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRec
             searchFiles(path + "/" + dirList.at(i), fileList, isRecursively);
         }
     }
+}
+
+void AddFilesDialog::updateFileListTitle()
+{
+    mFileListTitle->setText(tr("Project Files : (%1)").arg(mFileListModel->rowCount()));
 }
 
 void AddFilesDialog::showFiles(const QStringList &files)
@@ -477,7 +593,7 @@ bool AddFilesDialog::eventFilter(QObject*obj,QEvent*event)
         {
         case Qt::Key_Return:
         case Qt::Key_Enter:
-            curDirCellActivated(mCurDirTableWidget->currentRow(), 0);
+            curDirDoubleClicked(mCurDirTableWidget->currentRow(), 0);
             ret = true;
             break;
 

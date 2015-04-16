@@ -44,13 +44,17 @@ public:
 private slots:
     void accept();
     void showFolder();
-    void curDirCellActivated(int row, int column);
+    void curDirDoubleClicked(int row, int column);
+    void fileListDoubleClicked(const QModelIndex & index);
     void dirSelected(const QModelIndex & current, const QModelIndex &previous);
     void sortCurDir(int index);
     void curPathInput();
-    void cdDirOrAddFile();
+    void addFile();
     void addAll();
     void addTree();
+    void removeFile();
+    void removeAll();
+    void removeTree();
     void curDirItemChanged(QTableWidgetItem * current, QTableWidgetItem * previous);
 
 private:
@@ -60,6 +64,7 @@ private:
     void updateTreeView(const QString & path);
     void cdDirOrAddFileToList(QString itemText);
     void searchFiles(QString path, QStringList& fileList, bool isRecursively = false);
+    void updateFileListTitle();
 
     QLineEdit          * mCurPathEdit;
     QTreeView          * mDirTreeView;
@@ -70,15 +75,14 @@ private:
     QListView          * mFileListView;
     QStandardItemModel * mFileListModel;
 
-    QPushButton * mAddButton;
+    QPushButton * mAddFileButton;
     QPushButton * mAddAllButton;
     QPushButton * mAddTreeButton;
-    QPushButton * mRemoveButton;
+    QPushButton * mRemoveFileButton;
     QPushButton * mRemoveAllButton;
     QPushButton * mRemoveTreeButton;
 
     QPushButton * mOKButton;
-    QPushButton * mCancelButton;
 
     QString       mProjectName;
     QString       mStorePath;

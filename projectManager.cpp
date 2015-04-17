@@ -7,42 +7,56 @@
 NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
 {
-    mOKButton = createButton(tr("OK"), SLOT(accept()));
-    mCancelButton = createButton(tr("Cancel"), SLOT(reject()));
-    mBrowseButton = createButton(tr("Browse..."), SLOT(browse()));
-
+    // project name label and edit
     mNameLabel = new QLabel(tr("New Project Name..."));
-    mStorePathLabel = new QLabel(tr("Where do you want to store the project data file?"));
-
     QString defaultName = "Unitled Project";
     mNameEdit = new QLineEdit(defaultName);
-    mNameEdit->setFixedWidth(360);
+    mNameEdit->setMinimumWidth(360);
     connect(mNameEdit, SIGNAL(textChanged(const QString & )),
                 this, SLOT(onNameChanged(const QString & )));
 
+    // project store path label, edit and browser button
+    mProjStorePathLabel = new QLabel(tr("Where do you want to store the project data file?"));
     QString defaultPath = getSVProjectsLocation() + "/" + defaultName;
-    mStorePathEdit = new QLineEdit(defaultPath);
-    mStorePathEdit->setFixedWidth(360);
+    mProjStorePathEdit = new QLineEdit(defaultPath);
+    mProjStorePathEdit->setMinimumWidth(360);
+    mProjStorePathButton = createButton(tr("&Browse..."), SLOT(browseProjStorePath()));
 
-    QVBoxLayout *leftLayout = new QVBoxLayout();
-    leftLayout->setSpacing(4);
-    leftLayout->setAlignment(Qt::AlignTop);
-    leftLayout->addWidget(mNameLabel);
-    leftLayout->addWidget(mNameEdit);
-    leftLayout->addWidget(mStorePathLabel);
-    leftLayout->addWidget(mStorePathEdit);
-    leftLayout->insertSpacing(2, 12);
-    QVBoxLayout *rightLayout = new QVBoxLayout();
-    rightLayout->setSpacing(12);
-    rightLayout->addWidget(mOKButton);
-    rightLayout->addWidget(mCancelButton);
-    rightLayout->addWidget(mBrowseButton);
+    // source root path label, edit and browser button
+    mSrcRootPathLabel = new QLabel(tr("Where is the source root path?"));
+    mSrcRootPathEdit = new QLineEdit();
+    mSrcRootPathEdit->setMinimumWidth(360);
+    mSrcRootPathButton = createButton(tr("&Browse..."), SLOT(browseSrcRootPath()));
 
-    QHBoxLayout *mainLayout = new QHBoxLayout();
-    mainLayout->addLayout(leftLayout);
-    mainLayout->addLayout(rightLayout);
+    mNextButton = createButton(tr("&Next"), SLOT(accept()));
+    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+    mNextButton->setDefault(true);
+
+    QVBoxLayout * nameLayout = new QVBoxLayout();
+    nameLayout->addWidget(mNameLabel);
+    nameLayout->addWidget(mNameEdit);
+
+    QGridLayout * projStorePath = new QGridLayout();
+    projStorePath->addWidget(mProjStorePathLabel);
+    projStorePath->addWidget(mProjStorePathEdit, 1, 0);
+    projStorePath->addWidget(mProjStorePathButton, 1, 1);
+
+    QGridLayout * srcRootPath = new QGridLayout();
+    srcRootPath->addWidget(mSrcRootPathLabel);
+    srcRootPath->addWidget(mSrcRootPathEdit, 1, 0);
+    srcRootPath->addWidget(mSrcRootPathButton, 1, 1);
+
+    QBoxLayout * naviLayout = new QBoxLayout(QBoxLayout::LeftToRight);
+    naviLayout->addWidget(mCancelButton, 0, Qt::AlignLeft);
+    naviLayout->addWidget(mNextButton, 0, Qt::AlignRight);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addLayout(nameLayout);
     mainLayout->insertSpacing(1, 20);
-    mainLayout->setContentsMargins(12, 10, 12, 40);
+    mainLayout->addLayout(projStorePath);
+    mainLayout->addLayout(srcRootPath);
+    mainLayout->insertSpacing(4, 20);
+    mainLayout->addLayout(naviLayout);
     setLayout(mainLayout);
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -50,20 +64,42 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     setWindowTitle(tr("New Project"));
 }
 
-void NewProjectDialog::browse()
+void NewProjectDialog::browseProjStorePath()
 {
     QString directory = QFileDialog::getExistingDirectory(this,
                                    tr("Browse Files"),
-                                   mStorePathEdit->text());
+                                   mProjStorePathEdit->text());
 
     if (!directory.isEmpty()) {
-        mStorePathEdit->setText(directory);
+        mProjStorePathEdit->setText(directory);
+    }
+}
+
+void NewProjectDialog::browseSrcRootPath()
+{
+    QString directory = QFileDialog::getExistingDirectory(this,
+                                   tr("Browse Files"),
+                                   "/");
+
+    if (!directory.isEmpty()) {
+        mSrcRootPathEdit->setText(directory);
     }
 }
 
 void NewProjectDialog::accept()
 {
-    QString location = mStorePathEdit->text();
+    QString srcRootPath = mSrcRootPathEdit->text();
+    if (srcRootPath == ""){
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, tr("Application"),
+                     tr("You haven't set source root path.\nDo you continue?"),
+                     QMessageBox::Yes | QMessageBox::No);
+        if (ret == QMessageBox::No){
+            return;
+        }
+    }
+
+    QString location = mProjStorePathEdit->text();
     QDir dir = QDir(location);
     if (!dir.exists()){
         dir.mkdir(location);
@@ -75,7 +111,7 @@ void NewProjectDialog::accept()
 void NewProjectDialog::onNameChanged(const QString & text)
 {
     QString storePath = getSVProjectsLocation() + "/" + text;
-    mStorePathEdit->setText(storePath);
+    mProjStorePathEdit->setText(storePath);
 }
 
 QPushButton *NewProjectDialog::createButton(const QString &text, const char *member)
@@ -85,13 +121,14 @@ QPushButton *NewProjectDialog::createButton(const QString &text, const char *mem
     return button;
 }
 
-AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storePath, QWidget *parent)
+AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projStorePath,
+        const QString & srcRootPath, QWidget *parent)
     : QDialog(parent),
-    mProjectName(projectName),
-    mStorePath(storePath),
-    mCurrentPath(storePath)
+    mProjName(projName),
+    mProjStorePath(projStorePath),
+    mCurrentPath(srcRootPath)
 {
-    mCurPathEdit = new QLineEdit(storePath);
+    mCurPathEdit = new QLineEdit(srcRootPath);
     connect(mCurPathEdit, SIGNAL(returnPressed()),
             this, SLOT(curPathInput()));
 
@@ -193,12 +230,12 @@ AddFilesDialog::AddFilesDialog(const QString &projectName, const QString &storeP
 
     setWindowTitle(tr("New Project"));
 
-    updateTreeView(storePath);
+    updateTreeView(srcRootPath);
 }
 
 void AddFilesDialog::accept()
 {
-    QString fileName = mStorePath + "/" + mProjectName + ".filelist";
+    QString fileName = mProjStorePath + "/" + mProjName + ".filelist";
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
@@ -312,7 +349,6 @@ void AddFilesDialog::cdDirOrAddFileToList(QString itemText)
 void AddFilesDialog::dirSelected(const QModelIndex & current, const QModelIndex & /* previous */)
 {
     mCurrentPath = mDirTreeModel->filePath(current);
-    //qDebug() << "dirSelectede " << current << ", mCurrentPath " << mCurrentPath;
     showFolder();
 }
 

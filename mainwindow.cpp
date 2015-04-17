@@ -1,8 +1,6 @@
 
 #include "config.h"
 #include "mainwindow.h"
-#include "windowswatch.h"
-#include "fileListFrame.h"
 #include "projectManager.h"
 
 MainWindow::MainWindow()
@@ -371,15 +369,18 @@ void MainWindow::newProject()
         qDebug() << "NewProjectDialog is Rejected.";
         return;
     }
-//    qDebug() << "Project Store Path is : " + newProjectDialog.getStorePath();
 
-    AddFilesDialog addFilesDialog(newProjectDialog.getProjectName(),
-                newProjectDialog.getStorePath(), this);
+    QString projName = newProjectDialog.getProjName();
+    QString projStorePath = newProjectDialog.getProjStorePath();
+    QString srcRootPath = newProjectDialog.getSrcRootPath();
+    AddFilesDialog addFilesDialog(projName, projStorePath, srcRootPath, this);
     addFilesDialog.setWindowModality(Qt::WindowModal);
     if (addFilesDialog.exec() == QDialog::Rejected){
         qDebug() << "AddFilesDialog is Rejected.";
         return;
     }
+
+    mProjectWindow->setListFile(projStorePath + "/" + projName + ".filelist");
 }
 
 void MainWindow::createActions()
@@ -659,24 +660,23 @@ void MainWindow::createStatusBar()
 
 void MainWindow::setupDockWidgets()
 {
-    FileListFrame *projectWindow = new FileListFrame(tr("projectWindow"), this);
-    addDockWidget(Qt::RightDockWidgetArea, projectWindow);
-    viewMenu->addAction(projectWindow->toggleViewAction());
-    projectWindow->setListFile("F:/Qt/project/build-sourceViewer-Desktop_Qt_5_3_MinGW_32bit-Debug/mainwindow.filelist");
-    connect(projectWindow, SIGNAL(onFileSelected(const QString &)),
+    mProjectWindow = new FileListFrame(tr("projectWindow"), this);
+    addDockWidget(Qt::RightDockWidgetArea, mProjectWindow);
+    viewMenu->addAction(mProjectWindow->toggleViewAction());
+    connect(mProjectWindow, SIGNAL(onFileSelected(const QString &)),
             this, SLOT(openSelectFile(const QString &)));
 
-    WindowSwatch *symbolWindow = new WindowSwatch(tr("symbolWindow"), this);
-    addDockWidget(Qt::LeftDockWidgetArea, symbolWindow);
-    viewMenu->addAction(symbolWindow->toggleViewAction());
+    mSymbolWindow = new WindowSwatch(tr("symbolWindow"), this);
+    addDockWidget(Qt::LeftDockWidgetArea, mSymbolWindow);
+    viewMenu->addAction(mSymbolWindow->toggleViewAction());
 
-    WindowSwatch *contextWindows = new WindowSwatch(tr("contextWindows"), this);
-    addDockWidget(Qt::BottomDockWidgetArea, contextWindows);
-    viewMenu->addAction(contextWindows->toggleViewAction());
+    mContextWindows = new WindowSwatch(tr("contextWindows"), this);
+    addDockWidget(Qt::BottomDockWidgetArea, mContextWindows);
+    viewMenu->addAction(mContextWindows->toggleViewAction());
 
-    WindowSwatch *relationWindow = new WindowSwatch(tr("relationWindow"), this);
-    addDockWidget(Qt::BottomDockWidgetArea, relationWindow);
-    viewMenu->addAction(relationWindow->toggleViewAction());
+    mRelationWindow = new WindowSwatch(tr("relationWindow"), this);
+    addDockWidget(Qt::BottomDockWidgetArea, mRelationWindow);
+    viewMenu->addAction(mRelationWindow->toggleViewAction());
 }
 
 void MainWindow::readSettings()

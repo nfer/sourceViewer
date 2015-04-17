@@ -11,27 +11,34 @@ class NewProjectDialog : public QDialog
 
 public:
     NewProjectDialog(QWidget *parent = 0);
-    QString getProjectName(){
+    QString getProjName(){
         return mNameEdit->text();
     }
-    QString getStorePath(){
-        return mStorePathEdit->text();
+    QString getProjStorePath(){
+        return mProjStorePathEdit->text();
+    }
+    QString getSrcRootPath(){
+        return mSrcRootPathEdit->text();
     }
 
 private slots:
-    void browse();
+    void browseProjStorePath();
+    void browseSrcRootPath();
     void accept();
     void onNameChanged(const QString & text);
 private:
     QPushButton *createButton(const QString &text, const char *member);
 
-    QLineEdit   * mNameEdit;
-    QLineEdit   * mStorePathEdit;
     QLabel      * mNameLabel;
-    QLabel      * mStorePathLabel;
-    QPushButton * mOKButton;
+    QLineEdit   * mNameEdit;
+    QLabel      * mProjStorePathLabel;
+    QLineEdit   * mProjStorePathEdit;
+    QPushButton * mProjStorePathButton;
+    QLabel      * mSrcRootPathLabel;
+    QLineEdit   * mSrcRootPathEdit;
+    QPushButton * mSrcRootPathButton;
     QPushButton * mCancelButton;
-    QPushButton * mBrowseButton;
+    QPushButton * mNextButton;
 };
 
 class AddFilesDialog : public QDialog
@@ -39,7 +46,8 @@ class AddFilesDialog : public QDialog
     Q_OBJECT
 
 public:
-    AddFilesDialog(const QString &projectName, const QString &storePath, QWidget *parent = 0);
+    AddFilesDialog(const QString & projName, const QString & projStorePath,
+        const QString & srcRootPath, QWidget *parent = 0);
 
 private slots:
     void accept();
@@ -84,8 +92,8 @@ private:
 
     QPushButton * mOKButton;
 
-    QString       mProjectName;
-    QString       mStorePath;
+    QString       mProjName;
+    QString       mProjStorePath;
     QString       mCurrentPath;
 
     Qt::SortOrder mSortOrder;

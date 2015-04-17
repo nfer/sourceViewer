@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include "stable.h"
+#include "windowswatch.h"
+#include "fileListFrame.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -129,7 +131,10 @@ private:
     QAction *aboutAct;
     QAction *aboutQtAct;
 
-    // view menu
+    FileListFrame * mProjectWindow;
+    WindowSwatch  * mSymbolWindow;
+    WindowSwatch  * mContextWindows;
+    WindowSwatch  * mRelationWindow;
 };
 
 #endif //MAINWINDOW_H

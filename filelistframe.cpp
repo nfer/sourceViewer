@@ -6,7 +6,7 @@ class FileListDock : public QFrame
     Q_OBJECT
 public:
     FileListDock(QWidget *parent);
-    void setListFile(const QString &fileName);
+    void setListFile(const QString &fileName, const QString &srcRootPath);
 
 private:
     virtual QSize sizeHint() const;
@@ -58,7 +58,7 @@ FileListDock::FileListDock(QWidget *parent)
     setLayout(mainLayout);
 }
 
-void FileListDock::setListFile(const QString &fileName)
+void FileListDock::setListFile(const QString &fileName, const QString & srcRootPath)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -70,23 +70,15 @@ void FileListDock::setListFile(const QString &fileName)
     }
 
     QTextStream in(&file);
-    QStringList strList;
     while(!in.atEnd()){
         QString line=in.readLine();
-        strList.append(line);
-    }
-
-    int nCount = strList.size();
-    for(int i = 0; i < nCount; i++)
-    {
-        QString string = static_cast<QString>(strList.at(i));
-        QStandardItem *item = new QStandardItem(string);
-        if(i % 2 == 1)
-        {
-            item->setBackground(QBrush(QColor(242,242,242)));
-        }
+        if (srcRootPath.length() != 0 && line.startsWith(srcRootPath + "/"))
+            line.remove(srcRootPath + "/");
+        QStandardItem *item = new QStandardItem(line);
         mFileListModel->appendRow(item);
     }
+
+    mFileListModel->sort(0);
 }
 
 QSize FileListDock::sizeHint() const
@@ -123,9 +115,9 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
     setWidget(mDock);
 }
 
-void FileListFrame::setListFile(const QString &fileName)
+void FileListFrame::setListFile(const QString &fileName, const QString &srcRootPath)
 {
-    ((FileListDock*)mDock)->setListFile(fileName);
+    ((FileListDock*)mDock)->setListFile(fileName, srcRootPath);
 }
 
 void FileListFrame::dockFileSelected(const QString &fileName)

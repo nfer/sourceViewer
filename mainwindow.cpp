@@ -380,7 +380,7 @@ void MainWindow::newProject()
         return;
     }
 
-    mProjectWindow->setListFile(projStorePath + "/" + projName + ".filelist");
+    mProjectWindow->setListFile(projStorePath + "/" + projName + ".filelist", srcRootPath);
 }
 
 void MainWindow::createActions()

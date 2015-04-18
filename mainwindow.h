@@ -135,6 +135,9 @@ private:
     WindowSwatch  * mSymbolWindow;
     WindowSwatch  * mContextWindows;
     WindowSwatch  * mRelationWindow;
+
+    QString mProjName;
+    QString mProjStorePath;
 };
 
 #endif //MAINWINDOW_H

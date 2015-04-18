@@ -2,6 +2,7 @@
 #include "config.h"
 #include "mainwindow.h"
 #include "projectManager.h"
+#include "Utils.h"
 
 MainWindow::MainWindow()
 {
@@ -358,7 +359,16 @@ void MainWindow::documentWasModified()
 
 void MainWindow::openSelectFile(const QString & fileName)
 {
-    loadFile(fileName);
+    if (fileName.startsWith("/") || fileName.contains(QRegExp("^[a-zA-Z]:")))
+    {
+        loadFile(fileName);
+    }
+    else{
+        QString configPath = mProjStorePath + "/" + mProjName + ".config";
+        QString srcRootPath;
+        Utils::readString(configPath, "SRCROOTPATH", srcRootPath);
+        loadFile(srcRootPath + "/" + fileName);
+    }
 }
 
 void MainWindow::newProject()
@@ -370,17 +380,20 @@ void MainWindow::newProject()
         return;
     }
 
-    QString projName = newProjectDialog.getProjName();
-    QString projStorePath = newProjectDialog.getProjStorePath();
+    mProjName = newProjectDialog.getProjName();
+    mProjStorePath = newProjectDialog.getProjStorePath();
     QString srcRootPath = newProjectDialog.getSrcRootPath();
-    AddFilesDialog addFilesDialog(projName, projStorePath, srcRootPath, this);
+    AddFilesDialog addFilesDialog(mProjName, mProjStorePath, srcRootPath, this);
     addFilesDialog.setWindowModality(Qt::WindowModal);
     if (addFilesDialog.exec() == QDialog::Rejected){
         qDebug() << "AddFilesDialog is Rejected.";
         return;
     }
 
-    mProjectWindow->setListFile(projStorePath + "/" + projName + ".filelist", srcRootPath);
+    QString configPath = mProjStorePath + "/" + mProjName + ".config";
+    Utils::writeString(configPath, "SRCROOTPATH", srcRootPath);
+
+    mProjectWindow->setListFile(mProjStorePath + "/" + mProjName + ".filelist", srcRootPath);
 }
 
 void MainWindow::createActions()

@@ -2,7 +2,6 @@
 #include "config.h"
 #include "mainwindow.h"
 #include "projectManager.h"
-#include "Utils.h"
 
 MainWindow::MainWindow()
 {
@@ -27,6 +26,8 @@ MainWindow::MainWindow()
     mCodec = NULL;
     mHasBOM = false;
     curEOLAct = NULL;
+
+    mUtils = Utils::enstance();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -364,9 +365,8 @@ void MainWindow::openSelectFile(const QString & fileName)
         loadFile(fileName);
     }
     else{
-        QString configPath = mProjStorePath + "/" + mProjName + ".config";
         QString srcRootPath;
-        Utils::readString(configPath, "SRCROOTPATH", srcRootPath);
+        mUtils->readString(mProjConfigFileName, "SRCROOTPATH", srcRootPath);
         loadFile(srcRootPath + "/" + fileName);
     }
 }
@@ -390,8 +390,8 @@ void MainWindow::newProject()
         return;
     }
 
-    QString configPath = mProjStorePath + "/" + mProjName + ".config";
-    Utils::writeString(configPath, "SRCROOTPATH", srcRootPath);
+    mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
+    mUtils->writeString(mProjConfigFileName, "SRCROOTPATH", srcRootPath);
 
     mProjectWindow->setListFile(mProjStorePath + "/" + mProjName + ".filelist", srcRootPath);
 }

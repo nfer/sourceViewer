@@ -4,6 +4,7 @@
 
 #include "stable.h"
 #include "FileSystemModel.h"
+#include "Utils.h"
 
 class NewProjectDialog : public QDialog
 {
@@ -97,6 +98,11 @@ private:
     QString       mCurrentPath;
 
     Qt::SortOrder mSortOrder;
+
+    QString       mProjConfigFileName;
+    Utils       * mUtils;
+    QStringList   mIgnoreFolderList;
+    QStringList   mIgnoreFileList;
 };
 
 class AddAllDialog : public QDialog

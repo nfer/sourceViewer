@@ -128,7 +128,12 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     mProjStorePath(projStorePath),
     mCurrentPath(srcRootPath)
 {
+    mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
+    mUtils = Utils::enstance();
+    mUtils->readStringList(mProjConfigFileName, "IGNOREFOLDERLIST", mIgnoreFolderList);
+    mUtils->readStringList(mProjConfigFileName, "IGNOREFILELIST", mIgnoreFileList);
     mCurPathEdit = new QLineEdit(srcRootPath);
+
     connect(mCurPathEdit, SIGNAL(returnPressed()),
             this, SLOT(curPathInput()));
 
@@ -528,9 +533,14 @@ void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRec
     QString fullPath;
     for ( int i=0; i<curFileList.count(); i++){
         fullPath = path + "/" + curFileList.at(i);
-        curFileList.replace(i, fullPath);
+
+        if (mIgnoreFileList.contains(curFileList.at(i)) ||
+            mIgnoreFileList.contains(fullPath)){
+            continue;
+        }
+
+        fileList += fullPath;
     }
-    fileList += curFileList;
 
     QStringList dirList;
     dirList = dir.entryList(QDir::Dirs);
@@ -540,7 +550,14 @@ void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRec
     if (isRecursively){
         // Recursively Add Children
         for ( int i=0; i<dirList.count(); i++){
-            searchFiles(path + "/" + dirList.at(i), fileList, isRecursively);
+            fullPath = path + "/" + dirList.at(i);
+
+            if (mIgnoreFolderList.contains(dirList.at(i)) ||
+                mIgnoreFileList.contains(fullPath)){
+                continue;
+            }
+
+            searchFiles(fullPath, fileList, isRecursively);
         }
     }
 }
@@ -572,6 +589,20 @@ void AddFilesDialog::showFiles(const QStringList &files)
 
         QFile file(fullPath);
         QFileInfo fileInfo = QFileInfo(file);
+
+        if (fileInfo.isDir() && mIgnoreFolderList.size() != 0 &&
+            (mIgnoreFolderList.contains(fileInfo.fileName()) ||
+             mIgnoreFolderList.contains(fileInfo.absoluteFilePath()))
+            ){
+            continue;
+        }
+
+        if (fileInfo.isFile() && mIgnoreFileList.size() != 0 &&
+            (mIgnoreFileList.contains(fileInfo.fileName()) ||
+             mIgnoreFileList.contains(fileInfo.absoluteFilePath()))
+            ){
+            continue;
+        }
 
         // File Name
         QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);

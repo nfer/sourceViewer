@@ -4,6 +4,7 @@
 #include "stable.h"
 #include "windowswatch.h"
 #include "fileListFrame.h"
+#include "Utils.h"
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -138,6 +139,8 @@ private:
 
     QString mProjName;
     QString mProjStorePath;
+    QString mProjConfigFileName;
+    Utils  *mUtils;
 };
 
 #endif //MAINWINDOW_H

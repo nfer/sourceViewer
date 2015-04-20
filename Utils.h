@@ -11,6 +11,10 @@ public:
     bool writeStringList(QString path, QString key, QStringList value);
     bool readStringList(QString path, QString key, QStringList &value);
 
+    bool isIgnoredFile(const QString &file, const QStringList & ignoreFileList);
+    bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);
+    bool isIgnoredFolder(const QString & file, const QStringList & ignoreFolderList);
+
 private:
     Utils();
 };

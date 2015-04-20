@@ -88,3 +88,26 @@ bool Utils::readStringList(QString path, QString key, QStringList &value)
 
     return true;
 }
+
+bool Utils::isIgnoredFile(const QString & file, const QStringList & ignoreFileList)
+{
+    return ignoreFileList.contains(file);
+}
+
+bool Utils::IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList)
+{
+    for (int i=0; i<ignoreSuffixList.size(); i++){
+        QString ignoreSuffix = ignoreSuffixList.at(i);
+        ignoreSuffix.remove('*');
+        if (file.endsWith(ignoreSuffix)){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Utils::isIgnoredFolder(const QString &file, const QStringList & ignoreFolderList)
+{
+    return ignoreFolderList.contains(file);
+}

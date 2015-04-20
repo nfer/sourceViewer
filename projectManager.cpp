@@ -132,6 +132,8 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     mUtils = Utils::enstance();
     mUtils->readStringList(mProjConfigFileName, "IGNOREFOLDERLIST", mIgnoreFolderList);
     mUtils->readStringList(mProjConfigFileName, "IGNOREFILELIST", mIgnoreFileList);
+    mIgnoreSuffixList = mIgnoreFileList.filter(QRegExp("^\\*\\..*")); // suffix like *.txt
+
     mCurPathEdit = new QLineEdit(srcRootPath);
 
     connect(mCurPathEdit, SIGNAL(returnPressed()),
@@ -526,34 +528,35 @@ void AddFilesDialog::curDirItemChanged(QTableWidgetItem * current, QTableWidgetI
 
 void AddFilesDialog::searchFiles(QString path, QStringList& fileList, bool isRecursively)
 {
-//    qDebug() << "isRecursively() " << isRecursively;
     QDir dir(path);
     QStringList curFileList = dir.entryList(QDir::Files);
 
+    QString fileName;
     QString fullPath;
     for ( int i=0; i<curFileList.count(); i++){
-        fullPath = path + "/" + curFileList.at(i);
+        fileName = curFileList.at(i);
+        fullPath = path + "/" + fileName;
 
-        if (mIgnoreFileList.contains(curFileList.at(i)) ||
-            mIgnoreFileList.contains(fullPath)){
+        if (mUtils->isIgnoredFile(fileName, mIgnoreFileList) ||
+            mUtils->isIgnoredFile(fullPath, mIgnoreFileList) ||
+            mUtils->IsIgnoreSuffix(fileName, mIgnoreSuffixList)){
             continue;
         }
 
         fileList += fullPath;
     }
 
-    QStringList dirList;
-    dirList = dir.entryList(QDir::Dirs);
-    dirList.removeAt(1);    //remove ".."
-    dirList.removeAt(0);    //remove "."
-
     if (isRecursively){
+        QStringList dirList;
+        dirList = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
         // Recursively Add Children
         for ( int i=0; i<dirList.count(); i++){
-            fullPath = path + "/" + dirList.at(i);
+            fileName = curFileList.at(i);
+            fullPath = path + "/" + fileName;
 
-            if (mIgnoreFolderList.contains(dirList.at(i)) ||
-                mIgnoreFileList.contains(fullPath)){
+            if (mUtils->isIgnoredFolder(fileName, mIgnoreFolderList) ||
+                mUtils->isIgnoredFolder(fullPath, mIgnoreFolderList)){
                 continue;
             }
 
@@ -576,13 +579,15 @@ void AddFilesDialog::showFiles(const QStringList &files)
     QDir dir = QDir(mCurrentPath);
 
     int rowCount = 0;
+    QString fileName;
+    QString fullPath;
     for (int i = 0; i < files.size(); ++i) {
-        QString fullPath = dir.absoluteFilePath(files[i]);
+        fileName = files[i];
+        fullPath = dir.absoluteFilePath(fileName);
 
         if (mFileListModel->rowCount() != 0){
             QList<QStandardItem *> list = mFileListModel->findItems(fullPath);
             if (list.size() != 0){
-//                qDebug() << "already has this file in file list." << fullPath;
                 continue;
             }
         }
@@ -590,22 +595,21 @@ void AddFilesDialog::showFiles(const QStringList &files)
         QFile file(fullPath);
         QFileInfo fileInfo = QFileInfo(file);
 
-        if (fileInfo.isDir() && mIgnoreFolderList.size() != 0 &&
-            (mIgnoreFolderList.contains(fileInfo.fileName()) ||
-             mIgnoreFolderList.contains(fileInfo.absoluteFilePath()))
-            ){
-            continue;
+        if (fileInfo.isDir() && mIgnoreFolderList.size() != 0){
+            if (mUtils->isIgnoredFolder(fileInfo.fileName(), mIgnoreFolderList) ||
+                mUtils->isIgnoredFolder(fileInfo.absoluteFilePath(), mIgnoreFolderList))
+                continue;
         }
 
-        if (fileInfo.isFile() && mIgnoreFileList.size() != 0 &&
-            (mIgnoreFileList.contains(fileInfo.fileName()) ||
-             mIgnoreFileList.contains(fileInfo.absoluteFilePath()))
-            ){
-            continue;
+        if (fileInfo.isFile() && mIgnoreFileList.size() != 0){
+            if (mUtils->isIgnoredFile(fileInfo.fileName(), mIgnoreFileList) ||
+                mUtils->isIgnoredFile(fileInfo.absoluteFilePath(), mIgnoreFileList) ||
+                mUtils->IsIgnoreSuffix(fileInfo.fileName(), mIgnoreSuffixList))
+                continue;
         }
 
         // File Name
-        QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
+        QTableWidgetItem *fileNameItem = new QTableWidgetItem(fileName);
         QFileIconProvider fileIcon;
         fileNameItem->setIcon(fileIcon.icon(fileInfo));
 

@@ -103,6 +103,7 @@ private:
     Utils       * mUtils;
     QStringList   mIgnoreFolderList;
     QStringList   mIgnoreFileList;
+    QStringList   mIgnoreSuffixList;
 };
 
 class AddAllDialog : public QDialog

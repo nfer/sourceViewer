@@ -23,12 +23,17 @@ public:
     bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);
     bool isIgnoredFolder(const QString & file, const QStringList & ignoreFolderList);
 
+    void addProject(const QString & name, const QString & storePath);
+    void removeProject(const QString & name);
+    bool isProjectExist(const QString & name);
+
 private:
     Utils();
     ~Utils();
 
     QString     mDefaultConfigFile;
     QString     mProjectConfigFile;
+    QStringList mProjNameList;
 
     QSettings * mDefaultConfig;
     QSettings * mProjectConfig;

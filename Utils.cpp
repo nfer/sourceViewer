@@ -18,6 +18,7 @@ Utils::Utils():
 {
     mDefaultConfigFile = getSVDocumentsLocation() +"/" + SV_PROGRAM_NAME + ".config";
     mDefaultConfig = new QSettings(mDefaultConfigFile, QSettings::IniFormat);
+    mProjNameList = mDefaultConfig->value("project/PROJECTNAMELIST").toStringList();
 }
 
 Utils::~Utils()
@@ -176,4 +177,29 @@ bool Utils::IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffi
 bool Utils::isIgnoredFolder(const QString &file, const QStringList & ignoreFolderList)
 {
     return ignoreFolderList.contains(file);
+}
+
+void Utils::addProject(const QString & name, const QString & storePath)
+{
+    mProjNameList += name;
+
+    mDefaultConfig->beginGroup("project");
+    mDefaultConfig->setValue("PROJECTNAMELIST", mProjNameList);
+    mDefaultConfig->setValue(name, storePath);
+    mDefaultConfig->endGroup();
+}
+
+void Utils::removeProject(const QString & name)
+{
+    mProjNameList.removeOne(name);
+
+    mDefaultConfig->beginGroup("project");
+    mDefaultConfig->setValue("PROJECTNAMELIST", mProjNameList);
+    mDefaultConfig->remove(name);
+    mDefaultConfig->endGroup();
+}
+
+bool Utils::isProjectExist(const QString & name)
+{
+    return mProjNameList.contains(name);
 }

@@ -88,6 +88,14 @@ void NewProjectDialog::browseSrcRootPath()
 
 void NewProjectDialog::accept()
 {
+    bool isExist = Utils::enstance()->isProjectExist(mNameEdit->text());
+    if (isExist){
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Already has project with the same name.\nPlease input another one."),
+                             QMessageBox::Ok);
+        return;
+    }
+
     QString srcRootPath = mSrcRootPathEdit->text();
     if (srcRootPath == ""){
         QMessageBox::StandardButton ret;

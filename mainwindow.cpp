@@ -390,6 +390,8 @@ void MainWindow::newProject()
         return;
     }
 
+    mUtils->addProject(mProjName, mProjStorePath);
+
     if (mUtils->getProjectConfigFile().isEmpty()){
         mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
         mUtils->setProjectConfigFile(mProjConfigFileName);

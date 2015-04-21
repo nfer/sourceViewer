@@ -99,7 +99,6 @@ private:
 
     Qt::SortOrder mSortOrder;
 
-    QString       mProjConfigFileName;
     Utils       * mUtils;
     QStringList   mIgnoreFolderList;
     QStringList   mIgnoreFileList;

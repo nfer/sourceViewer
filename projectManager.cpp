@@ -128,10 +128,15 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     mProjStorePath(projStorePath),
     mCurrentPath(srcRootPath)
 {
-    mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
     mUtils = Utils::enstance();
-    mUtils->readStringList(mProjConfigFileName, "IGNOREFOLDERLIST", mIgnoreFolderList);
-    mUtils->readStringList(mProjConfigFileName, "IGNOREFILELIST", mIgnoreFileList);
+
+    if (mUtils->getProjectConfigFile().isEmpty()){
+        QString projConfigFile = mProjStorePath + "/" + mProjName + ".config";
+        mUtils->setProjectConfigFile(projConfigFile);
+    }
+
+    mUtils->readStringList("IGNOREFOLDERLIST", mIgnoreFolderList);
+    mUtils->readStringList("IGNOREFILELIST", mIgnoreFileList);
     mIgnoreSuffixList = mIgnoreFileList.filter(QRegExp("^\\*\\..*")); // suffix like *.txt
 
     mCurPathEdit = new QLineEdit(srcRootPath);

@@ -366,7 +366,7 @@ void MainWindow::openSelectFile(const QString & fileName)
     }
     else{
         QString srcRootPath;
-        mUtils->readString(mProjConfigFileName, "SRCROOTPATH", srcRootPath);
+        mUtils->readString("SRCROOTPATH", srcRootPath);
         loadFile(srcRootPath + "/" + fileName);
     }
 }
@@ -390,8 +390,12 @@ void MainWindow::newProject()
         return;
     }
 
-    mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
-    mUtils->writeString(mProjConfigFileName, "SRCROOTPATH", srcRootPath);
+    if (mUtils->getProjectConfigFile().isEmpty()){
+        mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
+        mUtils->setProjectConfigFile(mProjConfigFileName);
+    }
+
+    mUtils->writeString("SRCROOTPATH", srcRootPath);
 
     mProjectWindow->setListFile(mProjStorePath + "/" + mProjName + ".filelist", srcRootPath);
 }

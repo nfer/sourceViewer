@@ -12,78 +12,144 @@ Utils * Utils::enstance(){
     return utils;
 }
 
-Utils::Utils()
+Utils::Utils():
+    mProjectConfigFile(),
+    mProjectConfig(NULL)
 {
-    
+    mDefaultConfigFile = getSVDocumentsLocation() +"/" + SV_PROGRAM_NAME + ".config";
+    mDefaultConfig = new QSettings(mDefaultConfigFile, QSettings::IniFormat);
 }
 
-bool Utils::writeString(QString path, QString key, QString value)
+Utils::~Utils()
 {
-    if(path.isEmpty() || key.isEmpty())
+    delete mDefaultConfig;
+    delete mProjectConfig;
+}
+
+void Utils::setProjectConfigFile(QString & file)
+{
+    if (NULL != mProjectConfig)
+        delete mProjectConfig;
+
+    mProjectConfigFile = file;
+    mProjectConfig = new QSettings(mProjectConfigFile, QSettings::IniFormat);
+}
+
+bool Utils::writeInt(QString key, int value)
+{
+    if(key.isEmpty())
     {
         return false;
     }
 
-    QSettings *config = new QSettings(path, QSettings::IniFormat);
-    config->beginGroup("config");
-    config->setValue(key, value);
-    config->endGroup();
-
-    return true;
-}
-
-bool Utils::readString(QString path, QString key, QString &value)
-{
-    if(path.isEmpty() || key.isEmpty()){
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
         return false;
     }
 
-    QSettings *config = new QSettings(path, QSettings::IniFormat);
-    value = config->value(QString("config/") + key).toString();
-
-    if (value.length() == 0){
-        // not found in key in path config, try program config file
-        QString defaultConfigPath = getSVDocumentsLocation() +"/" +
-                SV_PROGRAM_NAME + ".config";
-        QSettings * defaultConfig = new QSettings(defaultConfigPath,
-                                                  QSettings::IniFormat);
-        value = defaultConfig->value(QString("config/") + key).toString();
-    }
+    mProjectConfig->beginGroup("config");
+    mProjectConfig->setValue(key, value);
+    mProjectConfig->endGroup();
 
     return true;
 }
 
-bool Utils::writeStringList(QString path, QString key, QStringList value)
+int  Utils::readInt(QString key)
 {
-    if(path.isEmpty() || key.isEmpty())
+    if(key.isEmpty()){
+        return false;
+    }
+
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
+        return false;
+    }
+
+    QString value = mProjectConfig->value(QString("config/") + key).toString();
+
+    if (value.length() == 0){
+        // not found in key in config, try program config file
+        value = mDefaultConfig->value(QString("config/") + key).toString();
+    }
+
+    return value.toInt();
+}
+
+bool Utils::writeString(QString key, QString value)
+{
+    if(key.isEmpty())
     {
         return false;
     }
 
-    QSettings *config = new QSettings(path, QSettings::IniFormat);
-    config->beginGroup("config");
-    config->setValue(key, value);
-    config->endGroup();
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
+        return false;
+    }
+
+    mProjectConfig->beginGroup("config");
+    mProjectConfig->setValue(key, value);
+    mProjectConfig->endGroup();
 
     return true;
 }
 
-bool Utils::readStringList(QString path, QString key, QStringList &value)
+bool Utils::readString(QString key, QString &value)
 {
-    if(path.isEmpty() || key.isEmpty()){
+    if(key.isEmpty()){
         return false;
     }
 
-    QSettings *config = new QSettings(path, QSettings::IniFormat);
-    value = config->value(QString("config/") + key).toStringList();
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
+        return false;
+    }
+
+    value = mProjectConfig->value(QString("config/") + key).toString();
 
     if (value.length() == 0){
-        // not found in key in path config, try program config file
-        QString defaultConfigPath = getSVDocumentsLocation() +"/" +
-                SV_PROGRAM_NAME + ".config";
-        QSettings * defaultConfig = new QSettings(defaultConfigPath,
-                                                  QSettings::IniFormat);
-        value = defaultConfig->value(QString("config/") + key).toStringList();
+        // not found in key in config, try program config file
+        value = mDefaultConfig->value(QString("config/") + key).toString();
+    }
+
+    return true;
+}
+
+bool Utils::writeStringList(QString key, QStringList value)
+{
+    if(key.isEmpty())
+    {
+        return false;
+    }
+
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
+        return false;
+    }
+
+    mProjectConfig->beginGroup("config");
+    mProjectConfig->setValue(key, value);
+    mProjectConfig->endGroup();
+
+    return true;
+}
+
+bool Utils::readStringList(QString key, QStringList &value)
+{
+    if(key.isEmpty()){
+        return false;
+    }
+
+    if (NULL == mProjectConfig){
+        qWarning() << "Please setProjectConfigFile() first!";
+        return false;
+    }
+
+    value = mProjectConfig->value(QString("config/") + key).toStringList();
+
+    if (value.length() == 0){
+        // not found in key in config, try default config file
+        value = mDefaultConfig->value(QString("config/") + key).toStringList();
     }
 
     return true;

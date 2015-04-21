@@ -6,10 +6,18 @@
 class Utils{
 public:
     static Utils * enstance();
-    bool writeString(QString path, QString key, QString value);
-    bool readString(QString path, QString key, QString &value);
-    bool writeStringList(QString path, QString key, QStringList value);
-    bool readStringList(QString path, QString key, QStringList &value);
+
+    void setProjectConfigFile(QString & file);
+    QString getProjectConfigFile(){
+        return mProjectConfigFile;
+    }
+
+    bool writeInt(QString key, int value);
+    int  readInt(QString key);
+    bool writeString(QString key, QString value);
+    bool readString(QString key, QString &value);
+    bool writeStringList(QString key, QStringList value);
+    bool readStringList(QString key, QStringList &value);
 
     bool isIgnoredFile(const QString &file, const QStringList & ignoreFileList);
     bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);
@@ -17,6 +25,13 @@ public:
 
 private:
     Utils();
+    ~Utils();
+
+    QString     mDefaultConfigFile;
+    QString     mProjectConfigFile;
+
+    QSettings * mDefaultConfig;
+    QSettings * mProjectConfig;
 };
 
 #endif // UTILS_H

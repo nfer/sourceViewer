@@ -134,6 +134,7 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     : QDialog(parent),
     mProjName(projName),
     mProjStorePath(projStorePath),
+    mSrcRootPath(srcRootPath),
     mCurrentPath(srcRootPath)
 {
     mUtils = Utils::enstance();
@@ -281,6 +282,9 @@ void AddFilesDialog::accept()
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
+
+    mUtils->writeString("SRCROOTPATH", mSrcRootPath);
+    mUtils->addProject(mProjName, mProjStorePath);
 
     QDialog::accept();
 }

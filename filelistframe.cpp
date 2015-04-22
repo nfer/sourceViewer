@@ -1,5 +1,6 @@
 
 #include "filelistframe.h"
+#include "Utils.h"
 
 class FileListDock : public QFrame
 {
@@ -98,7 +99,17 @@ void FileListDock::currentTextChanged(const QString & text)
 
 void FileListDock::listViewDoubleClicked(const QModelIndex & index)
 {
-    emit onFileSelected(mFileListModel->itemFromIndex(index)->text());
+    QString fileName = mFileListModel->itemFromIndex(index)->text();
+
+    if (fileName.startsWith("/") || fileName.contains(QRegExp("^[a-zA-Z]:")))
+    {
+        emit onFileSelected(fileName);
+    }
+    else{
+        QString srcRootPath;
+        Utils::enstance()->readString("SRCROOTPATH", srcRootPath);
+        emit onFileSelected(srcRootPath + "/" + fileName);
+    }
 }
 
 FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)

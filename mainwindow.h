@@ -140,7 +140,6 @@ private:
     QString mProjName;
     QString mProjStorePath;
     QString mProjConfigFileName;
-    Utils  *mUtils;
 };
 
 #endif //MAINWINDOW_H

@@ -26,8 +26,6 @@ MainWindow::MainWindow()
     mCodec = NULL;
     mHasBOM = false;
     curEOLAct = NULL;
-
-    mUtils = Utils::enstance();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -360,15 +358,7 @@ void MainWindow::documentWasModified()
 
 void MainWindow::openSelectFile(const QString & fileName)
 {
-    if (fileName.startsWith("/") || fileName.contains(QRegExp("^[a-zA-Z]:")))
-    {
-        loadFile(fileName);
-    }
-    else{
-        QString srcRootPath;
-        mUtils->readString("SRCROOTPATH", srcRootPath);
-        loadFile(srcRootPath + "/" + fileName);
-    }
+    loadFile(fileName);
 }
 
 void MainWindow::newProject()
@@ -389,15 +379,6 @@ void MainWindow::newProject()
         qDebug() << "AddFilesDialog is Rejected.";
         return;
     }
-
-    mUtils->addProject(mProjName, mProjStorePath);
-
-    if (mUtils->getProjectConfigFile().isEmpty()){
-        mProjConfigFileName = mProjStorePath + "/" + mProjName + ".config";
-        mUtils->setProjectConfigFile(mProjConfigFileName);
-    }
-
-    mUtils->writeString("SRCROOTPATH", srcRootPath);
 
     mProjectWindow->setListFile(mProjStorePath + "/" + mProjName + ".filelist", srcRootPath);
 }

@@ -95,6 +95,7 @@ private:
 
     QString       mProjName;
     QString       mProjStorePath;
+    QString       mSrcRootPath;
     QString       mCurrentPath;
 
     Qt::SortOrder mSortOrder;

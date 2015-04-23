@@ -7,13 +7,10 @@ class FileListDock : public QFrame
     Q_OBJECT
 public:
     FileListDock(QWidget *parent);
-    void setListFile(const QString &fileName, const QString &srcRootPath);
+    void updateFileList();
 
 private:
     virtual QSize sizeHint() const;
-    QComboBox            * mFileComboBox;
-    QListView            * mFileListView;
-    QStandardItemModel   * mFileListModel;
 
 signals:
     void onFileSelected(const QString &);
@@ -23,13 +20,19 @@ private slots:
     void currentTextChanged(const QString & text);
     void listViewDoubleClicked(const QModelIndex & index);
 
-protected:
-    QSize szHint;
+private:
+    Utils                * mUtils;
+    QComboBox            * mFileComboBox;
+    QListView            * mFileListView;
+    QStandardItemModel   * mFileListModel;
+    QSize                  szHint;
 };
 
 FileListDock::FileListDock(QWidget *parent)
     : QFrame(parent)
 {
+    mUtils = Utils::enstance();
+
     szHint = QSize(125, 75);
     setMinimumSize(10, 10);
 
@@ -59,16 +62,26 @@ FileListDock::FileListDock(QWidget *parent)
     setLayout(mainLayout);
 }
 
-void FileListDock::setListFile(const QString &fileName, const QString & srcRootPath)
+void FileListDock::updateFileList()
 {
-    QFile file(fileName);
+    mFileListModel->clear();
+
+    QString fileListFile = mUtils->getProjFileListFile();
+    if (fileListFile.isEmpty()){
+        return ;
+    }
+
+    QFile file(fileListFile);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(fileName)
+                             .arg(fileListFile)
                              .arg(file.errorString()));
         return;
     }
+
+    QString srcRootPath;
+    mUtils->readString(SRCROOTPATH, srcRootPath);
 
     QTextStream in(&file);
     while(!in.atEnd()){
@@ -107,7 +120,7 @@ void FileListDock::listViewDoubleClicked(const QModelIndex & index)
     }
     else{
         QString srcRootPath;
-        Utils::enstance()->readString("SRCROOTPATH", srcRootPath);
+        Utils::enstance()->readString(SRCROOTPATH, srcRootPath);
         emit onFileSelected(srcRootPath + "/" + fileName);
     }
 }
@@ -126,9 +139,9 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
     setWidget(mDock);
 }
 
-void FileListFrame::setListFile(const QString &fileName, const QString &srcRootPath)
+void FileListFrame::updateFileList()
 {
-    ((FileListDock*)mDock)->setListFile(fileName, srcRootPath);
+    ((FileListDock*)mDock)->updateFileList();
 }
 
 void FileListFrame::dockFileSelected(const QString &fileName)

@@ -1,6 +1,5 @@
 
 #include "stable.h"
-#include "config.h"
 #include "Utils.h"
 
 static Utils * utils;
@@ -13,11 +12,9 @@ Utils * Utils::enstance(){
 }
 
 Utils::Utils():
-    mProjectConfigFile(),
     mProjectConfig(NULL)
 {
-    mDefaultConfigFile = getSVDocumentsLocation() +"/" + SV_PROGRAM_NAME + ".config";
-    mDefaultConfig = new QSettings(mDefaultConfigFile, QSettings::IniFormat);
+    mDefaultConfig = new QSettings(getDefaultConfigFile(), QSettings::IniFormat);
     mProjNameList = mDefaultConfig->value("project/PROJECTNAMELIST").toStringList();
 }
 
@@ -27,13 +24,11 @@ Utils::~Utils()
     delete mProjectConfig;
 }
 
-void Utils::setProjectConfigFile(QString & file)
-{
-    if (NULL != mProjectConfig)
-        delete mProjectConfig;
+void Utils::setCurrentProject(QString & name, QString & storePath){
+    mProjName = name;
+    mProjStorePath = storePath;
 
-    mProjectConfigFile = file;
-    mProjectConfig = new QSettings(mProjectConfigFile, QSettings::IniFormat);
+    mProjectConfig = new QSettings(getProjectConfigFile(), QSettings::IniFormat);
 }
 
 bool Utils::writeInt(QString key, int value)
@@ -44,7 +39,7 @@ bool Utils::writeInt(QString key, int value)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 
@@ -62,7 +57,7 @@ int  Utils::readInt(QString key)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 
@@ -84,7 +79,7 @@ bool Utils::writeString(QString key, QString value)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 
@@ -102,7 +97,7 @@ bool Utils::readString(QString key, QString &value)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 
@@ -124,7 +119,7 @@ bool Utils::writeStringList(QString key, QStringList value)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 
@@ -142,7 +137,7 @@ bool Utils::readStringList(QString key, QStringList &value)
     }
 
     if (NULL == mProjectConfig){
-        qWarning() << "Please setProjectConfigFile() first!";
+        qWarning() << "Please set project Name and StorePath first!";
         return false;
     }
 

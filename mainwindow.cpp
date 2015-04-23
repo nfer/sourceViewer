@@ -373,6 +373,7 @@ void MainWindow::newProject()
     mProjName = newProjectDialog.getProjName();
     mProjStorePath = newProjectDialog.getProjStorePath();
     QString srcRootPath = newProjectDialog.getSrcRootPath();
+
     AddFilesDialog addFilesDialog(mProjName, mProjStorePath, srcRootPath, this);
     addFilesDialog.setWindowModality(Qt::WindowModal);
     if (addFilesDialog.exec() == QDialog::Rejected){
@@ -380,7 +381,7 @@ void MainWindow::newProject()
         return;
     }
 
-    mProjectWindow->setListFile(mProjStorePath + "/" + mProjName + ".filelist", srcRootPath);
+    mProjectWindow->updateFileList();
 }
 
 void MainWindow::createActions()

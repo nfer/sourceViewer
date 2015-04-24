@@ -124,4 +124,41 @@ private:
     QPushButton * mCancelButton;
 };
 
+class OpenProjectDialog : public QDialog
+{
+
+    Q_OBJECT
+
+public:
+    OpenProjectDialog(QWidget *parent = 0);
+    QString getProjName(){
+        return mProjName;
+    }
+    QString getProjStorePath(){
+        return mProjStorePath;
+    }
+
+private slots:
+    void accept();
+    void browse();
+    void onNameChanged(const QString & text);
+    void projListDoubleClicked(const QModelIndex & index);
+
+private:
+    QPushButton *createButton(const QString &text, const char *member);
+
+    Utils              * mUtils;
+
+    QLabel             * mNameLabel;
+    QLineEdit          * mNameEdit;
+    QListView          * mProjListView;
+    QStandardItemModel * mProjListModel;
+    QPushButton        * mOKButton;
+    QPushButton        * mCancelButton;
+    QPushButton        * mBrowseButton;
+
+    QString              mProjName;
+    QString              mProjStorePath;
+};
+
 #endif

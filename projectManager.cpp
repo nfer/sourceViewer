@@ -759,3 +759,93 @@ QPushButton *AddAllDialog::createButton(const QString &text, const char *member)
     connect(button, SIGNAL(clicked()), this, member);
     return button;
 }
+
+OpenProjectDialog::OpenProjectDialog(QWidget *parent)
+    : QDialog(parent)
+{
+    mUtils = Utils::enstance();
+
+    // project name label and edit
+    mNameLabel = new QLabel(tr("Project Name:"));
+    mNameEdit = new QLineEdit();
+    mNameEdit->setMinimumWidth(240);
+    connect(mNameEdit, SIGNAL(textChanged(const QString & )),
+                this, SLOT(onNameChanged(const QString & )));
+
+
+    mProjListView = new QListView;
+    mProjListModel = new QStandardItemModel;
+    mProjListView->setModel(mProjListModel);
+    mProjListView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    mProjListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    mProjListView->setAlternatingRowColors(true);
+    connect(mProjListView, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(projListDoubleClicked(const QModelIndex &)));
+
+    QStringList projNameList = mUtils->getProjNameList();
+    QString projName;
+    for (int i = 0; i < projNameList.size(); i++){
+        projName = projNameList.at(i);
+        QStandardItem *item = new QStandardItem(projName);
+        mProjListModel->appendRow(item);
+    }
+    if (mProjListModel->rowCount() > 1)
+        mProjListModel->sort(0);
+
+    mBrowseButton = createButton(tr("&Browse..."), SLOT(browse()));
+    mOKButton = createButton(tr("&OK"), SLOT(accept()));
+    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+
+    QVBoxLayout * projLayout = new QVBoxLayout();
+    projLayout->addWidget(mNameLabel);
+    projLayout->addWidget(mNameEdit);
+    projLayout->addWidget(mProjListView);
+
+    QBoxLayout * naviLayout = new QBoxLayout(QBoxLayout::TopToBottom);
+    naviLayout->addWidget(mOKButton);
+    naviLayout->addWidget(mCancelButton);
+    naviLayout->addWidget(mBrowseButton, 0, Qt::AlignBottom);
+
+    QHBoxLayout *mainLayout = new QHBoxLayout();
+    mainLayout->addLayout(projLayout);
+    mainLayout->addLayout(naviLayout);
+    setLayout(mainLayout);
+
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    setWindowTitle(tr("Open Project"));
+}
+
+void OpenProjectDialog::accept()
+{
+    QDialog::accept();
+}
+
+void OpenProjectDialog::browse()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Project"),
+                                                getSVProjectsLocation(),
+                                                tr("Project Files (*.project)"));
+    if (!fileName.isEmpty())
+        mNameEdit->setText(fileName);
+}
+
+void OpenProjectDialog::onNameChanged(const QString & text)
+{
+    qDebug() << "onNameChanged " << text;
+}
+
+void OpenProjectDialog::projListDoubleClicked(const QModelIndex & index )
+{
+    mProjName = mProjListModel->itemFromIndex(index)->text();
+    mProjStorePath = mUtils->getProjStorePath(mProjName);
+    mUtils->setCurrentProject(mProjName, mProjStorePath);
+    QDialog::accept();
+}
+
+QPushButton *OpenProjectDialog::createButton(const QString &text, const char *member)
+{
+    QPushButton *button = new QPushButton(text);
+    connect(button, SIGNAL(clicked()), this, member);
+    return button;
+}

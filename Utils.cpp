@@ -174,6 +174,12 @@ bool Utils::isIgnoredFolder(const QString &file, const QStringList & ignoreFolde
     return ignoreFolderList.contains(file);
 }
 
+QString Utils::getProjStorePath(const QString & name)
+{
+    return mDefaultConfig->value(QString("project/") + name).toString();
+
+}
+
 void Utils::addProject(const QString & name, const QString & storePath)
 {
     mProjNameList += name;

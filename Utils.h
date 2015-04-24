@@ -24,6 +24,10 @@ public:
     bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);
     bool isIgnoredFolder(const QString & file, const QStringList & ignoreFolderList);
 
+    QStringList getProjNameList(){
+        return mProjNameList;
+    }
+    QString getProjStorePath(const QString & name);
     void addProject(const QString & name, const QString & storePath);
     void removeProject(const QString & name);
     bool isProjectExist(const QString & name);

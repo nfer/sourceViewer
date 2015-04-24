@@ -384,6 +384,21 @@ void MainWindow::newProject()
     mProjectWindow->updateFileList();
 }
 
+void MainWindow::openProject()
+{
+    OpenProjectDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    if (dialog.exec() == QDialog::Rejected){
+        qDebug() << "NewProjectDialog is Rejected.";
+        return;
+    }
+
+    mProjName = dialog.getProjName();
+    mProjStorePath = dialog.getProjStorePath();
+
+    mProjectWindow->updateFileList();
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -527,6 +542,7 @@ void MainWindow::createActions()
     openProjAct = new QAction(tr("&Open Project..."), this);
     openProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+P")));
     openProjAct->setStatusTip(tr("Opens an existing project."));
+    connect(openProjAct, SIGNAL(triggered()), this, SLOT(openProject()));
 
     closeProjAct = new QAction(tr("&Close Project"), this);
     closeProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+W")));

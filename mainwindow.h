@@ -40,6 +40,7 @@ private slots:
     void documentWasModified();
     void openSelectFile(const QString & fileName);
     void newProject();
+    void openProject();
 
 private:
     void createActions();

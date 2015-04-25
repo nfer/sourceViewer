@@ -818,6 +818,11 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent)
 
 void OpenProjectDialog::accept()
 {
+    QModelIndex index = mProjListView->currentIndex();
+    if (index.isValid()){
+        selectProjectByIndex(index);
+    }
+
     QDialog::accept();
 }
 
@@ -837,9 +842,7 @@ void OpenProjectDialog::onNameChanged(const QString & text)
 
 void OpenProjectDialog::projListDoubleClicked(const QModelIndex & index )
 {
-    mProjName = mProjListModel->itemFromIndex(index)->text();
-    mProjStorePath = mUtils->getProjStorePath(mProjName);
-    mUtils->setCurrentProject(mProjName, mProjStorePath);
+    selectProjectByIndex(index);
     QDialog::accept();
 }
 
@@ -848,4 +851,11 @@ QPushButton *OpenProjectDialog::createButton(const QString &text, const char *me
     QPushButton *button = new QPushButton(text);
     connect(button, SIGNAL(clicked()), this, member);
     return button;
+}
+
+void OpenProjectDialog::selectProjectByIndex(const QModelIndex &index)
+{
+    mProjName = mProjListModel->itemFromIndex(index)->text();
+    mProjStorePath = mUtils->getProjStorePath(mProjName);
+    mUtils->setCurrentProject(mProjName, mProjStorePath);
 }

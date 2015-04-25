@@ -146,6 +146,7 @@ private slots:
 
 private:
     QPushButton *createButton(const QString &text, const char *member);
+    void selectProjectByIndex(const QModelIndex & index);
 
     Utils              * mUtils;
 

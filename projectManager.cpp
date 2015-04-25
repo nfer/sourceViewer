@@ -837,7 +837,36 @@ void OpenProjectDialog::browse()
 
 void OpenProjectDialog::onNameChanged(const QString & text)
 {
-    qDebug() << "onNameChanged " << text;
+    // FIXME: optimize later
+    QString name;
+    for (int i = 0; i < text.length(); i++)
+    {
+        name.append(text.at(i));
+        if (i != text.length() - 1)
+            name.append('*');
+    }
+
+    QModelIndex index;
+    for (int i = 0; i < mProjListModel->rowCount(); i++){
+        QStandardItem * item = mProjListModel->item(i);
+        QString projName = item->text();
+        if (text.isEmpty() ||
+            projName.contains(QRegExp(name, Qt::CaseInsensitive, QRegExp::WildcardUnix))){
+            mProjListView->setRowHidden(i, false);
+            if (!text.isEmpty() && !index.isValid()){
+                index = mProjListModel->index(i, 0);
+                mProjListView->setCurrentIndex(index);
+            }
+        }
+        else{
+            mProjListView->setRowHidden(i, true);
+        }
+    }
+
+    // if text is empty, clear mProjListView current index
+    if (text.isEmpty()){
+        mProjListView->setCurrentIndex(index);
+    }
 }
 
 void OpenProjectDialog::projListDoubleClicked(const QModelIndex & index )

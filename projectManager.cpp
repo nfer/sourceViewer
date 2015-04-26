@@ -771,7 +771,7 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent)
     mNameEdit->setMinimumWidth(240);
     connect(mNameEdit, SIGNAL(textChanged(const QString & )),
                 this, SLOT(onNameChanged(const QString & )));
-
+    mNameEdit->installEventFilter(this);
 
     mProjListView = new QListView;
     mProjListModel = new QStandardItemModel;
@@ -887,4 +887,79 @@ void OpenProjectDialog::selectProjectByIndex(const QModelIndex &index)
     mProjName = mProjListModel->itemFromIndex(index)->text();
     mProjStorePath = mUtils->getProjStorePath(mProjName);
     mUtils->setCurrentProject(mProjName, mProjStorePath);
+}
+
+bool OpenProjectDialog::eventFilter(QObject*obj,QEvent*event)
+{
+    // here we only handle KeyPress event
+    if (event->type() != QEvent::KeyPress)
+        return QObject::eventFilter(obj,event);
+
+    QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);
+    int key = keyEvent->key();
+    bool ret = false;
+
+    if(obj == mNameEdit)
+    {
+        switch(key)
+        {
+        case Qt::Key_Up:
+            selectDisplayItemByOffset(-1);
+            qDebug() << "key up press";
+            ret = true;
+            break;
+
+        case Qt::Key_Down:
+            selectDisplayItemByOffset(1);
+            qDebug() << "key down press";
+            ret = true;
+            break;
+
+        default:
+            break;
+        }
+    }
+    else{
+        //return QObject::eventFilter(obj,event);
+    }
+
+    if (ret)
+        return true;
+    else
+        return QObject::eventFilter(obj,event);
+}
+
+void OpenProjectDialog::selectDisplayItemByOffset(int offset)
+{
+    int start = -1, end = -1;
+    int currentOffset = 0, idxOffset = 0;
+    start = mProjListView->currentIndex().row();
+    if(offset > 0){
+        start++;
+        end = mProjListModel->rowCount();
+        idxOffset = 1;
+    }
+    else if(offset < 0){
+        start--;
+        end = -1;
+        idxOffset = -1;
+    }
+    else{
+        return ;
+    }
+
+    if (start >= mProjListModel->rowCount() || start < 0){
+        return ;
+    }
+
+    for (int i = start; i != end; i += idxOffset){
+        if (!mProjListView->isRowHidden(i)){
+            currentOffset += idxOffset;
+            if (currentOffset == offset){
+                QModelIndex index = mProjListModel->index(i, 0);
+                mProjListView->setCurrentIndex(index);
+                return;
+            }
+        }
+    }
 }

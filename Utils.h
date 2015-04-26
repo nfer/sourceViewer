@@ -4,12 +4,23 @@
 #include "stable.h"
 #include "config.h"
 
+#define PROJNAME            "PROJNAME"
+#define PROJSTOREPATH       "PROJSTOREPATH"
 #define SRCROOTPATH         "SRCROOTPATH"
 #define IGNOREFOLDERLIST    "IGNOREFOLDERLIST"
 #define IGNOREFILELIST      "IGNOREFILELIST"
-class Utils{
+
+#define PROJECT_SUFFIX      ".project"
+
+class Utils
+{
 public:
     static Utils * enstance();
+    static bool isFullFilePath(QString & path);
+    static bool isProjectFile(QString & fileName);
+    static QRegExp trRegExp(QString & str,
+                    Qt::CaseSensitivity cs = Qt::CaseSensitive,
+                    QRegExp::PatternSyntax syntax = QRegExp::RegExp);
 
     void setCurrentProject(QString & name, QString & storePath);
 
@@ -41,7 +52,7 @@ public:
     }
 
     QString getProjectConfigFile(){
-        return mProjStorePath + "/" + mProjName + ".config";
+        return mProjStorePath + "/" + mProjName + PROJECT_SUFFIX;
     }
 
 private:

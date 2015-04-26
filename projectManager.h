@@ -149,6 +149,7 @@ private:
     void selectProjectByIndex(const QModelIndex & index);
     bool eventFilter(QObject*obj,QEvent*event);
     void selectDisplayItemByOffset(int offset);
+    void showAllRow();
 
     Utils              * mUtils;
 

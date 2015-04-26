@@ -255,11 +255,9 @@ void AddFilesDialog::accept()
     QString fileName = mProjStorePath + "/" + mProjName + ".filelist";
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
-                             tr("Cannot write file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
-        qWarning() << tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString());
+        QString warningStr = tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString());
+        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), warningStr);
+        qWarning() << warningStr;
         return ;
     }
 
@@ -271,7 +269,6 @@ void AddFilesDialog::accept()
     QStandardItem * item;
     for (int i=0; i < mFileListModel->rowCount(); i++){
         item = mFileListModel->item(i);
-//        qDebug() << "i " << i << ", item: " << item->text();
         out << item->text() << '\n';
     }
 
@@ -819,8 +816,23 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent)
 void OpenProjectDialog::accept()
 {
     QModelIndex index = mProjListView->currentIndex();
+    QString projName = mNameEdit->text();
+
     if (index.isValid()){
         selectProjectByIndex(index);
+    }
+    else if (Utils::isFullFilePath(projName) && Utils::isProjectFile(projName)){
+        // this project is selected by browse()
+        QFileInfo info = QFileInfo(projName);
+        QString name = info.baseName();
+        QString path = info.path();
+        mUtils->setCurrentProject(name, path);
+    }
+    else{
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Please select an exist project."),
+                             QMessageBox::Ok);
+        return ;
     }
 
     QDialog::accept();
@@ -828,6 +840,7 @@ void OpenProjectDialog::accept()
 
 void OpenProjectDialog::browse()
 {
+    QString filter = tr("Project Files (*%1)").arg(PROJECT_SUFFIX);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Project"),
                                                 getSVProjectsLocation(),
                                                 tr("Project Files (*.project)"));
@@ -838,22 +851,22 @@ void OpenProjectDialog::browse()
 void OpenProjectDialog::onNameChanged(const QString & text)
 {
     // FIXME: optimize later
-    QString name;
-    for (int i = 0; i < text.length(); i++)
-    {
-        name.append(text.at(i));
-        if (i != text.length() - 1)
-            name.append('*');
+    QModelIndex index;
+    mProjListView->setCurrentIndex(index);
+
+    if (text.isEmpty()){
+        showAllRow();
+        return;
     }
 
-    QModelIndex index;
+    QString name(text);
+    QRegExp regExp = Utils::trRegExp(name, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+
     for (int i = 0; i < mProjListModel->rowCount(); i++){
-        QStandardItem * item = mProjListModel->item(i);
-        QString projName = item->text();
-        if (text.isEmpty() ||
-            projName.contains(QRegExp(name, Qt::CaseInsensitive, QRegExp::WildcardUnix))){
+        QString projName = mProjListModel->item(i)->text();
+        if (projName.contains(regExp)){
             mProjListView->setRowHidden(i, false);
-            if (!text.isEmpty() && !index.isValid()){
+            if (!index.isValid()){
                 index = mProjListModel->index(i, 0);
                 mProjListView->setCurrentIndex(index);
             }
@@ -862,10 +875,12 @@ void OpenProjectDialog::onNameChanged(const QString & text)
             mProjListView->setRowHidden(i, true);
         }
     }
+}
 
-    // if text is empty, clear mProjListView current index
-    if (text.isEmpty()){
-        mProjListView->setCurrentIndex(index);
+void OpenProjectDialog::showAllRow()
+{
+    for (int i = 0; i < mProjListModel->rowCount(); i++){
+        mProjListView->setRowHidden(i, false);
     }
 }
 
@@ -905,13 +920,11 @@ bool OpenProjectDialog::eventFilter(QObject*obj,QEvent*event)
         {
         case Qt::Key_Up:
             selectDisplayItemByOffset(-1);
-            qDebug() << "key up press";
             ret = true;
             break;
 
         case Qt::Key_Down:
             selectDisplayItemByOffset(1);
-            qDebug() << "key down press";
             ret = true;
             break;
 

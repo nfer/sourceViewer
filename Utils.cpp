@@ -11,6 +11,60 @@ Utils * Utils::enstance(){
     return utils;
 }
 
+bool Utils::isFullFilePath(QString & path)
+{
+#if defined (Q_OS_WIN32)
+    return path.contains(QRegExp("^[a-zA-Z]:"));
+#else
+    return path.startsWith("/");
+#endif
+}
+
+bool Utils::isProjectFile(QString & fileName)
+{
+    if (!fileName.endsWith(PROJECT_SUFFIX)){
+        qWarning() << QString("file(%1) suffix is not a PROJECT_SUFFIX(%2).")
+                        .arg(fileName).arg(PROJECT_SUFFIX);
+        return false;
+    }
+
+    QFileInfo info = QFileInfo(fileName);
+    if (!info.exists()){
+        qWarning() << QString("file(%1) not exist.").arg(fileName);
+        return false;
+    }
+
+    QString name = info.baseName();
+    QString path = info.path();
+
+    QSettings * config = new QSettings(fileName, QSettings::IniFormat);
+    QString projName = config->value(QString("config/") + PROJNAME).toString();
+    QString storePath = config->value(QString("config/") + PROJSTOREPATH).toString();
+
+    if (name != projName || path != storePath){
+        qWarning() << QString("file name is %1, but project name is %2.")
+                    .arg(name).arg(projName);
+        qWarning() << QString("file path is %1, but project storePath is %2.")
+                    .arg(path).arg(storePath);
+        return false;
+    }
+
+    return true;
+}
+
+QRegExp Utils::trRegExp(QString & str, Qt::CaseSensitivity cs, QRegExp::PatternSyntax syntax)
+{
+    QString newStr;
+    for (int i = 0; i < str.length(); i++)
+    {
+        newStr.append(str.at(i));
+        if (i != str.length() - 1)
+            newStr.append('*');
+    }
+
+    return QRegExp(newStr, cs, syntax);
+}
+
 Utils::Utils():
     mProjectConfig(NULL)
 {
@@ -29,6 +83,9 @@ void Utils::setCurrentProject(QString & name, QString & storePath){
     mProjStorePath = storePath;
 
     mProjectConfig = new QSettings(getProjectConfigFile(), QSettings::IniFormat);
+
+    writeString(PROJNAME, mProjName);
+    writeString(PROJSTOREPATH, mProjStorePath);
 }
 
 bool Utils::writeInt(QString key, int value)

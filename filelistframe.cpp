@@ -114,7 +114,7 @@ void FileListDock::listViewDoubleClicked(const QModelIndex & index)
 {
     QString fileName = mFileListModel->itemFromIndex(index)->text();
 
-    if (fileName.startsWith("/") || fileName.contains(QRegExp("^[a-zA-Z]:")))
+    if (Utils::isFullFilePath(fileName))
     {
         emit onFileSelected(fileName);
     }

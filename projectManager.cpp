@@ -827,6 +827,10 @@ void OpenProjectDialog::accept()
         QString name = info.baseName();
         QString path = info.path();
         mUtils->setCurrentProject(name, path);
+
+        if (!mUtils->isProjectExist(name)){
+            mUtils->addProject(name, path);
+        }
     }
     else{
         QMessageBox::warning(this, tr("Application"),
@@ -843,7 +847,7 @@ void OpenProjectDialog::browse()
     QString filter = tr("Project Files (*%1)").arg(PROJECT_SUFFIX);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Project"),
                                                 getSVProjectsLocation(),
-                                                tr("Project Files (*.project)"));
+                                                filter);
     if (!fileName.isEmpty())
         mNameEdit->setText(fileName);
 }

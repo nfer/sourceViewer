@@ -237,7 +237,7 @@ void MainWindow::showInEncoding()
             // as no other action checked, set curEncodingAct checked back
             curEncodingAct->setChecked(true);
         }
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Not support right now."));
+        QMessageBox::warning(this, Utils::getAppName(), tr("Not support right now."));
     }
 }
 
@@ -281,7 +281,7 @@ void MainWindow::convertToEncoding()
         mCodec = QTextCodec::codecForName("UTF-16LE");
     }
     else{
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Couldn't be here."));
+        QMessageBox::warning(this, Utils::getAppName(), tr("Couldn't be here."));
         return;
     }
 
@@ -323,7 +323,7 @@ void MainWindow::convertToEOL()
             // as no other action checked, set curEOLAct checked back
             curEOLAct->setChecked(true);
         }
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), tr("Couldn't be here."));
+        QMessageBox::warning(this, Utils::getAppName(), tr("Couldn't be here."));
     }
 }
 
@@ -827,7 +827,7 @@ bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+        QMessageBox::warning(this, Utils::getAppName(),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -877,7 +877,7 @@ bool MainWindow::renameFile(const QString &fileName)
 {
     QFile file(curFile);
     if (!file.rename(fileName)) {
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+        QMessageBox::warning(this, Utils::getAppName(),
                              tr("Cannot rename file %1 to %2:\n%3.")
                              .arg(curFile)
                              .arg(fileName)
@@ -894,7 +894,7 @@ bool MainWindow::removeFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.remove(fileName)) {
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME),
+        QMessageBox::warning(this, Utils::getAppName(),
                              tr("Cannot delete file %1:\n%3.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -932,9 +932,9 @@ void MainWindow::setCurrentFile(const QString &fileName)
         eolConvMenu->setEnabled(true);
     }
 
-    QString shownTitle = tr("[*]%1 - %2").arg(mProjName).arg(SV_PROGRAM_NAME);
+    QString shownTitle = "[*]" + mProjName;
     if (!fileName.isEmpty()){
-        shownTitle += tr(" - [%1]").arg(fileName);
+        shownTitle += " - [ " + fileName + " ]";
     }
 
     setWindowTitle(shownTitle);

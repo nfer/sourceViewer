@@ -17,7 +17,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
 
     // project store path label, edit and browser button
     mProjStorePathLabel = new QLabel(tr("Where do you want to store the project data file?"));
-    QString defaultPath = getSVProjectsLocation() + "/" + defaultName;
+    QString defaultPath = Utils::getProjectPath() + "/" + defaultName;
     mProjStorePathEdit = new QLineEdit(defaultPath);
     mProjStorePathEdit->setMinimumWidth(360);
     mProjStorePathButton = createButton(tr("&Browse..."), SLOT(browseProjStorePath()));
@@ -118,7 +118,7 @@ void NewProjectDialog::accept()
 
 void NewProjectDialog::onNameChanged(const QString & text)
 {
-    QString storePath = getSVProjectsLocation() + "/" + text;
+    QString storePath = Utils::getProjectPath() + "/" + text;
     mProjStorePathEdit->setText(storePath);
 }
 
@@ -252,11 +252,11 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
 
 void AddFilesDialog::accept()
 {
-    QString fileName = mProjStorePath + "/" + mProjName + ".filelist";
+    QString fileName = mProjStorePath + "/" + mProjName + FILELIST_SUFFIX;
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QString warningStr = tr("Cannot write file %1:\n%2.").arg(fileName).arg(file.errorString());
-        QMessageBox::warning(this, tr(SV_PROGRAM_NAME), warningStr);
+        QMessageBox::warning(this, Utils::getAppName(), warningStr);
         qWarning() << warningStr;
         return ;
     }
@@ -846,7 +846,7 @@ void OpenProjectDialog::browse()
 {
     QString filter = tr("Project Files (*%1)").arg(PROJECT_SUFFIX);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Project"),
-                                                getSVProjectsLocation(),
+                                                Utils::getProjectPath(),
                                                 filter);
     if (!fileName.isEmpty())
         mNameEdit->setText(fileName);

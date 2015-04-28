@@ -5,31 +5,15 @@
 
 #define SV_PROGRAM_NAME "Source Viewer"
 
-inline QString getSVDocumentsLocation()
-{
-    QStringList list = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
-    QString location = list.at(0) + "/" + SV_PROGRAM_NAME;
+#define PROJNAME            "PROJNAME"
+#define PROJSTOREPATH       "PROJSTOREPATH"
+#define SRCROOTPATH         "SRCROOTPATH"
+#define IGNOREFOLDERLIST    "IGNOREFOLDERLIST"
+#define IGNOREFILELIST      "IGNOREFILELIST"
+#define LASTOPENEDFILES     "LASTOPENEDFILES"
 
-    QDir dir = QDir(location);
-    if (!dir.exists()){
-        dir.mkdir(location);
-        qDebug() << "create Documents location: " << location;
-    }
-
-    return location;
-}
-
-inline QString getSVProjectsLocation()
-{
-    QString location = getSVDocumentsLocation() + "/Projects";
-
-    QDir dir = QDir(location);
-    if (!dir.exists()){
-        dir.mkdir(location);
-        qDebug() << "create Projects workspace: " << location;
-    }
-
-    return location;
-}
+#define PROJECT_SUFFIX      ".project"
+#define CONFIG_SUFFIX       ".config"
+#define FILELIST_SUFFIX     ".filelist"
 
 #endif // SV_CONFIG_H

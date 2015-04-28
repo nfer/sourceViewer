@@ -4,19 +4,15 @@
 #include "stable.h"
 #include "config.h"
 
-#define PROJNAME            "PROJNAME"
-#define PROJSTOREPATH       "PROJSTOREPATH"
-#define SRCROOTPATH         "SRCROOTPATH"
-#define IGNOREFOLDERLIST    "IGNOREFOLDERLIST"
-#define IGNOREFILELIST      "IGNOREFILELIST"
-#define LASTOPENEDFILES     "LASTOPENEDFILES"
-
-#define PROJECT_SUFFIX      ".project"
-
 class Utils
 {
 public:
     static Utils * enstance();
+
+    static QString getAppName();
+    static QString getDocumentPath();
+    static QString getProjectPath();
+
     static bool isFullFilePath(QString & path);
     static bool isProjectFile(QString & fileName);
     static QRegExp trRegExp(QString & str,
@@ -45,11 +41,11 @@ public:
     bool isProjectExist(const QString & name);
 
     QString getProjFileListFile(){
-        return mProjStorePath + "/" + mProjName + ".filelist";
+        return mProjStorePath + "/" + mProjName + FILELIST_SUFFIX;
     }
 
     QString getDefaultConfigFile(){
-        return getSVDocumentsLocation() +"/" + SV_PROGRAM_NAME + ".config";
+        return getDocumentPath() +"/" + Utils::getAppName() + CONFIG_SUFFIX;
     }
 
     QString getProjectConfigFile(){

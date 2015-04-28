@@ -2,13 +2,58 @@
 #include "stable.h"
 #include "Utils.h"
 
-static Utils * utils;
+static Utils     * s_Utils;
+static QString     s_AppName;
+static QString     s_DocumentPath;
+static QString     s_ProjectPath;
 
 Utils * Utils::enstance(){
-    if (NULL == utils){
-        utils = new Utils();
+    if (NULL == s_Utils){
+        s_Utils = new Utils();
     }
-    return utils;
+    return s_Utils;
+}
+
+QString Utils::getAppName(){
+    if (!s_AppName.isEmpty())
+        return s_AppName;
+
+    s_AppName = QGuiApplication::applicationDisplayName();
+    if (s_AppName.isEmpty())
+        return SV_PROGRAM_NAME;
+    else
+        return s_AppName;
+}
+
+QString Utils::getDocumentPath(){
+    if (!s_DocumentPath.isEmpty())
+        return s_DocumentPath;
+
+    QStringList list = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    s_DocumentPath = list.at(0) + "/" + Utils::getAppName();
+
+    QDir dir = QDir(s_DocumentPath);
+    if (!dir.exists()){
+        dir.mkdir(s_DocumentPath);
+        qDebug() << "create Documents location: " << s_DocumentPath;
+    }
+
+    return s_DocumentPath;
+}
+
+QString Utils::getProjectPath(){
+    if (!s_ProjectPath.isEmpty())
+        return s_ProjectPath;
+
+    s_ProjectPath = getDocumentPath() + "/Projects";
+
+    QDir dir = QDir(s_ProjectPath);
+    if (!dir.exists()){
+        dir.mkdir(s_ProjectPath);
+        qDebug() << "create Projects workspace: " << s_ProjectPath;
+    }
+
+    return s_ProjectPath;
 }
 
 bool Utils::isFullFilePath(QString & path)

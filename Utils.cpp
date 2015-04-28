@@ -83,8 +83,8 @@ bool Utils::isProjectFile(QString & fileName)
     QString path = info.path();
 
     QSettings * config = new QSettings(fileName, QSettings::IniFormat);
-    QString projName = config->value(QString("config/") + PROJNAME).toString();
-    QString storePath = config->value(QString("config/") + PROJSTOREPATH).toString();
+    QString projName = config->value(QString(SETTINGS_CONFIG) + "/" + PROJNAME).toString();
+    QString storePath = config->value(QString(SETTINGS_CONFIG) + "/" + PROJSTOREPATH).toString();
 
     if (name != projName || path != storePath){
         qWarning() << QString("file name is %1, but project name is %2.")
@@ -114,7 +114,8 @@ Utils::Utils():
     mProjectConfig(NULL)
 {
     mDefaultConfig = new QSettings(getDefaultConfigFile(), QSettings::IniFormat);
-    mProjNameList = mDefaultConfig->value("project/PROJECTNAMELIST").toStringList();
+    QString projNameListKey = QString(PROJECT_CONFIG) + "/" + PROJECTNAMELIST;
+    mProjNameList = mDefaultConfig->value(projNameListKey).toStringList();
 }
 
 Utils::~Utils()
@@ -145,7 +146,7 @@ bool Utils::writeInt(QString key, int value)
         return false;
     }
 
-    mProjectConfig->beginGroup("config");
+    mProjectConfig->beginGroup(SETTINGS_CONFIG);
     mProjectConfig->setValue(key, value);
     mProjectConfig->endGroup();
 
@@ -163,11 +164,12 @@ int  Utils::readInt(QString key)
         return false;
     }
 
-    QString value = mProjectConfig->value(QString("config/") + key).toString();
+    QString stringListKey = QString(SETTINGS_CONFIG) + "/" +key;
+    QString value = mProjectConfig->value(stringListKey).toString();
 
     if (value.length() == 0){
         // not found in key in config, try program config file
-        value = mDefaultConfig->value(QString("config/") + key).toString();
+        value = mDefaultConfig->value(stringListKey).toString();
     }
 
     return value.toInt();
@@ -185,7 +187,7 @@ bool Utils::writeString(QString key, QString value)
         return false;
     }
 
-    mProjectConfig->beginGroup("config");
+    mProjectConfig->beginGroup(SETTINGS_CONFIG);
     mProjectConfig->setValue(key, value);
     mProjectConfig->endGroup();
 
@@ -203,11 +205,12 @@ bool Utils::readString(QString key, QString &value)
         return false;
     }
 
-    value = mProjectConfig->value(QString("config/") + key).toString();
+    QString stringListKey = QString(SETTINGS_CONFIG) + "/" + key;
+    value = mProjectConfig->value(stringListKey).toString();
 
     if (value.length() == 0){
         // not found in key in config, try program config file
-        value = mDefaultConfig->value(QString("config/") + key).toString();
+        value = mDefaultConfig->value(stringListKey).toString();
     }
 
     return true;
@@ -225,7 +228,7 @@ bool Utils::writeStringList(QString key, QStringList value)
         return false;
     }
 
-    mProjectConfig->beginGroup("config");
+    mProjectConfig->beginGroup(SETTINGS_CONFIG);
     mProjectConfig->setValue(key, value);
     mProjectConfig->endGroup();
 
@@ -243,11 +246,12 @@ bool Utils::readStringList(QString key, QStringList &value)
         return false;
     }
 
-    value = mProjectConfig->value(QString("config/") + key).toStringList();
+    QString stringListKey = QString(SETTINGS_CONFIG) + "/" + key;
+    value = mProjectConfig->value(stringListKey).toStringList();
 
     if (value.length() == 0){
         // not found in key in config, try default config file
-        value = mDefaultConfig->value(QString("config/") + key).toStringList();
+        value = mDefaultConfig->value(stringListKey).toStringList();
     }
 
     return true;
@@ -278,7 +282,8 @@ bool Utils::isIgnoredFolder(const QString &file, const QStringList & ignoreFolde
 
 QString Utils::getProjStorePath(const QString & name)
 {
-    return mDefaultConfig->value(QString("project/") + name).toString();
+    QString projStorePathKey = QString(PROJECT_CONFIG) + "/" + name;
+    return mDefaultConfig->value(projStorePathKey).toString();
 
 }
 
@@ -286,8 +291,8 @@ void Utils::addProject(const QString & name, const QString & storePath)
 {
     mProjNameList += name;
 
-    mDefaultConfig->beginGroup("project");
-    mDefaultConfig->setValue("PROJECTNAMELIST", mProjNameList);
+    mDefaultConfig->beginGroup(PROJECT_CONFIG);
+    mDefaultConfig->setValue(PROJECTNAMELIST, mProjNameList);
     mDefaultConfig->setValue(name, storePath);
     mDefaultConfig->endGroup();
 }
@@ -296,8 +301,8 @@ void Utils::removeProject(const QString & name)
 {
     mProjNameList.removeOne(name);
 
-    mDefaultConfig->beginGroup("project");
-    mDefaultConfig->setValue("PROJECTNAMELIST", mProjNameList);
+    mDefaultConfig->beginGroup(PROJECT_CONFIG);
+    mDefaultConfig->setValue(PROJECTNAMELIST, mProjNameList);
     mDefaultConfig->remove(name);
     mDefaultConfig->endGroup();
 }

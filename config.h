@@ -11,6 +11,10 @@
 #define IGNOREFOLDERLIST    "IGNOREFOLDERLIST"
 #define IGNOREFILELIST      "IGNOREFILELIST"
 #define LASTOPENEDFILES     "LASTOPENEDFILES"
+#define PROJECTNAMELIST     "PROJECTNAMELIST"
+
+#define PROJECT_CONFIG      "project"
+#define SETTINGS_CONFIG     "settings"
 
 #define PROJECT_SUFFIX      ".project"
 #define CONFIG_SUFFIX       ".config"

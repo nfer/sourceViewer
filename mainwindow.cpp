@@ -3,8 +3,12 @@
 #include "mainwindow.h"
 #include "projectManager.h"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() :
+    mProjName("(No Project)"),
+    mProjStorePath()
 {
+    mUtils = Utils::enstance();
+
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);
 
@@ -119,6 +123,19 @@ void MainWindow::setEditBackgroundColor(const QColor &acolor)
     QPalette p = this->palette();
     p.setColor(QPalette::Base, acolor);
     textEdit->setPalette(p);
+}
+
+void MainWindow::openLastOpenedFiles()
+{
+    QStringList lastOpenFileList;
+    mUtils->readStringList(LASTOPENEDFILES, lastOpenFileList);
+
+    if (lastOpenFileList.size()){
+        loadFile(lastOpenFileList.at(0));
+    }
+    else{
+        setCurrentFile("");
+    }
 }
 
 void MainWindow::newFile()
@@ -358,6 +375,9 @@ void MainWindow::documentWasModified()
 
 void MainWindow::openSelectFile(const QString & fileName)
 {
+    if(curFile == fileName)
+        return;
+
     loadFile(fileName);
 }
 
@@ -382,6 +402,8 @@ void MainWindow::newProject()
     }
 
     mProjectWindow->updateFileList();
+
+    openLastOpenedFiles();
 }
 
 void MainWindow::openProject()
@@ -397,6 +419,8 @@ void MainWindow::openProject()
     mProjStorePath = dialog.getProjStorePath();
 
     mProjectWindow->updateFileList();
+
+    openLastOpenedFiles();
 }
 
 void MainWindow::createActions()
@@ -907,7 +931,12 @@ void MainWindow::setCurrentFile(const QString &fileName)
         enableEncodingAcion(true);
         eolConvMenu->setEnabled(true);
     }
-    QString shownTitle = "[*]" + shownName + " - " + SV_PROGRAM_NAME;
+
+    QString shownTitle = tr("[*]%1 - %2").arg(mProjName).arg(SV_PROGRAM_NAME);
+    if (!fileName.isEmpty()){
+        shownTitle += tr(" - [%1]").arg(fileName);
+    }
+
     setWindowTitle(shownTitle);
 }
 

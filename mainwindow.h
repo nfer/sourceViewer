@@ -66,6 +66,7 @@ private:
     void loadLayout(QString fileName);
     void setEditBackgroundColor(const QColor &acolor);
 
+    void openLastOpenedFiles();
 
     QPlainTextEdit *textEdit;
     QTextCodec * mCodec;
@@ -138,9 +139,9 @@ private:
     WindowSwatch  * mContextWindows;
     WindowSwatch  * mRelationWindow;
 
-    QString mProjName;
-    QString mProjStorePath;
-    QString mProjConfigFileName;
+    Utils         * mUtils;
+    QString         mProjName;
+    QString         mProjStorePath;
 };
 
 #endif //MAINWINDOW_H

@@ -128,13 +128,23 @@ void MainWindow::setEditBackgroundColor(const QColor &acolor)
 void MainWindow::openLastOpenedFiles()
 {
     QStringList openFileList = mUtils->readStringList(OPENEDFILELIST);
-
     if (openFileList.size()){
         loadFile(openFileList.at(0));
     }
     else{
         setCurrentFile("");
     }
+}
+
+void MainWindow::snapshotOpenedFiles()
+{
+    QStringList openFileList;
+    if (!curFile.isEmpty()){
+        openFileList += curFile;
+        closeFile(curFile);
+    }
+
+    mUtils->writeStringList(OPENEDFILELIST, openFileList);
 }
 
 void MainWindow::newFile()
@@ -422,6 +432,19 @@ void MainWindow::openProject()
     openLastOpenedFiles();
 }
 
+void MainWindow::closeProject()
+{
+    if (mProjStorePath.isEmpty() || mProjName.isEmpty())
+        return;
+
+    snapshotOpenedFiles();
+
+    mProjName.clear();
+    mProjStorePath.clear();
+    mUtils->setCurrentProject(mProjName, mProjStorePath);
+    mProjectWindow->updateFileList();
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -570,6 +593,7 @@ void MainWindow::createActions()
     closeProjAct = new QAction(tr("&Close Project"), this);
     closeProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+W")));
     closeProjAct->setStatusTip(tr("Closes the current project."));
+    connect(closeProjAct, SIGNAL(triggered()), this, SLOT(closeProject()));
 
     removeProjAct = new QAction(tr("&Remove Project..."), this);
     removeProjAct->setStatusTip(tr("Deletes a project."));

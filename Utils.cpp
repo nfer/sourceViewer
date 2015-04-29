@@ -125,19 +125,25 @@ Utils::~Utils()
 }
 
 void Utils::setCurrentProject(QString & name, QString & storePath){
-    mProjName = name;
-    mProjStorePath = storePath;
-
-    mProjectConfig = new QSettings(getProjectConfigFile(), QSettings::IniFormat);
-
-    writeString(PROJNAME, mProjName);
-    writeString(PROJSTOREPATH, mProjStorePath);
+    if (name.isEmpty() || storePath.isEmpty()){
+        mProjName.clear();
+        mProjStorePath.clear();
+        delete mProjectConfig;
+        mProjectConfig = NULL;
+    }
+    else{
+        mProjName = name;
+        mProjStorePath = storePath;
+        mProjectConfig = new QSettings(getProjectConfigFile(), QSettings::IniFormat);
+        // FIXME: no need write config here
+        writeString(PROJNAME, mProjName);
+        writeString(PROJSTOREPATH, mProjStorePath);
+    }
 }
 
 bool Utils::writeInt(QString key, int value)
 {
-    if(key.isEmpty())
-    {
+    if(key.isEmpty()){
         return false;
     }
 
@@ -177,8 +183,7 @@ int  Utils::readInt(QString key)
 
 bool Utils::writeString(QString key, QString & value)
 {
-    if(key.isEmpty())
-    {
+    if(key.isEmpty()){
         return false;
     }
 
@@ -188,7 +193,10 @@ bool Utils::writeString(QString key, QString & value)
     }
 
     mProjectConfig->beginGroup(SETTINGS_CONFIG);
-    mProjectConfig->setValue(key, value);
+    if(value.isEmpty())
+        mProjectConfig->remove(key);
+    else
+        mProjectConfig->setValue(key, value);
     mProjectConfig->endGroup();
 
     return true;
@@ -218,8 +226,7 @@ QString Utils::readString(QString key)
 
 bool Utils::writeStringList(QString key, QStringList & value)
 {
-    if(key.isEmpty())
-    {
+    if(key.isEmpty()){
         return false;
     }
 
@@ -229,7 +236,10 @@ bool Utils::writeStringList(QString key, QStringList & value)
     }
 
     mProjectConfig->beginGroup(SETTINGS_CONFIG);
-    mProjectConfig->setValue(key, value);
+    if(value.isEmpty())
+        mProjectConfig->remove(key);
+    else
+        mProjectConfig->setValue(key, value);
     mProjectConfig->endGroup();
 
     return true;

@@ -41,8 +41,15 @@ public:
     bool isProjectExist(const QString & name);
 
     QString getProjFileListFile(){
-        return mProjStorePath + "/" + mProjName + FILELIST_SUFFIX;
+        if (mProjStorePath.isEmpty() || mProjName.isEmpty())
+            return QString::null;
+        else
+            return mProjStorePath + "/" + mProjName + FILELIST_SUFFIX;
     }
+
+private:
+    Utils();
+    ~Utils();
 
     QString getDefaultConfigFile(){
         return getDocumentPath() +"/" + Utils::getAppName() + CONFIG_SUFFIX;
@@ -51,10 +58,6 @@ public:
     QString getProjectConfigFile(){
         return mProjStorePath + "/" + mProjName + PROJECT_SUFFIX;
     }
-
-private:
-    Utils();
-    ~Utils();
 
     QString     mProjName;
     QString     mProjStorePath;

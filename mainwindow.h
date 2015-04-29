@@ -41,6 +41,7 @@ private slots:
     void openSelectFile(const QString & fileName);
     void newProject();
     void openProject();
+    void closeProject();
 
 private:
     void createActions();
@@ -67,6 +68,7 @@ private:
     void setEditBackgroundColor(const QColor &acolor);
 
     void openLastOpenedFiles();
+    void snapshotOpenedFiles();
 
     QPlainTextEdit *textEdit;
     QTextCodec * mCodec;

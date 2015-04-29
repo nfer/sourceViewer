@@ -138,13 +138,15 @@ void MainWindow::openLastOpenedFiles()
 
 void MainWindow::snapshotOpenedFiles()
 {
-    QStringList openFileList;
-    if (!curFile.isEmpty()){
-        openFileList += curFile;
+    if (curFile.isEmpty()){
+        mUtils->removeConfig(OPENEDFILELIST);
+    }
+    else{
+        QStringList openFileList(curFile);
+        mUtils->writeStringList(OPENEDFILELIST, openFileList);
+
         closeFile(curFile);
     }
-
-    mUtils->writeStringList(OPENEDFILELIST, openFileList);
 }
 
 void MainWindow::newFile()

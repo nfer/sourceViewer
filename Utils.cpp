@@ -267,6 +267,24 @@ QStringList Utils::readStringList(QString key)
     return value;
 }
 
+bool Utils::removeConfig(QString key)
+{
+    if(key.isEmpty()){
+        return false;
+    }
+
+    if (NULL == mProjectConfig){
+        qWarning() << "Please set project Name and StorePath first!";
+        return false;
+    }
+
+    mProjectConfig->beginGroup(SETTINGS_CONFIG);
+    mProjectConfig->remove(key);
+    mProjectConfig->endGroup();
+
+    return true;
+}
+
 bool Utils::isIgnoredFile(const QString & file, const QStringList & ignoreFileList)
 {
     return ignoreFileList.contains(file);

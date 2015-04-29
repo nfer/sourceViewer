@@ -27,6 +27,7 @@ public:
     bool writeInt(QString key, int value);
     bool writeString(QString key, QString & value);
     bool writeStringList(QString key, QStringList & value);
+    bool removeConfig(QString key);
 
     bool isIgnoredFile(const QString &file, const QStringList & ignoreFileList);
     bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);

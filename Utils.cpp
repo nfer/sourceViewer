@@ -167,7 +167,7 @@ int  Utils::readInt(QString key)
     QString stringListKey = QString(SETTINGS_CONFIG) + "/" +key;
     QString value = mProjectConfig->value(stringListKey).toString();
 
-    if (value.length() == 0){
+    if (value.isEmpty()){
         // not found in key in config, try program config file
         value = mDefaultConfig->value(stringListKey).toString();
     }
@@ -175,7 +175,7 @@ int  Utils::readInt(QString key)
     return value.toInt();
 }
 
-bool Utils::writeString(QString key, QString value)
+bool Utils::writeString(QString key, QString & value)
 {
     if(key.isEmpty())
     {
@@ -194,29 +194,29 @@ bool Utils::writeString(QString key, QString value)
     return true;
 }
 
-bool Utils::readString(QString key, QString &value)
+QString Utils::readString(QString key)
 {
     if(key.isEmpty()){
-        return false;
+        return QString::null;
     }
 
     if (NULL == mProjectConfig){
         qWarning() << "Please set project Name and StorePath first!";
-        return false;
+        return QString::null;
     }
 
     QString stringListKey = QString(SETTINGS_CONFIG) + "/" + key;
-    value = mProjectConfig->value(stringListKey).toString();
+    QString value = mProjectConfig->value(stringListKey).toString();
 
-    if (value.length() == 0){
+    if (value.isEmpty()){
         // not found in key in config, try program config file
         value = mDefaultConfig->value(stringListKey).toString();
     }
 
-    return true;
+    return value;
 }
 
-bool Utils::writeStringList(QString key, QStringList value)
+bool Utils::writeStringList(QString key, QStringList & value)
 {
     if(key.isEmpty())
     {
@@ -235,26 +235,26 @@ bool Utils::writeStringList(QString key, QStringList value)
     return true;
 }
 
-bool Utils::readStringList(QString key, QStringList &value)
+QStringList Utils::readStringList(QString key)
 {
     if(key.isEmpty()){
-        return false;
+        return QStringList();
     }
 
     if (NULL == mProjectConfig){
         qWarning() << "Please set project Name and StorePath first!";
-        return false;
+        return QStringList();
     }
 
     QString stringListKey = QString(SETTINGS_CONFIG) + "/" + key;
-    value = mProjectConfig->value(stringListKey).toStringList();
+    QStringList value = mProjectConfig->value(stringListKey).toStringList();
 
-    if (value.length() == 0){
+    if (value.isEmpty()){
         // not found in key in config, try default config file
         value = mDefaultConfig->value(stringListKey).toStringList();
     }
 
-    return true;
+    return value;
 }
 
 bool Utils::isIgnoredFile(const QString & file, const QStringList & ignoreFileList)

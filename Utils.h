@@ -21,12 +21,12 @@ public:
 
     void setCurrentProject(QString & name, QString & storePath);
 
+    int         readInt(QString key);
+    QString     readString(QString key);
+    QStringList readStringList(QString key);
     bool writeInt(QString key, int value);
-    int  readInt(QString key);
-    bool writeString(QString key, QString value);
-    bool readString(QString key, QString &value);
-    bool writeStringList(QString key, QStringList value);
-    bool readStringList(QString key, QStringList &value);
+    bool writeString(QString key, QString & value);
+    bool writeStringList(QString key, QStringList & value);
 
     bool isIgnoredFile(const QString &file, const QStringList & ignoreFileList);
     bool IsIgnoreSuffix(const QString & file, const QStringList & ignoreSuffixList);

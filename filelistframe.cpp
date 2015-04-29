@@ -80,8 +80,7 @@ void FileListDock::updateFileList()
         return;
     }
 
-    QString srcRootPath;
-    mUtils->readString(SRCROOTPATH, srcRootPath);
+    QString srcRootPath = mUtils->readString(SRCROOTPATH);
 
     QTextStream in(&file);
     while(!in.atEnd()){
@@ -119,8 +118,7 @@ void FileListDock::listViewDoubleClicked(const QModelIndex & index)
         emit onFileSelected(fileName);
     }
     else{
-        QString srcRootPath;
-        Utils::enstance()->readString(SRCROOTPATH, srcRootPath);
+        QString srcRootPath = Utils::enstance()->readString(SRCROOTPATH);
         emit onFileSelected(srcRootPath + "/" + fileName);
     }
 }

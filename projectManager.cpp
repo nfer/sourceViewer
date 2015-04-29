@@ -140,8 +140,8 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     mUtils = Utils::enstance();
     mUtils->setCurrentProject(mProjName, mProjStorePath);
 
-    mUtils->readStringList(IGNOREFOLDERLIST, mIgnoreFolderList);
-    mUtils->readStringList(IGNOREFILELIST, mIgnoreFileList);
+    mIgnoreFolderList = mUtils->readStringList(IGNOREFOLDERLIST);
+    mIgnoreFileList = mUtils->readStringList(IGNOREFILELIST);
     mIgnoreSuffixList = mIgnoreFileList.filter(QRegExp("^\\*\\..*")); // suffix like *.txt
 
     mCurPathEdit = new QLineEdit(srcRootPath);

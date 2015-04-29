@@ -127,11 +127,10 @@ void MainWindow::setEditBackgroundColor(const QColor &acolor)
 
 void MainWindow::openLastOpenedFiles()
 {
-    QStringList lastOpenFileList;
-    mUtils->readStringList(LASTOPENEDFILES, lastOpenFileList);
+    QStringList openFileList = mUtils->readStringList(OPENEDFILELIST);
 
-    if (lastOpenFileList.size()){
-        loadFile(lastOpenFileList.at(0));
+    if (openFileList.size()){
+        loadFile(openFileList.at(0));
     }
     else{
         setCurrentFile("");

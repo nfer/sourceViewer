@@ -394,6 +394,19 @@ void MainWindow::openSelectFile(const QString & fileName)
 
 void MainWindow::newProject()
 {
+    if (!mProjName.isEmpty()){
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, NULL,
+                     tr("OK to Close current project:\"%1\"?").arg(mProjName),
+                     QMessageBox::Ok | QMessageBox::Cancel);
+        if (ret == QMessageBox::Cancel){
+            return;
+        }
+        else{
+            closeProject();
+        }
+    }
+
     NewProjectDialog newProjectDialog(this);
     newProjectDialog.setWindowModality(Qt::WindowModal);
     if (newProjectDialog.exec() == QDialog::Rejected){
@@ -419,6 +432,10 @@ void MainWindow::newProject()
 
 void MainWindow::openProject()
 {
+    if (!mProjName.isEmpty()){
+        closeProject();
+    }
+
     OpenProjectDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
     if (dialog.exec() == QDialog::Rejected){

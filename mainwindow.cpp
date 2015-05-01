@@ -451,6 +451,32 @@ void MainWindow::openProject()
     openLastOpenedFiles();
 }
 
+void MainWindow::removeProject()
+{
+    RemoveProjectDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    if (dialog.exec() == QDialog::Rejected){
+        qDebug() << "RemoveProjectDialog is Rejected.";
+        return;
+    }
+
+    mProjName = dialog.getProjName();
+    if (mProjName == dialog.getProjName()){
+        mProjName.clear();
+        mProjStorePath.clear();
+        mUtils->setCurrentProject(mProjName, mProjStorePath);
+        mProjectWindow->updateFileList();
+    }
+
+    // FIXME: add a function to close all file, and invoked here and snapshotOpenedFiles()
+    if (curFile.isEmpty()){
+        mUtils->removeConfig(OPENEDFILELIST);
+    }
+    else{
+        closeFile(curFile);
+    }
+}
+
 void MainWindow::closeProject()
 {
     if (mProjStorePath.isEmpty() || mProjName.isEmpty())
@@ -616,6 +642,7 @@ void MainWindow::createActions()
 
     removeProjAct = new QAction(tr("&Remove Project..."), this);
     removeProjAct->setStatusTip(tr("Deletes a project."));
+    connect(removeProjAct, SIGNAL(triggered()), this, SLOT(removeProject()));
 
     manageProjFileAct = new QAction(tr("&Add and Remove Project Files..."), this);
     manageProjFileAct->setStatusTip(tr("Adds and removes files from current project."));

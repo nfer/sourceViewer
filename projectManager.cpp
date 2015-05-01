@@ -757,7 +757,7 @@ QPushButton *AddAllDialog::createButton(const QString &text, const char *member)
     return button;
 }
 
-OpenProjectDialog::OpenProjectDialog(QWidget *parent)
+ProjectListDialog::ProjectListDialog(QWidget *parent)
     : QDialog(parent)
 {
     mUtils = Utils::enstance();
@@ -813,7 +813,7 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent)
     setWindowTitle(tr("Open Project"));
 }
 
-void OpenProjectDialog::accept()
+void ProjectListDialog::accept()
 {
     QModelIndex index = mProjListView->currentIndex();
     QString projName = mNameEdit->text();
@@ -842,7 +842,7 @@ void OpenProjectDialog::accept()
     QDialog::accept();
 }
 
-void OpenProjectDialog::browse()
+void ProjectListDialog::browse()
 {
     QString filter = tr("Project Files (*%1)").arg(PROJECT_SUFFIX);
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Project"),
@@ -852,7 +852,7 @@ void OpenProjectDialog::browse()
         mNameEdit->setText(fileName);
 }
 
-void OpenProjectDialog::onNameChanged(const QString & text)
+void ProjectListDialog::onNameChanged(const QString & text)
 {
     // FIXME: optimize later
     QModelIndex index;
@@ -881,34 +881,35 @@ void OpenProjectDialog::onNameChanged(const QString & text)
     }
 }
 
-void OpenProjectDialog::showAllRow()
+void ProjectListDialog::showAllRow()
 {
     for (int i = 0; i < mProjListModel->rowCount(); i++){
         mProjListView->setRowHidden(i, false);
     }
 }
 
-void OpenProjectDialog::projListDoubleClicked(const QModelIndex & index )
+void ProjectListDialog::projListDoubleClicked(const QModelIndex & index )
 {
     selectProjectByIndex(index);
     QDialog::accept();
 }
 
-QPushButton *OpenProjectDialog::createButton(const QString &text, const char *member)
+QPushButton *ProjectListDialog::createButton(const QString &text, const char *member)
 {
     QPushButton *button = new QPushButton(text);
     connect(button, SIGNAL(clicked()), this, member);
     return button;
 }
 
-void OpenProjectDialog::selectProjectByIndex(const QModelIndex &index)
+void ProjectListDialog::selectProjectByIndex(const QModelIndex &index)
 {
     mProjName = mProjListModel->itemFromIndex(index)->text();
     mProjStorePath = mUtils->getProjStorePath(mProjName);
-    mUtils->setCurrentProject(mProjName, mProjStorePath);
+    qDebug() << "mProjName is " << mProjName;
+    qDebug() << "mProjStorePath is " << mProjStorePath;
 }
 
-bool OpenProjectDialog::eventFilter(QObject*obj,QEvent*event)
+bool ProjectListDialog::eventFilter(QObject*obj,QEvent*event)
 {
     // here we only handle KeyPress event
     if (event->type() != QEvent::KeyPress)
@@ -946,7 +947,7 @@ bool OpenProjectDialog::eventFilter(QObject*obj,QEvent*event)
         return QObject::eventFilter(obj,event);
 }
 
-void OpenProjectDialog::selectDisplayItemByOffset(int offset)
+void ProjectListDialog::selectDisplayItemByOffset(int offset)
 {
     int start = -1, end = -1;
     int currentOffset = 0, idxOffset = 0;
@@ -979,4 +980,33 @@ void OpenProjectDialog::selectDisplayItemByOffset(int offset)
             }
         }
     }
+}
+
+OpenProjectDialog::OpenProjectDialog(QWidget *parent)
+    : ProjectListDialog(parent)
+{
+    mUtils = Utils::enstance();
+
+    setWindowTitle(tr("Open Project"));
+}
+
+void OpenProjectDialog::selectProjectByIndex(const QModelIndex &index)
+{
+    mProjName = mProjListModel->itemFromIndex(index)->text();
+    mProjStorePath = mUtils->getProjStorePath(mProjName);
+    mUtils->setCurrentProject(mProjName, mProjStorePath);
+}
+
+RemoveProjectDialog::RemoveProjectDialog(QWidget *parent)
+    : ProjectListDialog(parent)
+{
+    mUtils = Utils::enstance();
+
+    setWindowTitle(tr("Remove Project"));
+}
+
+void RemoveProjectDialog::selectProjectByIndex(const QModelIndex &index)
+{
+    mProjName = mProjListModel->itemFromIndex(index)->text();
+    mUtils->removeProject(mProjName);
 }

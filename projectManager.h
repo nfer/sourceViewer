@@ -124,13 +124,13 @@ private:
     QPushButton * mCancelButton;
 };
 
-class OpenProjectDialog : public QDialog
+class ProjectListDialog : public QDialog
 {
 
     Q_OBJECT
 
 public:
-    OpenProjectDialog(QWidget *parent = 0);
+    ProjectListDialog(QWidget *parent = 0);
     QString getProjName(){
         return mProjName;
     }
@@ -146,11 +146,12 @@ private slots:
 
 private:
     QPushButton *createButton(const QString &text, const char *member);
-    void selectProjectByIndex(const QModelIndex & index);
+    virtual void selectProjectByIndex(const QModelIndex & index);
     bool eventFilter(QObject*obj,QEvent*event);
     void selectDisplayItemByOffset(int offset);
     void showAllRow();
 
+protected:
     Utils              * mUtils;
 
     QLabel             * mNameLabel;
@@ -163,6 +164,30 @@ private:
 
     QString              mProjName;
     QString              mProjStorePath;
+};
+
+class OpenProjectDialog : public ProjectListDialog
+{
+
+    Q_OBJECT
+
+public:
+    OpenProjectDialog(QWidget *parent = 0);
+
+private:
+    virtual void selectProjectByIndex(const QModelIndex & index);
+};
+
+class RemoveProjectDialog : public ProjectListDialog
+{
+
+    Q_OBJECT
+
+public:
+    RemoveProjectDialog(QWidget *parent = 0);
+
+private:
+    virtual void selectProjectByIndex(const QModelIndex & index);
 };
 
 #endif

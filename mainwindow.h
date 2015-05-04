@@ -43,6 +43,7 @@ private slots:
     void openProject();
     void closeProject();
     void removeProject();
+    void manageProjFile();
 
 private:
     void createActions();

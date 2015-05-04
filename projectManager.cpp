@@ -113,6 +113,15 @@ void NewProjectDialog::accept()
         dir.mkdir(location);
         qDebug() << "create Projects location: " << location;
     }
+
+    Utils * utils = Utils::enstance();
+
+    QString name = mNameEdit->text();
+    QString storePath = mProjStorePathEdit->text();
+    utils->addProject(name, storePath);
+    utils->setCurrentProject(name, storePath);
+    utils->writeString(SRCROOTPATH, srcRootPath);
+
     QDialog::accept();
 }
 
@@ -129,6 +138,7 @@ QPushButton *NewProjectDialog::createButton(const QString &text, const char *mem
     return button;
 }
 
+// FIXME: remove srcRootPath from param, as it can be get from project setting
 AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projStorePath,
         const QString & srcRootPath, QWidget *parent)
     : QDialog(parent),
@@ -138,7 +148,6 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     mCurrentPath(srcRootPath)
 {
     mUtils = Utils::enstance();
-    mUtils->setCurrentProject(mProjName, mProjStorePath);
 
     mIgnoreFolderList = mUtils->readStringList(IGNOREFOLDERLIST);
     mIgnoreFileList = mUtils->readStringList(IGNOREFILELIST);
@@ -195,6 +204,8 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     connect(mFileListView, SIGNAL(doubleClicked(const QModelIndex &)),
             this, SLOT(fileListDoubleClicked(const QModelIndex &)));
 
+    initProjFileList();
+
     mAddFileButton = createButton(tr("Add"), SLOT(addFile()));
     mAddAllButton = createButton(tr("AddAll"), SLOT(addAll()));
     mAddTreeButton = createButton(tr("AddTree"), SLOT(addTree()));
@@ -206,8 +217,10 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     // set default disable state
     mAddFileButton->setDisabled(true);
     mAddTreeButton->setDisabled(true);
-    mRemoveFileButton->setDisabled(true);
-    mRemoveAllButton->setDisabled(true);
+    if (mFileListModel->rowCount() == 0){
+        mRemoveFileButton->setDisabled(true);
+        mRemoveAllButton->setDisabled(true);
+    }
     mRemoveTreeButton->setDisabled(true);
 
     mOKButton = createButton(tr("OK"), SLOT(accept()));
@@ -250,6 +263,32 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     updateTreeView(srcRootPath);
 }
 
+void AddFilesDialog::initProjFileList()
+{
+    QString fileListFile = mUtils->getProjFileListFile();
+    if (fileListFile.isEmpty()){
+        return ;
+    }
+
+    QFile file(fileListFile);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(fileListFile)
+                             .arg(file.errorString()));
+        return;
+    }
+
+    QTextStream in(&file);
+    while(!in.atEnd()){
+        QString line=in.readLine();
+        QStandardItem *item = new QStandardItem(line);
+        mFileListModel->appendRow(item);
+    }
+
+    mFileListModel->sort(0);
+}
+
 void AddFilesDialog::accept()
 {
     QString fileName = mProjStorePath + "/" + mProjName + FILELIST_SUFFIX;
@@ -275,9 +314,6 @@ void AddFilesDialog::accept()
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
-
-    mUtils->writeString(SRCROOTPATH, mSrcRootPath);
-    mUtils->addProject(mProjName, mProjStorePath);
 
     QDialog::accept();
 }

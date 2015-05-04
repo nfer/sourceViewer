@@ -68,6 +68,7 @@ private slots:
 
 private:
     QPushButton *createButton(const QString &text, const char *member = NULL);
+    void initProjFileList();
     void showFiles(const QStringList &files);
     bool eventFilter(QObject*obj,QEvent*event);
     void updateTreeView(const QString & path);

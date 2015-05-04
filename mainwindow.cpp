@@ -490,6 +490,20 @@ void MainWindow::closeProject()
     mProjectWindow->updateFileList();
 }
 
+void MainWindow::manageProjFile()
+{
+    QString srcRootPath = mUtils->readString(SRCROOTPATH);
+
+    AddFilesDialog addFilesDialog(mProjName, mProjStorePath, srcRootPath, this);
+    addFilesDialog.setWindowModality(Qt::WindowModal);
+    if (addFilesDialog.exec() == QDialog::Rejected){
+        qDebug() << "AddFilesDialog is Rejected.";
+        return;
+    }
+
+    mProjectWindow->updateFileList();
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -646,6 +660,7 @@ void MainWindow::createActions()
 
     manageProjFileAct = new QAction(tr("&Add and Remove Project Files..."), this);
     manageProjFileAct->setStatusTip(tr("Adds and removes files from current project."));
+    connect(manageProjFileAct, SIGNAL(triggered()), this, SLOT(manageProjFile()));
 
     syncProjAct = new QAction(tr("&Synchronize Files..."), this);
     syncProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+S")));

@@ -355,6 +355,14 @@ void MainWindow::enableEncodingAcion(bool enabled)
     convertToUCS2LEAct->setEnabled(enabled);
 }
 
+void MainWindow::enableProjectAcion(bool enabled)
+{
+    removeProjAct->setEnabled(enabled);
+    manageProjFileAct->setEnabled(enabled);
+    syncProjAct->setEnabled(enabled);
+    rebuildProjAct->setEnabled(enabled);
+}
+
 bool MainWindow::saveAs()
 {
     QFileDialog dialog(this);
@@ -426,7 +434,7 @@ void MainWindow::newProject()
     }
 
     mProjectWindow->updateFileList();
-
+    enableProjectAcion(true);
     openLastOpenedFiles();
 }
 
@@ -447,7 +455,7 @@ void MainWindow::openProject()
     mProjStorePath = dialog.getProjStorePath();
 
     mProjectWindow->updateFileList();
-
+    enableProjectAcion(true);
     openLastOpenedFiles();
 }
 
@@ -466,6 +474,7 @@ void MainWindow::removeProject()
         mProjStorePath.clear();
         mUtils->setCurrentProject(mProjName, mProjStorePath);
         mProjectWindow->updateFileList();
+        enableProjectAcion(false);
     }
 
     // FIXME: add a function to close all file, and invoked here and snapshotOpenedFiles()
@@ -488,6 +497,7 @@ void MainWindow::closeProject()
     mProjStorePath.clear();
     mUtils->setCurrentProject(mProjName, mProjStorePath);
     mProjectWindow->updateFileList();
+    enableProjectAcion(false);
 }
 
 void MainWindow::manageProjFile()
@@ -672,6 +682,8 @@ void MainWindow::createActions()
     projSettingAct = new QAction(tr("Pro&ject Settings..."), this);
     projSettingAct->setStatusTip(tr("Specifies options for Project."));
 
+    enableProjectAcion(false);
+
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -746,8 +758,8 @@ void MainWindow::createMenus()
     projectMenu = menuBar()->addMenu(tr("&Project"));
     projectMenu->addAction(newProjAct);
     projectMenu->addAction(openProjAct);
-    projectMenu->addAction(closeProjAct);
     projectMenu->addAction(removeProjAct);
+    projectMenu->addAction(closeProjAct);
     projectMenu->addSeparator();
     projectMenu->addAction(manageProjFileAct);
     projectMenu->addAction(syncProjAct);

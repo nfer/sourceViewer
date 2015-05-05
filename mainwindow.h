@@ -64,6 +64,7 @@ private:
     void getFileInfo(const QString &fileName);
     void setEncodingIcon(const QTextCodec *codec, bool hasBOM = false);
     void enableEncodingAcion(bool enabled);
+    void enableProjectAcion(bool enabled);
 
     void saveLayout(QString fileName);
     void loadLayout(QString fileName);

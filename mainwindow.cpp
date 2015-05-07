@@ -4,7 +4,7 @@
 #include "projectManager.h"
 
 MainWindow::MainWindow() :
-    mProjName("(No Project)"),
+    mProjName(),
     mProjStorePath()
 {
     mUtils = Utils::enstance();
@@ -1028,7 +1028,13 @@ void MainWindow::setCurrentFile(const QString &fileName)
         eolConvMenu->setEnabled(true);
     }
 
-    QString shownTitle = "[*]" + mProjName;
+    QString shownTitle = "[*]";
+    if (!mProjName.isEmpty())
+        shownTitle += mProjName;
+    else
+        shownTitle += "(No Project)";
+    shownTitle += " Project";
+
     if (!fileName.isEmpty()){
         shownTitle += " - [ " + fileName + " ]";
     }

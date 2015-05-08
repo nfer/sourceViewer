@@ -155,7 +155,7 @@ ProjectDock::ProjectDock(const QString &dockName, QWidget *parent, Qt::WindowFla
 {
     ProjectFrame * dock = new ProjectFrame(this);
     connect(dock, SIGNAL(onFileSelected(const QString &)),
-            this, SLOT(projectFileSelected(const QString &)));
+            this, SIGNAL(onFileSelected(const QString &)));
     setWidget(dock);
 }
 
@@ -167,11 +167,6 @@ void ProjectDock::updateFileList()
 
     ProjectFrame * dock = (ProjectFrame *)widget();
     dock->updateFileList();
-}
-
-void ProjectDock::projectFileSelected(const QString &fileName)
-{
-    emit onFileSelected(fileName);
 }
 
 #include "DockWidget.moc"

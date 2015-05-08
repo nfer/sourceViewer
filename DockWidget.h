@@ -21,9 +21,6 @@ public:
 
 signals:
     void onFileSelected(const QString &);
-
-private slots:
-    void projectFileSelected(const QString &fileName);
 };
 
 #endif //WINDOWSWATCH_H

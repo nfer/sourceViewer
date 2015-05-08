@@ -1,16 +1,57 @@
 
-#include "filelistframe.h"
+#include "DockWidget.h"
 #include "Utils.h"
 
-class FileListDock : public QFrame
+class DockFrame : public QFrame
 {
     Q_OBJECT
 public:
-    FileListDock(QWidget *parent);
-    void updateFileList();
+    DockFrame(QWidget *parent);
 
-private:
     virtual QSize sizeHint() const;
+
+protected:
+    QSize szHint;
+};
+
+DockFrame::DockFrame(QWidget *parent)
+    : QFrame(parent)
+{
+    szHint = QSize(125, 75);
+    setMinimumSize(10, 10);
+
+    // set background color
+    setAutoFillBackground(true);
+    QPalette p = this->palette();
+    p.setColor(QPalette::Window, QColor("#D8D8D8"));
+    setPalette(p);
+}
+
+QSize DockFrame::sizeHint() const
+{
+    return szHint;
+}
+
+DockWidget::DockWidget(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)
+    : QDockWidget(parent, flags)
+{
+    setObjectName(dockName + QLatin1String(" Dock Widget"));
+    setWindowTitle(dockName);
+    setFeatures(features() & ~DockWidgetFloatable);
+
+    QFrame *swatch = new DockFrame(this);
+    swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    setWidget(swatch);
+
+    close();
+}
+
+class ProjectFrame : public DockFrame
+{
+    Q_OBJECT
+public:
+    ProjectFrame(QWidget *parent);
+    void updateFileList();
 
 signals:
     void onFileSelected(const QString &);
@@ -25,16 +66,12 @@ private:
     QComboBox            * mFileComboBox;
     QListView            * mFileListView;
     QStandardItemModel   * mFileListModel;
-    QSize                  szHint;
 };
 
-FileListDock::FileListDock(QWidget *parent)
-    : QFrame(parent)
+ProjectFrame::ProjectFrame(QWidget *parent)
+    : DockFrame(parent)
 {
     mUtils = Utils::enstance();
-
-    szHint = QSize(125, 75);
-    setMinimumSize(10, 10);
 
     mFileComboBox = new QComboBox;
     mFileComboBox->setEditable(true);
@@ -62,7 +99,7 @@ FileListDock::FileListDock(QWidget *parent)
     setLayout(mainLayout);
 }
 
-void FileListDock::updateFileList()
+void ProjectFrame::updateFileList()
 {
     mFileListModel->clear();
 
@@ -94,22 +131,17 @@ void FileListDock::updateFileList()
     mFileListModel->sort(0);
 }
 
-QSize FileListDock::sizeHint() const
-{
-    return szHint;
-}
-
-void FileListDock::currentIndexChanged(int index)
+void ProjectFrame::currentIndexChanged(int index)
 {
     qWarning() << "currentIndexChanged(int index) " << index;
 }
 
-void FileListDock::currentTextChanged(const QString & text)
+void ProjectFrame::currentTextChanged(const QString & text)
 {
     qWarning() << "currentTextChanged(const QString & text) " << text;
 }
 
-void FileListDock::listViewDoubleClicked(const QModelIndex & index)
+void ProjectFrame::listViewDoubleClicked(const QModelIndex & index)
 {
     QString fileName = mFileListModel->itemFromIndex(index)->text();
 
@@ -123,30 +155,25 @@ void FileListDock::listViewDoubleClicked(const QModelIndex & index)
     }
 }
 
-FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)
-    : QDockWidget(parent, flags)
+ProjectDock::ProjectDock(const QString &dockName, QWidget *parent, Qt::WindowFlags flags)
+    : DockWidget(dockName, parent, flags)
 {
-    setObjectName(dockName + QLatin1String(" Dock Widget"));
-    setWindowTitle(dockName);
-    setFeatures(features() & ~DockWidgetFloatable);
-
-    mDock = new FileListDock(this);
-    mDock->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    connect(mDock, SIGNAL(onFileSelected(const QString &)),
-            this, SLOT(dockFileSelected(const QString &)));
-    setWidget(mDock);
-
-    close();
+    ProjectFrame * dock = new ProjectFrame(this);
+    dock->setFrameStyle(QFrame::Box | QFrame::Sunken);
+    connect(dock, SIGNAL(onFileSelected(const QString &)),
+            this, SLOT(projectFileSelected(const QString &)));
+    setWidget(dock);
 }
 
-void FileListFrame::updateFileList()
+void ProjectDock::updateFileList()
 {
-    ((FileListDock*)mDock)->updateFileList();
+    ProjectFrame * dock = (ProjectFrame *)widget();
+    dock->updateFileList();
 }
 
-void FileListFrame::dockFileSelected(const QString &fileName)
+void ProjectDock::projectFileSelected(const QString &fileName)
 {
     emit onFileSelected(fileName);
 }
 
-#include "filelistframe.moc"
+#include "DockWidget.moc"

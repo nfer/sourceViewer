@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include "stable.h"
-#include "windowswatch.h"
-#include "fileListFrame.h"
+#include "DockWidget.h"
 #include "Utils.h"
 
 QT_BEGIN_NAMESPACE
@@ -139,10 +138,10 @@ private:
     QAction *aboutAct;
     QAction *aboutQtAct;
 
-    FileListFrame * mProjectWindow;
-    WindowSwatch  * mSymbolWindow;
-    WindowSwatch  * mContextWindows;
-    WindowSwatch  * mRelationWindow;
+    ProjectDock   * mProjectWindow;
+    DockWidget    * mSymbolWindow;
+    DockWidget    * mContextWindows;
+    DockWidget    * mRelationWindow;
 
     Utils         * mUtils;
     QString         mProjName;

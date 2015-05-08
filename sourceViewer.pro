@@ -6,16 +6,14 @@ TARGET     = sourceViewer
 HEADERS   += mainwindow.h \
              config.h \
              stable.h \
-             windowswatch.h \
-             filelistframe.h \
+             DockWidget.h \
              projectManager.h \
              FileSystemModel.h \
              Utils.h
 
 SOURCES   += main.cpp\
              mainwindow.cpp \
-             windowswatch.cpp \
-             filelistframe.cpp \
+             DockWidget.cpp \
              projectManager.cpp \
              FileSystemModel.cpp \
              Utils.cpp

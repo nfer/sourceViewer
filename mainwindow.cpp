@@ -1029,11 +1029,12 @@ void MainWindow::setCurrentFile(const QString &fileName)
     }
 
     QString shownTitle = "[*]";
-    if (!mProjName.isEmpty())
+    if (!mProjName.isEmpty()){
         shownTitle += mProjName;
+        shownTitle += " Project";
+    }
     else
         shownTitle += "(No Project)";
-    shownTitle += " Project";
 
     if (!fileName.isEmpty()){
         shownTitle += " - [ " + fileName + " ]";

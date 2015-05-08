@@ -36,13 +36,8 @@ DockWidget::DockWidget(const QString &dockName, QWidget *parent, Qt::WindowFlags
     : QDockWidget(parent, flags)
 {
     setObjectName(dockName + QLatin1String(" Dock Widget"));
-    setWindowTitle(dockName);
+    setWindowTitle("Dock Widget");
     setFeatures(features() & ~DockWidgetFloatable);
-
-    QFrame *swatch = new DockFrame(this);
-    swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
-    setWidget(swatch);
-
     close();
 }
 
@@ -159,7 +154,6 @@ ProjectDock::ProjectDock(const QString &dockName, QWidget *parent, Qt::WindowFla
     : DockWidget(dockName, parent, flags)
 {
     ProjectFrame * dock = new ProjectFrame(this);
-    dock->setFrameStyle(QFrame::Box | QFrame::Sunken);
     connect(dock, SIGNAL(onFileSelected(const QString &)),
             this, SLOT(projectFileSelected(const QString &)));
     setWidget(dock);
@@ -167,6 +161,10 @@ ProjectDock::ProjectDock(const QString &dockName, QWidget *parent, Qt::WindowFla
 
 void ProjectDock::updateFileList()
 {
+    QString name = Utils::enstance()->getCurProjName();
+    name += " Project";
+    setWindowTitle(name);
+
     ProjectFrame * dock = (ProjectFrame *)widget();
     dock->updateFileList();
 }

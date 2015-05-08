@@ -135,6 +135,8 @@ FileListFrame::FileListFrame(const QString &dockName, QWidget *parent, Qt::Windo
     connect(mDock, SIGNAL(onFileSelected(const QString &)),
             this, SLOT(dockFileSelected(const QString &)));
     setWidget(mDock);
+
+    close();
 }
 
 void FileListFrame::updateFileList()

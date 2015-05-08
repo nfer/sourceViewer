@@ -797,21 +797,21 @@ void MainWindow::createStatusBar()
 
 void MainWindow::setupDockWidgets()
 {
-    mProjectWindow = new FileListFrame(tr("projectWindow"), this);
+    mProjectWindow = new FileListFrame(tr("&Project Window"), this);
     addDockWidget(Qt::RightDockWidgetArea, mProjectWindow);
     viewMenu->addAction(mProjectWindow->toggleViewAction());
     connect(mProjectWindow, SIGNAL(onFileSelected(const QString &)),
             this, SLOT(openSelectFile(const QString &)));
 
-    mSymbolWindow = new WindowSwatch(tr("symbolWindow"), this);
+    mSymbolWindow = new WindowSwatch(tr("&Symbol Window"), this);
     addDockWidget(Qt::LeftDockWidgetArea, mSymbolWindow);
     viewMenu->addAction(mSymbolWindow->toggleViewAction());
 
-    mContextWindows = new WindowSwatch(tr("contextWindows"), this);
+    mContextWindows = new WindowSwatch(tr("&Context Windows"), this);
     addDockWidget(Qt::BottomDockWidgetArea, mContextWindows);
     viewMenu->addAction(mContextWindows->toggleViewAction());
 
-    mRelationWindow = new WindowSwatch(tr("relationWindow"), this);
+    mRelationWindow = new WindowSwatch(tr("&Relation Window"), this);
     addDockWidget(Qt::BottomDockWidgetArea, mRelationWindow);
     viewMenu->addAction(mRelationWindow->toggleViewAction());
 }

@@ -36,13 +36,13 @@ WindowSwatch::WindowSwatch(const QString &dockName, QWidget *parent, Qt::WindowF
 {
     setObjectName(dockName + QLatin1String(" Dock Widget"));
     setWindowTitle(dockName);
+    setFeatures(features() & ~DockWidgetFloatable);
 
     QFrame *swatch = new WindowDock(this);
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
-
     setWidget(swatch);
 
-    setFeatures(features() & ~DockWidgetFloatable);
+    close();
 }
 
 #include "windowswatch.moc"

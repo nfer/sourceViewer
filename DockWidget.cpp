@@ -162,8 +162,14 @@ ProjectDock::ProjectDock(const QString &dockName, QWidget *parent, Qt::WindowFla
 void ProjectDock::updateFileList()
 {
     QString name = Utils::enstance()->getCurProjName();
-    name += " Project";
-    setWindowTitle(name);
+    if (name.isEmpty()){
+        close();
+    }
+    else{
+        name += " Project";
+        setWindowTitle(name);
+        show();
+    }
 
     ProjectFrame * dock = (ProjectFrame *)widget();
     dock->updateFileList();

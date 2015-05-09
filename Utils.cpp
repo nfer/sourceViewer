@@ -139,6 +139,23 @@ void Utils::setCurrentProject(QString & name, QString & storePath){
         writeString(PROJNAME, mProjName);
         writeString(PROJSTOREPATH, mProjStorePath);
     }
+
+    mDefaultConfig->beginGroup(SETTINGS_CONFIG);
+    if(mProjName.isEmpty())
+        mDefaultConfig->remove(CURPROJNAME);
+    else
+        mDefaultConfig->setValue(CURPROJNAME, mProjName);
+    mDefaultConfig->endGroup();
+}
+
+QString Utils::getCurProjName()
+{
+    if (mProjName.isEmpty()){
+        QString curProjNameKey = QString(SETTINGS_CONFIG) + "/" +CURPROJNAME;
+        return mDefaultConfig->value(curProjNameKey).toString();
+    }
+    else
+        return mProjName;
 }
 
 bool Utils::writeInt(QString key, int value)

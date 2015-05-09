@@ -69,6 +69,7 @@ private:
     void loadLayout(QString fileName);
     void setEditBackgroundColor(const QColor &acolor);
 
+    void openLastProject();
     void openLastOpenedFiles();
     void snapshotOpenedFiles();
 

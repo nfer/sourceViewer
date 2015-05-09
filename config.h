@@ -7,6 +7,7 @@
 
 // macro for readString/writeString
 #define PROJNAME            "PROJNAME"
+#define CURPROJNAME         "CURPROJNAME"
 #define PROJSTOREPATH       "PROJSTOREPATH"
 #define SRCROOTPATH         "SRCROOTPATH"
 

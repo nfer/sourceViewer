@@ -30,6 +30,8 @@ MainWindow::MainWindow() :
     mCodec = NULL;
     mHasBOM = false;
     curEOLAct = NULL;
+
+    openLastProject();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -123,6 +125,19 @@ void MainWindow::setEditBackgroundColor(const QColor &acolor)
     QPalette p = this->palette();
     p.setColor(QPalette::Base, acolor);
     textEdit->setPalette(p);
+}
+
+void MainWindow::openLastProject()
+{
+    mProjName = mUtils->getCurProjName();
+    if (!mProjName.isEmpty()){
+        mProjStorePath = mUtils->getProjStorePath(mProjName);
+        mUtils->setCurrentProject(mProjName, mProjStorePath);
+
+        mProjectWindow->updateFileList();
+        enableProjectAcion(true);
+        openLastOpenedFiles();
+    }
 }
 
 void MainWindow::openLastOpenedFiles()

@@ -20,9 +20,7 @@ public:
                     QRegExp::PatternSyntax syntax = QRegExp::RegExp);
 
     void setCurrentProject(QString & name, QString & storePath);
-    QString getCurProjName(){
-        return mProjName;
-    }
+    QString getCurProjName();
 
     int         readInt(QString key);
     QString     readString(QString key);

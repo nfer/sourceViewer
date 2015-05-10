@@ -508,6 +508,8 @@ void MainWindow::closeProject()
 
     snapshotOpenedFiles();
 
+    setWindowTitle("(No Project)");
+
     mProjName.clear();
     mProjStorePath.clear();
     mUtils->setCurrentProject(mProjName, mProjStorePath);

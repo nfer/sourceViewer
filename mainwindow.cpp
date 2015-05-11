@@ -9,7 +9,7 @@ MainWindow::MainWindow() :
 {
     mUtils = Utils::enstance();
 
-    textEdit = new QPlainTextEdit;
+    textEdit = new CodeEditor ;
     setCentralWidget(textEdit);
 
     createActions();

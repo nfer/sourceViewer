@@ -9,6 +9,7 @@ HEADERS   += mainwindow.h \
              DockWidget.h \
              projectManager.h \
              FileSystemModel.h \
+             CodeEditor.h \
              Utils.h
 
 SOURCES   += main.cpp\
@@ -16,6 +17,7 @@ SOURCES   += main.cpp\
              DockWidget.cpp \
              projectManager.cpp \
              FileSystemModel.cpp \
+             CodeEditor.cpp \
              Utils.cpp
 
 RESOURCES  = sourceViewer.qrc

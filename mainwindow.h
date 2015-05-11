@@ -2,14 +2,9 @@
 #define MAINWINDOW_H
 
 #include "stable.h"
-#include "DockWidget.h"
 #include "Utils.h"
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-class QPlainTextEdit;
-QT_END_NAMESPACE
+#include "DockWidget.h"
+#include "CodeEditor.h"
 
 class MainWindow : public QMainWindow
 {
@@ -73,7 +68,7 @@ private:
     void openLastOpenedFiles();
     void snapshotOpenedFiles();
 
-    QPlainTextEdit *textEdit;
+    CodeEditor *textEdit;
     QTextCodec * mCodec;
     bool mHasBOM;
     QString curFile;

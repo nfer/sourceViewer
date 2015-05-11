@@ -14,7 +14,13 @@ public:
     CodeEditor(QWidget *parent = 0);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
-    int lineNumberAreaWidth();
+    int  lineNumberAreaWidth();
+    bool toggleBookMark(int y);
+    int  getLineNumber(int y);
+    int  checkBookMark(int line);
+
+static const int BOOKMARKMAXCOUNT = 32;
+static const int BOOKMARKMAXWIDTH = 20;
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -25,27 +31,31 @@ private slots:
     void updateLineNumberArea(const QRect &, int);
 
 private:
-    QWidget *lineNumberArea;
+    QWidget *mLineNumberArea;
+    int      mBookMarkList[BOOKMARKMAXCOUNT];
+
 };
 
 class LineNumberArea : public QWidget
 {
 public:
     LineNumberArea(CodeEditor *editor) : QWidget(editor) {
-        codeEditor = editor;
+        mCodeEditor = editor;
     }
 
     QSize sizeHint() const {
-        return QSize(codeEditor->lineNumberAreaWidth(), 0);
+        return QSize(mCodeEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
     void paintEvent(QPaintEvent *event) {
-        codeEditor->lineNumberAreaPaintEvent(event);
+        mCodeEditor->lineNumberAreaPaintEvent(event);
     }
 
+    void mousePressEvent(QMouseEvent * event);
+
 private:
-    CodeEditor *codeEditor;
+    CodeEditor *mCodeEditor;
 };
 
 #endif

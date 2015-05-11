@@ -166,7 +166,10 @@ int CodeEditor::getLineNumber(int y)
 
 void LineNumberArea::mousePressEvent(QMouseEvent * event)
 {
-    mCodeEditor->toggleBookMark(event->y());
-    //FIXME: if toggleBookMark too many count, it would fail
-    repaint();
+    if (mCodeEditor->toggleBookMark(event->y())){
+        repaint();
+    }
+    else{
+        QMessageBox::warning(this, NULL, tr("Already have too many bookmarks."));
+    }
 }

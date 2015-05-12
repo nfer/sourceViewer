@@ -925,7 +925,7 @@ void MainWindow::closeFile(const QString &fileName)
 
     mCodec = NULL;
     mHasBOM = false;
-    textEdit->setPlainText("");
+    textEdit->clear();
 
     setCurrentFile("");
     setEncodingIcon(NULL);
@@ -1014,7 +1014,7 @@ bool MainWindow::removeFile(const QString &fileName)
         return false;
     }
 
-    textEdit->setPlainText("");
+    textEdit->clear();
     setCurrentFile("");
     statusBar()->showMessage(tr("File deleted"), 2000);
     return true;

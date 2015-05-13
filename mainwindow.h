@@ -45,8 +45,6 @@ private:
     void createToolBars();
     void createStatusBar();
     void setupDockWidgets();
-    void readSettings();
-    void writeSettings();
     bool maybeSave();
     void loadFile(const QString &fileName, QTextCodec *codec = NULL, bool hasBOM = false);
     bool saveFile(const QString &fileName);
@@ -60,8 +58,6 @@ private:
     void enableEncodingAcion(bool enabled);
     void enableProjectAcion(bool enabled);
 
-    void saveLayout(QString fileName);
-    void loadLayout(QString fileName);
     void setEditBackgroundColor(const QColor &acolor);
 
     void openLastProject();

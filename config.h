@@ -22,6 +22,7 @@
 #define SETTINGS_CONFIG     "settings"
 
 // macro for file extension
+#define LAYOUT_SUFFIX       ".layout"
 #define PROJECT_SUFFIX      ".project"
 #define CONFIG_SUFFIX       ".config"
 #define FILELIST_SUFFIX     ".filelist"

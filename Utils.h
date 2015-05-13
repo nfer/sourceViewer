@@ -19,6 +19,9 @@ public:
                     Qt::CaseSensitivity cs = Qt::CaseSensitive,
                     QRegExp::PatternSyntax syntax = QRegExp::RegExp);
 
+    void saveLayout(QMainWindow * window);
+    void loadLayout(QMainWindow * window);
+
     void setCurrentProject(QString & name, QString & storePath);
     QString getCurProjName();
 
@@ -52,6 +55,10 @@ public:
 private:
     Utils();
     ~Utils();
+
+    QString getDefaultLayoutFile(){
+        return getDocumentPath() +"/" + Utils::getAppName() + LAYOUT_SUFFIX;
+    }
 
     QString getDefaultConfigFile(){
         return getDocumentPath() +"/" + Utils::getAppName() + CONFIG_SUFFIX;

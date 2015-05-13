@@ -148,6 +148,78 @@ void Utils::setCurrentProject(QString & name, QString & storePath){
     mDefaultConfig->endGroup();
 }
 
+void Utils::saveLayout(QMainWindow * window)
+{
+    mDefaultConfig->beginGroup(SETTINGS_CONFIG);
+    mDefaultConfig->setValue("pos", window->pos());
+    mDefaultConfig->setValue("size", window->size());
+    mDefaultConfig->endGroup();
+
+    QString layoutFile = getDefaultLayoutFile();
+
+    QFile file(layoutFile);
+    if (!file.open(QFile::WriteOnly)) {
+        qWarning() << QString("Failed to open %1\n%2").arg(layoutFile).arg(file.errorString());
+        return;
+    }
+
+    QByteArray geo_data = window->saveGeometry();
+    QByteArray layout_data = window->saveState();
+
+    bool ok = file.putChar((uchar)geo_data.size());
+    if (ok)
+        ok = file.write(geo_data) == geo_data.size();
+    if (ok)
+        ok = file.write(layout_data) == layout_data.size();
+
+    if (!ok) {
+        qWarning() << QString("Error writing to %1\n%2").arg(layoutFile).arg(file.errorString());
+        return;
+    }
+}
+
+void Utils::loadLayout(QMainWindow * window)
+{
+    QString windowPosKey = QString(SETTINGS_CONFIG) + "/" +"pos";
+    QPoint pos = mDefaultConfig->value(windowPosKey, QPoint(200, 200)).toPoint();
+    QString windowSizeKey = QString(SETTINGS_CONFIG) + "/" +"size";
+    QSize size = mDefaultConfig->value(windowSizeKey, QSize(400, 400)).toSize();
+    window->resize(size);
+    window->move(pos);
+
+    QString layoutFile = getDefaultLayoutFile();
+
+    QFile file(layoutFile);
+    if (!file.open(QFile::ReadOnly)) {
+        qWarning() << QString("Failed to open %1\n%2").arg(layoutFile).arg(file.errorString());
+        return;
+    }
+
+    uchar geo_size;
+    QByteArray geo_data;
+    QByteArray layout_data;
+
+    bool ok = file.getChar((char*)&geo_size);
+    if (ok) {
+        geo_data = file.read(geo_size);
+        ok = geo_data.size() == geo_size;
+    }
+    if (ok) {
+        layout_data = file.readAll();
+        ok = layout_data.size() > 0;
+    }
+
+    if (ok)
+        ok = window->restoreGeometry(geo_data);
+    if (ok)
+        ok = window->restoreState(layout_data);
+
+    if (!ok) {
+        qWarning() << QString("Error reading %1").arg(layoutFile);
+        return;
+    }
+}
+
 QString Utils::getCurProjName()
 {
     if (mProjName.isEmpty()){

@@ -18,8 +18,7 @@ MainWindow::MainWindow() :
     createStatusBar();
     setupDockWidgets();
 
-    readSettings();
-    loadLayout(tr("mainwindow.layout"));
+    mUtils->loadLayout(this);
 
     connect(textEdit->document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
@@ -37,84 +36,10 @@ MainWindow::MainWindow() :
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
-        writeSettings();
-        saveLayout(tr("mainwindow.layout"));
+        mUtils->saveLayout(this);
         event->accept();
     } else {
         event->ignore();
-    }
-}
-
-void MainWindow::saveLayout(QString fileName)
-{
-//    qDebug() << tr("saveLayout with fileName") << fileName;
-    if (fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly)) {
-        QString msg = tr("Failed to open %1\n%2")
-                        .arg(fileName)
-                        .arg(file.errorString());
-        qWarning() << tr("Error") << msg;
-        return;
-    }
-
-    QByteArray geo_data = saveGeometry();
-    QByteArray layout_data = saveState();
-
-    bool ok = file.putChar((uchar)geo_data.size());
-    if (ok)
-        ok = file.write(geo_data) == geo_data.size();
-    if (ok)
-        ok = file.write(layout_data) == layout_data.size();
-
-    if (!ok) {
-        QString msg = tr("Error writing to %1\n%2")
-                        .arg(fileName)
-                        .arg(file.errorString());
-        qWarning() << tr("Error") << msg;
-        return;
-    }
-}
-
-void MainWindow::loadLayout(QString fileName)
-{
-//    qDebug() << tr("loadLayout with fileName") << fileName;
-    if (fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly)) {
-        QString msg = tr("Failed to open %1\n%2")
-                        .arg(fileName)
-                        .arg(file.errorString());
-        qWarning() << tr("Error") << msg;
-        return;
-    }
-
-    uchar geo_size;
-    QByteArray geo_data;
-    QByteArray layout_data;
-
-    bool ok = file.getChar((char*)&geo_size);
-    if (ok) {
-        geo_data = file.read(geo_size);
-        ok = geo_data.size() == geo_size;
-    }
-    if (ok) {
-        layout_data = file.readAll();
-        ok = layout_data.size() > 0;
-    }
-
-    if (ok)
-        ok = restoreGeometry(geo_data);
-    if (ok)
-        ok = restoreState(layout_data);
-
-    if (!ok) {
-        QString msg = tr("Error reading %1")
-                        .arg(fileName);
-        qWarning() << tr("Error") << msg;
-        return;
     }
 }
 
@@ -831,22 +756,6 @@ void MainWindow::setupDockWidgets()
     mRelationWindow = new DockWidget(tr("&Relation Window"), this);
     addDockWidget(Qt::BottomDockWidgetArea, mRelationWindow);
     viewMenu->addAction(mRelationWindow->toggleViewAction());
-}
-
-void MainWindow::readSettings()
-{
-    QSettings settings("QtProject", "Application Example");
-    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(400, 400)).toSize();
-    resize(size);
-    move(pos);
-}
-
-void MainWindow::writeSettings()
-{
-    QSettings settings("QtProject", "Application Example");
-    settings.setValue("pos", pos());
-    settings.setValue("size", size());
 }
 
 bool MainWindow::maybeSave()

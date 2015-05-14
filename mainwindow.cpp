@@ -329,7 +329,8 @@ void MainWindow::about()
 
 void MainWindow::documentWasModified()
 {
-    setWindowModified(textEdit->document()->isModified());
+    if (!curFile.isEmpty())
+        setWindowModified(textEdit->document()->isModified());
 }
 
 void MainWindow::openSelectFile(const QString & fileName)
@@ -932,14 +933,10 @@ bool MainWindow::removeFile(const QString &fileName)
 void MainWindow::setCurrentFile(const QString &fileName)
 {
     curFile = fileName;
-    textEdit->document()->setModified(false);
-    setWindowModified(false);
 
-    QString shownName = fileName;
     if (fileName.isEmpty()){
         textEdit->setReadOnly(true);
         setEditBackgroundColor(QColor("#C7C7C7"));
-        shownName = "untitled";
         renameAct->setEnabled(false);
         removeAct->setEnabled(false);
         enableEncodingAcion(false);
@@ -954,19 +951,19 @@ void MainWindow::setCurrentFile(const QString &fileName)
         eolConvMenu->setEnabled(true);
     }
 
-    QString shownTitle = "[*]";
+    QString shownTitle = "(No Project)";
     if (!mProjName.isEmpty()){
-        shownTitle += mProjName;
-        shownTitle += " Project";
+        shownTitle = mProjName + " Project";
     }
-    else
-        shownTitle += "(No Project)";
 
     if (!fileName.isEmpty()){
-        shownTitle += " - [ " + fileName + " ]";
+        shownTitle += " - [ " + fileName + "[*]]";
     }
 
     setWindowTitle(shownTitle);
+
+    textEdit->document()->setModified(false);
+    setWindowModified(false);
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

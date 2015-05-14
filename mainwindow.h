@@ -52,7 +52,6 @@ private:
     bool removeFile(const QString &fileName);
     void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
-    QString strippedName(const QString &fullFileName);
     void getFileInfo(const QString &fileName);
     void setEncodingIcon(const QTextCodec *codec, bool hasBOM = false);
     void enableEncodingAcion(bool enabled);

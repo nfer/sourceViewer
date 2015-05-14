@@ -966,11 +966,6 @@ void MainWindow::setCurrentFile(const QString &fileName)
     setWindowModified(false);
 }
 
-QString MainWindow::strippedName(const QString &fullFileName)
-{
-    return QFileInfo(fullFileName).fileName();
-}
-
 void MainWindow::getFileInfo(const QString &fileName)
 {
     QProcess p(0);

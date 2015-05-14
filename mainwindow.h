@@ -4,7 +4,7 @@
 #include "stable.h"
 #include "Utils.h"
 #include "DockWidget.h"
-#include "CodeEditor.h"
+#include "FileManager.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,22 +17,7 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
-    void newFile();
-    void open();
-    void close();
-    bool rename();
-    void remove();
-    bool save();
-    bool saveAs();
-    void undoAll();
-    void redoAll();
-    void getEncoding();
-    void showInEncoding();
-    void convertToEncoding();
-    void convertToEOL();
     void about();
-    void documentWasModified();
-    void openSelectFile(const QString & fileName);
     void newProject();
     void openProject();
     void closeProject();
@@ -45,33 +30,14 @@ private:
     void createToolBars();
     void createStatusBar();
     void setupDockWidgets();
-    bool maybeSave();
-    void loadFile(const QString &fileName, QTextCodec *codec = NULL, bool hasBOM = false);
-    bool saveFile(const QString &fileName);
-    bool renameFile(const QString &fileName);
-    bool removeFile(const QString &fileName);
-    void closeFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName);
-    void getFileInfo(const QString &fileName);
-    void setEncodingIcon(const QTextCodec *codec, bool hasBOM = false);
-    void enableEncodingAcion(bool enabled);
+
     void enableProjectAcion(bool enabled);
-
-    void setEditBackgroundColor(const QColor &acolor);
-
     void openLastProject();
     void openLastOpenedFiles();
     void snapshotOpenedFiles();
 
-    CodeEditor *textEdit;
-    QTextCodec * mCodec;
-    bool mHasBOM;
-    QString curFile;
-
     QMenu *fileMenu;
     QMenu *editMenu;
-    QMenu *eolConvMenu;
-    QMenu *encodingMenu;
     QMenu *projectMenu;
     QMenu *viewMenu;
     QMenu *helpMenu;
@@ -96,24 +62,6 @@ private:
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
-    QAction *convertToWinAct;
-    QAction *convertToUnixAct;
-    QAction *convertToMacAct;
-    QAction *curEOLAct;
-
-    // encoding menu
-    QAction *getEncodingAct;
-    QAction *encodeInANSIAct;       // ANSI
-    QAction *encodeInUTF8WOBAct;    // UTF-8 without BOM
-    QAction *encodeInUTF8Act;       // UTF-8
-    QAction *encodeInUCS2BEAct;     // UCS-2 Big Endian
-    QAction *encodeInUCS2LEAct;     // UCS-2 Little Endian
-    QAction *convertToANSIAct;      // ANSI
-    QAction *convertToUTF8WOBAct;   // UTF-8 without BOM
-    QAction *convertToUTF8Act;      // UTF-8
-    QAction *convertToUCS2BEAct;    // UCS-2 Big Endian
-    QAction *convertToUCS2LEAct;    // UCS-2 Little Endian
-    QAction *curEncodingAct;
 
     // project menu
     QAction *newProjAct;
@@ -134,6 +82,7 @@ private:
     DockWidget    * mContextWindows;
     DockWidget    * mRelationWindow;
 
+    FileManager   * mFileManager;
     Utils         * mUtils;
     QString         mProjName;
     QString         mProjStorePath;

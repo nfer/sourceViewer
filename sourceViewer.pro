@@ -6,7 +6,9 @@ TARGET     = sourceViewer
 HEADERS   += mainwindow.h \
              config.h \
              stable.h \
+             Common.h \
              DockWidget.h \
+             FileManager.h \
              projectManager.h \
              FileSystemModel.h \
              CodeEditor.h \
@@ -15,6 +17,7 @@ HEADERS   += mainwindow.h \
 SOURCES   += main.cpp\
              mainwindow.cpp \
              DockWidget.cpp \
+             FileManager.cpp \
              projectManager.cpp \
              FileSystemModel.cpp \
              CodeEditor.cpp \

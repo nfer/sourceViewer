@@ -1,8 +1,5 @@
 
-#include "stable.h"
-
 #include "projectManager.h"
-#include "config.h"
 
 NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)

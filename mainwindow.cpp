@@ -1,5 +1,4 @@
 
-#include "config.h"
 #include "mainwindow.h"
 #include "projectManager.h"
 

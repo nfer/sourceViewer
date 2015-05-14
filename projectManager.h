@@ -3,8 +3,8 @@
 #define PROJECTMANAGER_H
 
 #include "stable.h"
-#include "FileSystemModel.h"
 #include "Utils.h"
+#include "FileSystemModel.h"
 
 class NewProjectDialog : public QDialog
 {

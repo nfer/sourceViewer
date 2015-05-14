@@ -1,8 +1,6 @@
 #ifndef SV_CONFIG_H
 #define SV_CONFIG_H
 
-#include "stable.h"
-
 #define SV_PROGRAM_NAME "Source Viewer"
 
 // macro for readString/writeString

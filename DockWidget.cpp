@@ -1,6 +1,6 @@
 
-#include "DockWidget.h"
 #include "Utils.h"
+#include "DockWidget.h"
 
 class DockFrame : public QFrame
 {

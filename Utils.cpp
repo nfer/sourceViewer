@@ -1,5 +1,4 @@
 
-#include "stable.h"
 #include "Utils.h"
 
 static Utils     * s_Utils;

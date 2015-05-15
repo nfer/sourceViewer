@@ -1,6 +1,7 @@
 
 #include "mainwindow.h"
 #include "projectManager.h"
+#include "component/Action.h"
 
 MainWindow::MainWindow() :
     mProjName(),
@@ -179,125 +180,87 @@ void MainWindow::manageProjFile()
 
 void MainWindow::createActions()
 {
-    newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
-    newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, SIGNAL(triggered()), mFileManager, SLOT(newFile()));
+    newAct = new Action(tr("&New"), tr("Create a new file"),
+        QKeySequence::New, QIcon(":/images/new.png"),
+        this, SLOT(newFile()), mFileManager);
 
-    openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, SIGNAL(triggered()), mFileManager, SLOT(open()));
+    openAct = new Action(tr("&Open..."), tr("Open an existing file"),
+        QKeySequence::Open, QIcon(":/images/open.png"),
+        this, SLOT(open()), mFileManager);
 
-    closeAct = new QAction(tr("&Close"), this);
-    closeAct->setShortcuts(QKeySequence::listFromString(tr("Ctrl+W")));
-    closeAct->setStatusTip(tr("Closes the current file."));
-    connect(closeAct, SIGNAL(triggered()), mFileManager, SLOT(close()));
+    closeAct = new Action(tr("&Close"), tr("Closes the current file."),
+        QKeySequence::listFromString(tr("Ctrl+W")),
+        this, SLOT(close()), mFileManager);
 
-    renameAct = new QAction(tr("Rename..."), this);
-    renameAct->setStatusTip(tr("Renames a file on disk and in a project."));
-    connect(renameAct, SIGNAL(triggered()), mFileManager, SLOT(rename()));
+    renameAct = new Action(tr("Rename..."), tr("Renames a file on disk and in a project."),
+        this, SLOT(rename()), mFileManager);
 
-    removeAct = new QAction(tr("&Delete File..."), this);
-    removeAct->setStatusTip(tr("Deletes a file on disk and in a project."));
-    connect(removeAct, SIGNAL(triggered()), mFileManager, SLOT(remove()));
+    removeAct = new Action(tr("&Delete File..."), tr("Deletes a file on disk and in a project."),
+        this, SLOT(remove()), mFileManager);
 
-    saveAct = new QAction(QIcon(":/images/save.png"), tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    connect(saveAct, SIGNAL(triggered()), mFileManager, SLOT(save()));
+    saveAct = new Action(tr("&Save"), tr("Save the document to disk"),
+        QKeySequence::Save, QIcon(":/images/save.png"),
+        this, SLOT(save()), mFileManager);
 
-    saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::listFromString(tr("Ctrl+Shift+S")));
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    connect(saveAsAct, SIGNAL(triggered()), mFileManager, SLOT(saveAs()));
+    saveAsAct = new Action(tr("Save &As..."), tr("Save the document under a new name"),
+        QKeySequence::listFromString(tr("Ctrl+Shift+S")),
+        this, SLOT(saveAs()), mFileManager);
 
-    exitAct = new QAction(tr("E&xit"), this);
-    exitAct->setShortcuts(QKeySequence::Quit);
-    exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), mFileManager, SLOT(close()));
+    exitAct = new Action(tr("E&xit"), tr("Exit the application"), QKeySequence::Quit, this);
 
-    undoAct = new QAction(tr("&Undo"), this);
-    undoAct->setShortcuts(QKeySequence::Undo);
-    undoAct->setStatusTip(tr("Reverses the last editing operation."));
-    connect(undoAct, SIGNAL(triggered()), mFileManager, SLOT(undo()));
-    undoAct->setEnabled(false);
+    undoAct = new Action(tr("&Undo"), tr("Reverses the last editing operation."),
+        QKeySequence::Undo, this, SLOT(undo()), mFileManager);
 
-    redoAct = new QAction(tr("&Redo"), this);
-    redoAct->setShortcuts(QKeySequence::Redo);
-    redoAct->setStatusTip(tr("Recreates the last editing operation after an Undo command."));
-    connect(redoAct, SIGNAL(triggered()), mFileManager, SLOT(redo()));
-    redoAct->setEnabled(false);
+    redoAct = new Action(tr("&Redo"), tr("Recreates the last editing operation after an Undo command."),
+        QKeySequence::Redo, this, SLOT(redo()), mFileManager);
 
-    undoAllAct = new QAction(tr("U&ndo All"), this);
-    undoAllAct->setStatusTip(tr("Undoes all edits to the current file."));
-    connect(undoAllAct, SIGNAL(triggered()), mFileManager, SLOT(undoAll()));
-    undoAllAct->setEnabled(false);
+    undoAllAct = new Action(tr("U&ndo All"), tr("Undoes all edits to the current file."),
+        this, SLOT(undoAll()), mFileManager);
 
-    redoAllAct = new QAction(tr("R&edo All"), this);
-    redoAllAct->setStatusTip(tr("Redoes all edits to the current file."));
-    connect(redoAllAct, SIGNAL(triggered()), mFileManager, SLOT(redoAll()));
-    redoAllAct->setEnabled(false);
+    redoAllAct = new Action(tr("R&edo All"), tr("Redoes all edits to the current file."),
+        this, SLOT(redoAll()), mFileManager);
 
-    cutAct = new QAction(QIcon(":/images/cut.png"), tr("Cu&t"), this);
-    cutAct->setShortcuts(QKeySequence::Cut);
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-    connect(cutAct, SIGNAL(triggered()), mFileManager, SLOT(cut()));
+    cutAct = new Action(tr("Cu&t"), tr("Cut the current selection's contents to the clipboard"),
+        QKeySequence::Cut, QIcon(":/images/cut.png"),
+        this, SLOT(cut()), mFileManager);
 
-    copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
-    copyAct->setShortcuts(QKeySequence::Copy);
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-                             "clipboard"));
-    connect(copyAct, SIGNAL(triggered()), mFileManager, SLOT(copy()));
+    copyAct = new Action(tr("&Copy"), tr("Copy the current selection's contents to the clipboard"),
+        QKeySequence::Copy, QIcon(":/images/copy.png"),
+        this, SLOT(copy()), mFileManager);
 
-    pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
-    pasteAct->setShortcuts(QKeySequence::Paste);
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
-                              "selection"));
-    connect(pasteAct, SIGNAL(triggered()), mFileManager, SLOT(paste()));
+    pasteAct = new Action(tr("&Paste"), tr("Paste the clipboard's contents into the current selection"),
+        QKeySequence::Paste, QIcon(":/images/paste.png"),
+        this, SLOT(paste()), mFileManager);
 
-    newProjAct = new QAction(tr("&New Project..."), this);
-    newProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+N")));
-    newProjAct->setStatusTip(tr("Creates a new project."));
-    connect(newProjAct, SIGNAL(triggered()), this, SLOT(newProject()));
+    newProjAct = new Action(tr("&New Project..."), tr("Creates a new project."),
+        QKeySequence::listFromString(tr("Alt+Shift+N")), this, SLOT(newProject()));
 
-    openProjAct = new QAction(tr("&Open Project..."), this);
-    openProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+P")));
-    openProjAct->setStatusTip(tr("Opens an existing project."));
-    connect(openProjAct, SIGNAL(triggered()), this, SLOT(openProject()));
+    openProjAct = new Action(tr("&Open Project..."), tr("Opens an existing project."),
+        QKeySequence::listFromString(tr("Alt+Shift+P")), this, SLOT(openProject()));
 
-    closeProjAct = new QAction(tr("&Close Project"), this);
-    closeProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+W")));
-    closeProjAct->setStatusTip(tr("Closes the current project."));
-    connect(closeProjAct, SIGNAL(triggered()), this, SLOT(closeProject()));
+    closeProjAct = new Action(tr("&Close Project"), tr("Closes the current project."),
+        QKeySequence::listFromString(tr("Alt+Shift+W")), this, SLOT(closeProject()));
 
-    removeProjAct = new QAction(tr("&Remove Project..."), this);
-    removeProjAct->setStatusTip(tr("Deletes a project."));
-    connect(removeProjAct, SIGNAL(triggered()), this, SLOT(removeProject()));
+    removeProjAct = new Action(tr("&Remove Project..."), tr("Deletes a project."),
+        this, SLOT(removeProject()));
 
-    manageProjFileAct = new QAction(tr("&Add and Remove Project Files..."), this);
-    manageProjFileAct->setStatusTip(tr("Adds and removes files from current project."));
-    connect(manageProjFileAct, SIGNAL(triggered()), this, SLOT(manageProjFile()));
+    manageProjFileAct = new Action(tr("&Add and Remove Project Files..."),
+        tr("Adds and removes files from current project."), this, SLOT(manageProjFile()));
 
-    syncProjAct = new QAction(tr("&Synchronize Files..."), this);
-    syncProjAct->setShortcuts(QKeySequence::listFromString(tr("Alt+Shift+S")));
-    syncProjAct->setStatusTip(tr("Synchronizes the current project with changes made to files outside the editor."));
+    syncProjAct = new Action(tr("&Synchronize Files..."), tr("Synchronizes the current project with changes made to files outside the editor."),
+        QKeySequence::listFromString(tr("Alt+Shift+S")), this);
 
-    rebuildProjAct = new QAction(tr("R&ebuild Project..."), this);
-    rebuildProjAct->setStatusTip(tr("Rebuilds project date files."));
+    rebuildProjAct = new Action(tr("R&ebuild Project..."), tr("Rebuilds project date files."), this);
 
-    projSettingAct = new QAction(tr("Pro&ject Settings..."), this);
-    projSettingAct->setStatusTip(tr("Specifies options for Project."));
+    projSettingAct = new Action(tr("Pro&ject Settings..."), tr("Specifies options for Project."), this);
 
     enableProjectAcion(false);
 
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+    aboutAct = new Action(tr("&About"), tr("Show the application's About box"),
+        this, SLOT(about()));
 
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    aboutQtAct = new Action(tr("About &Qt"), tr("Show the Qt library's About box"),
+        this, SLOT(aboutQt()), qApp);
 }
 
 void MainWindow::createMenus()

@@ -3,7 +3,9 @@ TEMPLATE   = app
 QT        += widgets
 TARGET     = sourceViewer
 
-HEADERS   += mainwindow.h \
+HEADERS   += \
+             component/Action.h \
+             mainwindow.h \
              config.h \
              stable.h \
              Common.h \
@@ -14,7 +16,9 @@ HEADERS   += mainwindow.h \
              CodeEditor.h \
              Utils.h
 
-SOURCES   += main.cpp\
+SOURCES   +=  \
+             component/Action.cpp \
+             main.cpp\
              mainwindow.cpp \
              DockWidget.cpp \
              FileManager.cpp \

@@ -5,6 +5,7 @@ TARGET     = sourceViewer
 
 HEADERS   += \
              component/Action.h \
+             component/PushButton.h \
              mainwindow.h \
              config.h \
              stable.h \
@@ -18,6 +19,7 @@ HEADERS   += \
 
 SOURCES   +=  \
              component/Action.cpp \
+             component/PushButton.cpp \
              main.cpp\
              mainwindow.cpp \
              DockWidget.cpp \

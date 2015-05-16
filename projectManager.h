@@ -28,8 +28,6 @@ private slots:
     void accept();
     void onNameChanged(const QString & text);
 private:
-    QPushButton *createButton(const QString &text, const char *member);
-
     QLabel      * mNameLabel;
     QLineEdit   * mNameEdit;
     QLabel      * mProjStorePathLabel;
@@ -67,7 +65,6 @@ private slots:
     void curDirItemChanged(QTableWidgetItem * current, QTableWidgetItem * previous);
 
 private:
-    QPushButton *createButton(const QString &text, const char *member = NULL);
     void initProjFileList();
     void showFiles(const QStringList &files);
     bool eventFilter(QObject*obj,QEvent*event);
@@ -118,8 +115,6 @@ public:
     }
 
 private:
-    QPushButton *createButton(const QString &text, const char *member = NULL);
-
     QCheckBox   * mRecursively;
     QPushButton * mOKButton;
     QPushButton * mCancelButton;
@@ -146,7 +141,6 @@ private slots:
     void projListDoubleClicked(const QModelIndex & index);
 
 private:
-    QPushButton *createButton(const QString &text, const char *member);
     virtual void selectProjectByIndex(const QModelIndex & index);
     bool eventFilter(QObject*obj,QEvent*event);
     void selectDisplayItemByOffset(int offset);

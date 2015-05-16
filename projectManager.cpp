@@ -1,5 +1,6 @@
 
 #include "projectManager.h"
+#include "component/PushButton.h"
 
 NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
@@ -17,16 +18,16 @@ NewProjectDialog::NewProjectDialog(QWidget *parent)
     QString defaultPath = Utils::getProjectPath() + "/" + defaultName;
     mProjStorePathEdit = new QLineEdit(defaultPath);
     mProjStorePathEdit->setMinimumWidth(360);
-    mProjStorePathButton = createButton(tr("&Browse..."), SLOT(browseProjStorePath()));
+    mProjStorePathButton = new PushButton(tr("&Browse..."), this, SLOT(browseProjStorePath()));
 
     // source root path label, edit and browser button
     mSrcRootPathLabel = new QLabel(tr("Where is the source root path?"));
     mSrcRootPathEdit = new QLineEdit();
     mSrcRootPathEdit->setMinimumWidth(360);
-    mSrcRootPathButton = createButton(tr("&Browse..."), SLOT(browseSrcRootPath()));
+    mSrcRootPathButton = new PushButton(tr("&Browse..."), this, SLOT(browseSrcRootPath()));
 
-    mNextButton = createButton(tr("&Next"), SLOT(accept()));
-    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+    mNextButton = new PushButton(tr("&Next"), this, SLOT(accept()));
+    mCancelButton = new PushButton(tr("&Cancel"), this, SLOT(reject()));
     mNextButton->setDefault(true);
 
     QVBoxLayout * nameLayout = new QVBoxLayout();
@@ -128,13 +129,6 @@ void NewProjectDialog::onNameChanged(const QString & text)
     mProjStorePathEdit->setText(storePath);
 }
 
-QPushButton *NewProjectDialog::createButton(const QString &text, const char *member)
-{
-    QPushButton *button = new QPushButton(text);
-    connect(button, SIGNAL(clicked()), this, member);
-    return button;
-}
-
 // FIXME: remove srcRootPath from param, as it can be get from project setting
 AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projStorePath,
         const QString & srcRootPath, QWidget *parent)
@@ -203,12 +197,12 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
 
     initProjFileList();
 
-    mAddFileButton = createButton(tr("Add"), SLOT(addFile()));
-    mAddAllButton = createButton(tr("AddAll"), SLOT(addAll()));
-    mAddTreeButton = createButton(tr("AddTree"), SLOT(addTree()));
-    mRemoveFileButton = createButton(tr("Remove"), SLOT(removeFile()));
-    mRemoveAllButton = createButton(tr("RemoveAll"), SLOT(removeAll()));
-    mRemoveTreeButton = createButton(tr("RemoveTree"), SLOT(removeTree()));
+    mAddFileButton = new PushButton(tr("Add"), this, SLOT(addFile()));
+    mAddAllButton = new PushButton(tr("AddAll"), this, SLOT(addAll()));
+    mAddTreeButton = new PushButton(tr("AddTree"), this, SLOT(addTree()));
+    mRemoveFileButton = new PushButton(tr("Remove"), this, SLOT(removeFile()));
+    mRemoveAllButton = new PushButton(tr("RemoveAll"), this, SLOT(removeAll()));
+    mRemoveTreeButton = new PushButton(tr("RemoveTree"), this, SLOT(removeTree()));
     mAddFileButton->setDefault(true);
 
     // set default disable state
@@ -220,7 +214,7 @@ AddFilesDialog::AddFilesDialog(const QString & projName, const QString & projSto
     }
     mRemoveTreeButton->setDisabled(true);
 
-    mOKButton = createButton(tr("OK"), SLOT(accept()));
+    mOKButton = new PushButton(tr("OK"), this, SLOT(accept()));
 
     QHBoxLayout *curPathLayout = new QHBoxLayout();
     curPathLayout->addWidget(mCurPathEdit);
@@ -674,13 +668,6 @@ void AddFilesDialog::showFiles(const QStringList &files)
     mSortOrder = Qt::AscendingOrder;
 }
 
-QPushButton *AddFilesDialog::createButton(const QString &text, const char *member)
-{
-    QPushButton *button = new QPushButton(text);
-    connect(button, SIGNAL(clicked()), this, member);
-    return button;
-}
-
 void AddFilesDialog::updateTreeView(const QString & path)
 {
     QModelIndex curIndex = mDirTreeModel->index(path);
@@ -761,8 +748,8 @@ AddAllDialog::AddAllDialog(QWidget *parent)
     mRecursively = new QCheckBox("&Recursively add sub-directories", this);
     mRecursively->setFixedWidth(240);
 
-    mOKButton = createButton(tr("&OK"), SLOT(accept()));
-    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+    mOKButton = new PushButton(tr("&OK"), this, SLOT(accept()));
+    mCancelButton = new PushButton(tr("&Cancel"), this, SLOT(reject()));
 
     QVBoxLayout *leftLayout = new QVBoxLayout();
     leftLayout->setAlignment(Qt::AlignTop);
@@ -781,13 +768,6 @@ AddAllDialog::AddAllDialog(QWidget *parent)
     setWindowModality(Qt::WindowModal);
 
     setWindowTitle(tr("Add To Project"));
-}
-
-QPushButton *AddAllDialog::createButton(const QString &text, const char *member)
-{
-    QPushButton *button = new QPushButton(text);
-    connect(button, SIGNAL(clicked()), this, member);
-    return button;
 }
 
 ProjectListDialog::ProjectListDialog(QWidget *parent)
@@ -822,9 +802,9 @@ ProjectListDialog::ProjectListDialog(QWidget *parent)
     if (mProjListModel->rowCount() > 1)
         mProjListModel->sort(0);
 
-    mBrowseButton = createButton(tr("&Browse..."), SLOT(browse()));
-    mOKButton = createButton(tr("&OK"), SLOT(accept()));
-    mCancelButton = createButton(tr("&Cancel"), SLOT(reject()));
+    mBrowseButton = new PushButton(tr("&Browse..."), this, SLOT(browse()));
+    mOKButton = new PushButton(tr("&OK"), this, SLOT(accept()));
+    mCancelButton = new PushButton(tr("&Cancel"), this, SLOT(reject()));
 
     QVBoxLayout * projLayout = new QVBoxLayout();
     projLayout->addWidget(mNameLabel);
@@ -925,13 +905,6 @@ void ProjectListDialog::projListDoubleClicked(const QModelIndex & index )
 {
     selectProjectByIndex(index);
     QDialog::accept();
-}
-
-QPushButton *ProjectListDialog::createButton(const QString &text, const char *member)
-{
-    QPushButton *button = new QPushButton(text);
-    connect(button, SIGNAL(clicked()), this, member);
-    return button;
 }
 
 void ProjectListDialog::selectProjectByIndex(const QModelIndex &index)

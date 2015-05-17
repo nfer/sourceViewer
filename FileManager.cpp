@@ -1,42 +1,46 @@
 
 #include "FileManager.h"
 
-FileManager::FileManager(QMainWindow * window) :
-				mWindow(window),
-				mFileName()
-{
-	mEditor = new CodeEditor;
+#define CHECK_EDITOR() \
+    if (NULL == currentEditor()) \
+        return;
 
-    connect(mEditor->document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
+FileManager::FileManager(QMainWindow * window) :
+                mWindow(window),
+                mEditor(NULL),
+                mCurFileName(),
+                mNewFileIndex(1)
+{
+    mStackedWidget = new QStackedWidget;
 }
 
 FileManager::~FileManager()
 {
-    delete mEditor;
+    while (mStackedWidget->count() > 0){
+        CodeEditor * editor = (CodeEditor *)mStackedWidget->currentWidget();
+        delete editor;
+    }
+    delete mStackedWidget;
 }
 
 void FileManager::newFile()
 {
-    if (maybeSave()) {
-        mEditor->clear();
-        setCurrentFile("");
-    }
+    CodeEditor * editor = new CodeEditor();
+    mStackedWidget->addWidget(editor);
+    setCurrentFile("");
 }
 
 void FileManager::open()
 {
-    if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(mWindow);
-        if (!fileName.isEmpty())
-            loadFile(fileName);
-    }
+    QString fileName = QFileDialog::getOpenFileName(mWindow);
+    if (!fileName.isEmpty())
+        loadFile(fileName);
 }
 
 void FileManager::close()
 {
     if (maybeSave()) {
-        closeFile(mFileName);
+        closeFile(mCurFileName);
     }
     else{
         qWarning() << "DO NOT CLOSE FILE, as user click Cancel, or save failed.";
@@ -62,7 +66,7 @@ bool FileManager::rename()
 void FileManager::remove()
 {
     if (maybeSave()) {
-        removeFile(mFileName);
+        removeFile(mCurFileName);
     }
     else{
         qWarning() << "DO NOT REMOVE FILE, as user click Cancel, or save failed.";
@@ -71,10 +75,10 @@ void FileManager::remove()
 
 bool FileManager::save()
 {
-    if (mFileName.isEmpty()) {
+    if (mCurFileName.isEmpty()) {
         return saveAs();
     } else {
-        return saveFile(mFileName);
+        return saveFile(mCurFileName);
     }
 }
 
@@ -96,50 +100,57 @@ bool FileManager::saveAs()
 
 void FileManager::undo()
 {
-    mEditor->undo();
+    CHECK_EDITOR();
+    currentEditor()->undo();
 }
 
 void FileManager::redo()
 {
-    mEditor->redo();
+    CHECK_EDITOR();
+    currentEditor()->redo();
 }
 
 void FileManager::undoAll()
 {
-    while(mEditor->document()->isUndoAvailable())
-        mEditor->undo();
+    CHECK_EDITOR();
+    while(currentEditor()->document()->isUndoAvailable())
+        currentEditor()->undo();
 }
 
 void FileManager::redoAll()
 {
-    while(mEditor->document()->isRedoAvailable())
-        mEditor->redo();
+    CHECK_EDITOR();
+    while(currentEditor()->document()->isRedoAvailable())
+        currentEditor()->redo();
 }
 
 void FileManager::cut()
 {
-    mEditor->cut();
+    CHECK_EDITOR();
+    currentEditor()->cut();
 }
 
 void FileManager::copy()
 {
-    mEditor->copy();
+    CHECK_EDITOR();
+    currentEditor()->copy();
 }
 
 void FileManager::paste()
 {
-    mEditor->paste();
+    CHECK_EDITOR();
+    currentEditor()->paste();
 }
 
 void FileManager::documentWasModified()
 {
-    if (!mFileName.isEmpty())
-        mWindow->setWindowModified(mEditor->document()->isModified());
+    CHECK_EDITOR();
+    mWindow->setWindowModified(currentEditor()->document()->isModified());
 }
 
 void FileManager::openSelectFile(const QString & fileName)
 {
-    if(mFileName == fileName)
+    if(mCurFileName == fileName)
         return;
 
     loadFile(fileName);
@@ -169,13 +180,13 @@ bool FileManager::maybeSave()
 
 void FileManager::loadFile(const QString &fileName)
 {
-    // creat a new QString, if fileName is same with mFileName
-    // after closeFile(mFileName), we can still reopen it
+    // creat a new QString, if fileName is same with mCurFileName
+    // after closeFile(mCurFileName), we can still reopen it
     QString newFileName(fileName);
 
     //close current file if needed
-    if(!mFileName.isEmpty())
-        closeFile(mFileName);
+    if(!mCurFileName.isEmpty())
+        closeFile(mCurFileName);
 
     QFile file(newFileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -220,11 +231,11 @@ bool FileManager::saveFile(const QString &fileName)
 
 bool FileManager::renameFile(const QString &fileName)
 {
-    QFile file(mFileName);
+    QFile file(mCurFileName);
     if (!file.rename(fileName)) {
         QMessageBox::warning(mWindow, Utils::getAppName(),
                              tr("Cannot rename file %1 to %2:\n%3.")
-                             .arg(mFileName)
+                             .arg(mCurFileName)
                              .arg(fileName)
                              .arg(file.errorString()));
         return false;
@@ -269,16 +280,11 @@ void FileManager::closeFile(const QString &fileName)
 
 void FileManager::setCurrentFile(const QString &fileName)
 {
-    mFileName = fileName;
-
-    if (fileName.isEmpty()){
-        mEditor->setReadOnly(true);
-        setEditBackgroundColor(QColor("#C7C7C7"));
-    }
-    else{
-        mEditor->setReadOnly(false);
-        setEditBackgroundColor(QColor("#FFFFFF"));
-    }
+    CodeEditor * editor = currentEditor();
+    disconnect(editor->document(), SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
+    connect(editor->document(), SIGNAL(contentsChanged()),
+            this, SLOT(documentWasModified()));
+    mWindow->setWindowModified(false);
 
     QString shownTitle = "(No Project)";
     QString projName = Utils::enstance()->getCurProjName();
@@ -286,21 +292,11 @@ void FileManager::setCurrentFile(const QString &fileName)
         shownTitle = projName + " Project";
     }
 
-    if (!fileName.isEmpty()){
-        shownTitle += " - [ " + fileName + "[*]]";
-    }
+    if (fileName.isEmpty())
+        mCurFileName = "new " + QString::number(mNewFileIndex++);
+    else
+        mCurFileName = fileName;
+    shownTitle += " - [ " + mCurFileName + "[*]]";
 
     mWindow->setWindowTitle(shownTitle);
-
-    mEditor->document()->setModified(false);
-    mWindow->setWindowModified(false);
-}
-
-void FileManager::setEditBackgroundColor(const QColor &acolor)
-{
-    // set background color
-    mEditor->setAutoFillBackground(true);
-    QPalette p = mEditor->palette();
-    p.setColor(QPalette::Base, acolor);
-    mEditor->setPalette(p);
 }

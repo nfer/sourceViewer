@@ -16,7 +16,7 @@ public:
     ~FileManager();
 
     QWidget * getContainer(){
-        return mEditor;
+        return mStackedWidget;
     }
 
 public slots:
@@ -38,6 +38,9 @@ public slots:
     void openSelectFile(const QString & fileName);
 
 private:
+    CodeEditor * currentEditor(){
+        return (CodeEditor *) mStackedWidget->currentWidget();
+    }
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
@@ -45,12 +48,13 @@ private:
     bool removeFile(const QString &fileName);
     void closeFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
-    void setEditBackgroundColor(const QColor &acolor);
 
 private:
-    QMainWindow * mWindow;
-    CodeEditor  * mEditor;
-    QString       mFileName;
+    QStackedWidget * mStackedWidget;
+    QMainWindow    * mWindow;
+    CodeEditor     * mEditor;
+    QString          mCurFileName;
+    int              mNewFileIndex;
 };
 
 #endif

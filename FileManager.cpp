@@ -5,11 +5,15 @@
     if (NULL == currentEditor()) \
         return;
 
+#define CHECK_EDITOR_BOOL() \
+    if (NULL == currentEditor()) \
+        return false;
+
 FileManager::FileManager(QMainWindow * window) :
                 mWindow(window),
-                mEditor(NULL),
                 mCurFileName(),
-                mNewFileIndex(1)
+                mNewFileIndex(1),
+                mFileNameHash()
 {
     mTabWidget = new QTabWidget;
     mTabWidget->setTabsClosable(true);
@@ -28,8 +32,11 @@ FileManager::~FileManager()
 void FileManager::newFile()
 {
     CodeEditor * editor = new CodeEditor();
-    mTabWidget->addTab(editor, "new 1");
-    setCurrentFile("");
+    QString fileName = "new " + QString::number(mNewFileIndex++);
+    mTabWidget->addTab(editor, fileName);
+    mFileNameHash.insert(editor, fileName);
+
+    setCurrentFile(fileName);
 }
 
 void FileManager::open()
@@ -41,16 +48,12 @@ void FileManager::open()
 
 void FileManager::close()
 {
-    if (maybeSave()) {
-        closeFile(mCurFileName);
-    }
-    else{
-        qWarning() << "DO NOT CLOSE FILE, as user click Cancel, or save failed.";
-    }
+    removeSubTab(mTabWidget->currentIndex());
 }
 
 bool FileManager::rename()
 {
+    CHECK_EDITOR_BOOL();
     QFileDialog dialog(mWindow);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -58,7 +61,7 @@ bool FileManager::rename()
     QStringList files = dialog.selectedFiles();
 
     if (files.isEmpty()){
-        qWarning() << "select nothing after QFileDialog.";
+        qDebug() << "select nothing after QFileDialog.";
         return false;
     }
 
@@ -67,17 +70,21 @@ bool FileManager::rename()
 
 void FileManager::remove()
 {
+    CHECK_EDITOR();
     if (maybeSave()) {
-        removeFile(mCurFileName);
+        removeFile();
     }
     else{
-        qWarning() << "DO NOT REMOVE FILE, as user click Cancel, or save failed.";
+        qDebug() << "DO NOT REMOVE FILE, as user click Cancel, or save failed.";
     }
 }
 
 bool FileManager::save()
 {
-    if (mCurFileName.isEmpty()) {
+    CHECK_EDITOR_BOOL();
+    QString fileName = mFileNameHash.value(currentEditor());
+    qDebug() << "currentEditor attached file name is " << fileName;
+    if (fileName.startsWith("new ")) {
         return saveAs();
     } else {
         return saveFile(mCurFileName);
@@ -86,6 +93,7 @@ bool FileManager::save()
 
 bool FileManager::saveAs()
 {
+    CHECK_EDITOR_BOOL();
     QFileDialog dialog(mWindow);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
@@ -93,7 +101,7 @@ bool FileManager::saveAs()
     QStringList files = dialog.selectedFiles();
 
     if (files.isEmpty()){
-        qWarning() << "select nothing after QFileDialog.";
+        qDebug() << "select nothing after QFileDialog.";
         return false;
     }
 
@@ -152,20 +160,23 @@ void FileManager::documentWasModified()
 
 void FileManager::openSelectFile(const QString & fileName)
 {
-    if(mCurFileName == fileName)
-        return;
-
     loadFile(fileName);
 }
 
 void FileManager::removeSubTab(int index)
 {
-    mTabWidget->removeTab(index);
+    if (maybeSave()){
+        CodeEditor * editor = (CodeEditor *)mTabWidget->widget(index);
+        mFileNameHash.remove(editor);
+        delete editor;
+        mWindow->statusBar()->showMessage(tr("File closed"), 2000);
+    }
 }
 
 bool FileManager::maybeSave()
 {
-    if (mEditor->document()->isModified()) {
+    CHECK_EDITOR_BOOL();
+    if (currentEditor()->document()->isModified()) {
         QMessageBox::StandardButton ret;
         ret = QMessageBox::warning(mWindow, tr("Application"),
                      tr("The document has been modified.\n"
@@ -174,11 +185,11 @@ bool FileManager::maybeSave()
         if (ret == QMessageBox::Save)
             return save();
         else if (ret == QMessageBox::Cancel){
-            qWarning() << "user click Cancel, do nothing.";
+            qDebug() << "user click Cancel, do nothing.";
             return false;
         }
         else{ //QMessageBox::Discard
-            qWarning() << "user click Discard, no need save file.";
+            qDebug() << "user click Discard, no need save file.";
             return true;
         }
     }
@@ -187,35 +198,35 @@ bool FileManager::maybeSave()
 
 void FileManager::loadFile(const QString &fileName)
 {
-    // creat a new QString, if fileName is same with mCurFileName
-    // after closeFile(mCurFileName), we can still reopen it
-    QString newFileName(fileName);
+    // FIXME: should check whether already opened this file
 
-    //close current file if needed
-    if(!mCurFileName.isEmpty())
-        closeFile(mCurFileName);
-
-    QFile file(newFileName);
+    QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(mWindow, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(newFileName)
+                             .arg(fileName)
                              .arg(file.errorString()));
         return;
     }
 
-    QTextStream in(&file);
+    CodeEditor * editor = new CodeEditor();
+    mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
+    mFileNameHash.insert(editor, fileName);
 
+    QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    mEditor->setPlainText(in.readAll());
+    editor->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 
-    setCurrentFile(newFileName);
+    // FIXME: whether we need close this file after load contents
+
+    setCurrentFile(fileName);
     mWindow->statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
 bool FileManager::saveFile(const QString &fileName)
 {
+    CHECK_EDITOR_BOOL();
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(mWindow, Utils::getAppName(),
@@ -228,33 +239,37 @@ bool FileManager::saveFile(const QString &fileName)
     QTextStream out(&file);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << mEditor->toPlainText();
+    out << currentEditor()->toPlainText();
     QApplication::restoreOverrideCursor();
 
-    setCurrentFile(fileName);
     mWindow->statusBar()->showMessage(tr("File saved"), 2000);
     return true;
 }
 
-bool FileManager::renameFile(const QString &fileName)
+bool FileManager::renameFile(const QString &newFileName)
 {
-    QFile file(mCurFileName);
-    if (!file.rename(fileName)) {
+    QString oldFileName = mFileNameHash.value(currentEditor());
+    QFile file(oldFileName);
+    if (!file.rename(newFileName)) {
         QMessageBox::warning(mWindow, Utils::getAppName(),
                              tr("Cannot rename file %1 to %2:\n%3.")
-                             .arg(mCurFileName)
-                             .arg(fileName)
+                             .arg(oldFileName)
+                             .arg(newFileName)
                              .arg(file.errorString()));
         return false;
     }
 
-    setCurrentFile(fileName);
+    mFileNameHash[currentEditor()] = newFileName;
+    mTabWidget->setTabText(mTabWidget->currentIndex(), QFileInfo(newFileName).fileName());
     mWindow->statusBar()->showMessage(tr("File renamed"), 2000);
     return true;
 }
 
-bool FileManager::removeFile(const QString &fileName)
+bool FileManager::removeFile()
 {
+    CodeEditor * editor = currentEditor();
+    QString fileName = mFileNameHash.value(editor);
+
     QFile file(fileName);
     if (!file.remove(fileName)) {
         QMessageBox::warning(mWindow, Utils::getAppName(),
@@ -264,34 +279,20 @@ bool FileManager::removeFile(const QString &fileName)
         return false;
     }
 
-    mEditor->clear();
-    setCurrentFile("");
+    mFileNameHash.remove(editor);
+    delete editor;
+
     mWindow->statusBar()->showMessage(tr("File deleted"), 2000);
     return true;
 }
 
-void FileManager::closeFile(const QString &fileName)
-{
-    if(fileName.isEmpty())
-        return;
-
-    QFile file(fileName);
-    file.close();
-
-    mEditor->clear();
-
-    setCurrentFile("");
-
-    mWindow->statusBar()->showMessage(tr("File closed"), 2000);
-}
-
 void FileManager::setCurrentFile(const QString &fileName)
 {
-    CodeEditor * editor = currentEditor();
-    disconnect(editor->document(), SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
-    connect(editor->document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
-    mWindow->setWindowModified(false);
+    CHECK_EDITOR();
+    QTextDocument * document = currentEditor()->document();
+    disconnect(document, SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
+    connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    mWindow->setWindowModified(document->isModified());
 
     QString shownTitle = "(No Project)";
     QString projName = Utils::enstance()->getCurProjName();

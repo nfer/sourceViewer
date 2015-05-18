@@ -47,17 +47,17 @@ private:
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    bool renameFile(const QString &fileName);
-    bool removeFile(const QString &fileName);
-    void closeFile(const QString &fileName);
+    bool renameFile(const QString &newFileName);
+    bool removeFile();
     void setCurrentFile(const QString &fileName);
 
 private:
     QTabWidget     * mTabWidget;
     QMainWindow    * mWindow;
-    CodeEditor     * mEditor;
     QString          mCurFileName;
     int              mNewFileIndex;
+
+    QHash<CodeEditor *, QString> mFileNameHash;
 };
 
 #endif

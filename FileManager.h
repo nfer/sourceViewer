@@ -42,9 +42,11 @@ private slots:
     void curTabChanged(int index);
 
 private:
+    void showStatusBarMsg(const QString & message, int timeout = 2000);
     CodeEditor * currentEditor(){
         return (CodeEditor *) mTabWidget->currentWidget();
     }
+    CodeEditor * createEditor(QString fileName = NULL);
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);

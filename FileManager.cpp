@@ -31,12 +31,7 @@ FileManager::~FileManager()
 
 void FileManager::newFile()
 {
-    CodeEditor * editor = new CodeEditor();
-    QString fileName = "new " + QString::number(mNewFileIndex++);
-    mFileNameHash.insert(editor, fileName);
-
-    mTabWidget->addTab(editor, fileName);
-    mTabWidget->setCurrentWidget(editor);
+    createEditor();
 }
 
 void FileManager::open()
@@ -169,7 +164,7 @@ void FileManager::removeSubTab(int index)
         CodeEditor * editor = (CodeEditor *)mTabWidget->widget(index);
         mFileNameHash.remove(editor);
         delete editor;
-        mWindow->statusBar()->showMessage(tr("File closed"), 2000);
+        showStatusBarMsg(tr("File closed"));
     }
 }
 
@@ -182,6 +177,28 @@ void FileManager::curTabChanged(int index)
     }
 
     setCurrentFile(fileName);
+}
+
+void FileManager::showStatusBarMsg(const QString & message, int timeout)
+{
+    if (mWindow)
+        mWindow->statusBar()->showMessage(message, timeout);
+}
+
+CodeEditor * FileManager::createEditor(QString fileName)
+{
+    if (fileName.isEmpty())
+        fileName = "new " + QString::number(mNewFileIndex++);
+    else
+        fileName = QFileInfo(fileName).fileName();
+
+    CodeEditor * editor = new CodeEditor();
+    mFileNameHash.insert(editor, fileName);
+
+    mTabWidget->addTab(editor, fileName);
+    mTabWidget->setCurrentWidget(editor);
+
+    return editor;
 }
 
 bool FileManager::maybeSave()
@@ -220,21 +237,16 @@ void FileManager::loadFile(const QString &fileName)
         return;
     }
 
-    CodeEditor * editor = new CodeEditor();
-    mFileNameHash.insert(editor, fileName);
- 
-    mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
-    mTabWidget->setCurrentWidget(editor);
-
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
+    CodeEditor * editor = createEditor(fileName);
     editor->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 
     // FIXME: whether we need close this file after load contents
 
     setCurrentFile(fileName);
-    mWindow->statusBar()->showMessage(tr("File loaded"), 2000);
+    showStatusBarMsg(tr("File loaded"));
 }
 
 bool FileManager::saveFile(const QString &fileName)
@@ -255,7 +267,7 @@ bool FileManager::saveFile(const QString &fileName)
     out << currentEditor()->toPlainText();
     QApplication::restoreOverrideCursor();
 
-    mWindow->statusBar()->showMessage(tr("File saved"), 2000);
+    showStatusBarMsg(tr("File saved"));
     return true;
 }
 
@@ -274,7 +286,7 @@ bool FileManager::renameFile(const QString &newFileName)
 
     mFileNameHash[currentEditor()] = newFileName;
     mTabWidget->setTabText(mTabWidget->currentIndex(), QFileInfo(newFileName).fileName());
-    mWindow->statusBar()->showMessage(tr("File renamed"), 2000);
+    showStatusBarMsg(tr("File renamed"));
     return true;
 }
 
@@ -295,7 +307,7 @@ bool FileManager::removeFile()
     mFileNameHash.remove(editor);
     delete editor;
 
-    mWindow->statusBar()->showMessage(tr("File deleted"), 2000);
+    showStatusBarMsg(tr("File deleted"));
     return true;
 }
 

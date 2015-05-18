@@ -11,22 +11,24 @@ FileManager::FileManager(QMainWindow * window) :
                 mCurFileName(),
                 mNewFileIndex(1)
 {
-    mStackedWidget = new QStackedWidget;
+    mTabWidget = new QTabWidget;
+    mTabWidget->setTabsClosable(true);
+    connect(mTabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(removeSubTab(int)));
 }
 
 FileManager::~FileManager()
 {
-    while (mStackedWidget->count() > 0){
-        CodeEditor * editor = (CodeEditor *)mStackedWidget->currentWidget();
+    while (mTabWidget->count() > 0){
+        CodeEditor * editor = (CodeEditor *)mTabWidget->currentWidget();
         delete editor;
     }
-    delete mStackedWidget;
+    delete mTabWidget;
 }
 
 void FileManager::newFile()
 {
     CodeEditor * editor = new CodeEditor();
-    mStackedWidget->addWidget(editor);
+    mTabWidget->addTab(editor, "new 1");
     setCurrentFile("");
 }
 
@@ -154,6 +156,11 @@ void FileManager::openSelectFile(const QString & fileName)
         return;
 
     loadFile(fileName);
+}
+
+void FileManager::removeSubTab(int index)
+{
+    mTabWidget->removeTab(index);
 }
 
 bool FileManager::maybeSave()

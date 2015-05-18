@@ -16,7 +16,7 @@ public:
     ~FileManager();
 
     QWidget * getContainer(){
-        return mStackedWidget;
+        return mTabWidget;
     }
 
 public slots:
@@ -37,9 +37,12 @@ public slots:
     void documentWasModified();
     void openSelectFile(const QString & fileName);
 
+private slots:
+    void removeSubTab(int index);
+
 private:
     CodeEditor * currentEditor(){
-        return (CodeEditor *) mStackedWidget->currentWidget();
+        return (CodeEditor *) mTabWidget->currentWidget();
     }
     bool maybeSave();
     void loadFile(const QString &fileName);
@@ -50,7 +53,7 @@ private:
     void setCurrentFile(const QString &fileName);
 
 private:
-    QStackedWidget * mStackedWidget;
+    QTabWidget     * mTabWidget;
     QMainWindow    * mWindow;
     CodeEditor     * mEditor;
     QString          mCurFileName;

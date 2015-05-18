@@ -31,7 +31,9 @@ FileManager::~FileManager()
 
 void FileManager::newFile()
 {
-    createEditor();
+    CodeEditor * editor = new CodeEditor();
+    QString fileName = "new " + QString::number(mNewFileIndex++);
+    addEditor(editor, fileName);
 }
 
 void FileManager::open()
@@ -173,7 +175,6 @@ void FileManager::curTabChanged(int index)
     QString fileName;
     if (-1 != index){
         fileName = mFileNameHash.value(currentEditor());
-        qDebug() << "curTabChanged fileName " << fileName;
     }
 
     setCurrentFile(fileName);
@@ -185,20 +186,11 @@ void FileManager::showStatusBarMsg(const QString & message, int timeout)
         mWindow->statusBar()->showMessage(message, timeout);
 }
 
-CodeEditor * FileManager::createEditor(QString fileName)
+void FileManager::addEditor(CodeEditor * editor, const QString & fileName)
 {
-    if (fileName.isEmpty())
-        fileName = "new " + QString::number(mNewFileIndex++);
-    else
-        fileName = QFileInfo(fileName).fileName();
-
-    CodeEditor * editor = new CodeEditor();
     mFileNameHash.insert(editor, fileName);
-
     mTabWidget->addTab(editor, fileName);
     mTabWidget->setCurrentWidget(editor);
-
-    return editor;
 }
 
 bool FileManager::maybeSave()
@@ -239,13 +231,13 @@ void FileManager::loadFile(const QString &fileName)
 
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    CodeEditor * editor = createEditor(fileName);
+    CodeEditor * editor = new CodeEditor();
     editor->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 
+    addEditor(editor, QFileInfo(fileName).fileName());
     // FIXME: whether we need close this file after load contents
 
-    setCurrentFile(fileName);
     showStatusBarMsg(tr("File loaded"));
 }
 
@@ -313,12 +305,6 @@ bool FileManager::removeFile()
 
 void FileManager::setCurrentFile(const QString &fileName)
 {
-    CHECK_EDITOR();
-    QTextDocument * document = currentEditor()->document();
-    disconnect(document, SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
-    connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
-    mWindow->setWindowModified(document->isModified());
-
     QString shownTitle = "(No Project)";
     QString projName = Utils::enstance()->getCurProjName();
     if (!projName.isEmpty()){
@@ -326,7 +312,13 @@ void FileManager::setCurrentFile(const QString &fileName)
     }
 
     if (!fileName.isEmpty())
-        shownTitle += " - [ " + fileName + "[*]]";
+        shownTitle += " - [ " + fileName + " [*]]";
 
     mWindow->setWindowTitle(shownTitle);
+
+    CHECK_EDITOR();
+    QTextDocument * document = currentEditor()->document();
+    disconnect(document, SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
+    connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
+    documentWasModified();
 }

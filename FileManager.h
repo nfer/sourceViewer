@@ -46,7 +46,7 @@ private:
     CodeEditor * currentEditor(){
         return (CodeEditor *) mTabWidget->currentWidget();
     }
-    CodeEditor * createEditor(QString fileName = NULL);
+    void addEditor(CodeEditor * editor, const QString & fileName);
     bool maybeSave();
     void loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);

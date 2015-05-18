@@ -39,6 +39,7 @@ public slots:
 
 private slots:
     void removeSubTab(int index);
+    void curTabChanged(int index);
 
 private:
     CodeEditor * currentEditor(){
@@ -52,9 +53,8 @@ private:
     void setCurrentFile(const QString &fileName);
 
 private:
-    QTabWidget     * mTabWidget;
     QMainWindow    * mWindow;
-    QString          mCurFileName;
+    QTabWidget     * mTabWidget;
     int              mNewFileIndex;
 
     QHash<CodeEditor *, QString> mFileNameHash;

@@ -11,13 +11,13 @@
 
 FileManager::FileManager(QMainWindow * window) :
                 mWindow(window),
-                mCurFileName(),
                 mNewFileIndex(1),
                 mFileNameHash()
 {
     mTabWidget = new QTabWidget;
     mTabWidget->setTabsClosable(true);
     connect(mTabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(removeSubTab(int)));
+    connect(mTabWidget,SIGNAL(currentChanged(int)),this,SLOT(curTabChanged(int)));
 }
 
 FileManager::~FileManager()
@@ -33,10 +33,10 @@ void FileManager::newFile()
 {
     CodeEditor * editor = new CodeEditor();
     QString fileName = "new " + QString::number(mNewFileIndex++);
-    mTabWidget->addTab(editor, fileName);
     mFileNameHash.insert(editor, fileName);
 
-    setCurrentFile(fileName);
+    mTabWidget->addTab(editor, fileName);
+    mTabWidget->setCurrentWidget(editor);
 }
 
 void FileManager::open()
@@ -87,7 +87,7 @@ bool FileManager::save()
     if (fileName.startsWith("new ")) {
         return saveAs();
     } else {
-        return saveFile(mCurFileName);
+        return saveFile(fileName);
     }
 }
 
@@ -173,6 +173,17 @@ void FileManager::removeSubTab(int index)
     }
 }
 
+void FileManager::curTabChanged(int index)
+{
+    QString fileName;
+    if (-1 != index){
+        fileName = mFileNameHash.value(currentEditor());
+        qDebug() << "curTabChanged fileName " << fileName;
+    }
+
+    setCurrentFile(fileName);
+}
+
 bool FileManager::maybeSave()
 {
     CHECK_EDITOR_BOOL();
@@ -210,8 +221,10 @@ void FileManager::loadFile(const QString &fileName)
     }
 
     CodeEditor * editor = new CodeEditor();
-    mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
     mFileNameHash.insert(editor, fileName);
+ 
+    mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
+    mTabWidget->setCurrentWidget(editor);
 
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -300,11 +313,8 @@ void FileManager::setCurrentFile(const QString &fileName)
         shownTitle = projName + " Project";
     }
 
-    if (fileName.isEmpty())
-        mCurFileName = "new " + QString::number(mNewFileIndex++);
-    else
-        mCurFileName = fileName;
-    shownTitle += " - [ " + mCurFileName + "[*]]";
+    if (!fileName.isEmpty())
+        shownTitle += " - [ " + fileName + "[*]]";
 
     mWindow->setWindowTitle(shownTitle);
 }

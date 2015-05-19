@@ -1,7 +1,18 @@
 
 #include "config.h"
 #include "stable.h"
+#include "Utils.h"
 #include "mainwindow.h"
+
+void setStyleSheet(QApplication & app, QString fileName)
+{
+    QFile qss(fileName);
+    if (qss.open(QFile::ReadOnly)) {
+        qDebug() << "setStyleSheet with file " << fileName;
+        app.setStyleSheet(qss.readAll());
+        qss.close();
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -12,11 +23,8 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":/images/Source Viewer.png"));
     app.setAttribute(Qt::AA_DontShowIconsInMenus);
 
-    // set style sheet
-    QFile qss(":/qss/main.qss");
-    qss.open(QFile::ReadOnly);
-    app.setStyleSheet(qss.readAll());
-    qss.close();
+    setStyleSheet(app, DEFAULT_QSS);
+    setStyleSheet(app, Utils::getDocumentPath() +"/" + USER_QSS);
 
     MainWindow mainWin;
     mainWin.show();

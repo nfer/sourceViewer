@@ -1,3 +1,0 @@
-QListView::item:selected {
-     background-color: rgb(51,153,255);
-}

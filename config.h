@@ -25,4 +25,8 @@
 #define CONFIG_SUFFIX       ".config"
 #define FILELIST_SUFFIX     ".filelist"
 
+// macro for Qt Style Sheet
+#define DEFAULT_QSS         "default.qss"
+#define USER_QSS            "user.qss"
+
 #endif // SV_CONFIG_H

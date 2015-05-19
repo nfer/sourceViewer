@@ -15,6 +15,7 @@ FileManager::FileManager(QMainWindow * window) :
                 mFileNameHash()
 {
     mTabWidget = new QTabWidget;
+    mTabWidget->setMovable(true);
     mTabWidget->setTabsClosable(true);
     mTabWidget->installEventFilter(this);
 

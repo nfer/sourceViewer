@@ -53,6 +53,7 @@ private:
     bool renameFile(const QString &newFileName);
     bool removeFile();
     void setCurrentFile(const QString &fileName);
+    bool eventFilter(QObject*obj,QEvent*event);
 
 private:
     QMainWindow    * mWindow;

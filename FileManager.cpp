@@ -16,6 +16,9 @@ FileManager::FileManager(QMainWindow * window) :
 {
     mTabWidget = new QTabWidget;
     mTabWidget->setTabsClosable(true);
+    mTabWidget->installEventFilter(this);
+
+    connect(mTabWidget,SIGNAL(tabBarDoubleClicked(int)),this,SLOT(removeSubTab(int)));
     connect(mTabWidget,SIGNAL(tabCloseRequested(int)),this,SLOT(removeSubTab(int)));
     connect(mTabWidget,SIGNAL(currentChanged(int)),this,SLOT(curTabChanged(int)));
 }
@@ -321,4 +324,16 @@ void FileManager::setCurrentFile(const QString &fileName)
     disconnect(document, SIGNAL(contentsChanged()), 0, 0);// disconnect last SIGNAL
     connect(document, SIGNAL(contentsChanged()), this, SLOT(documentWasModified()));
     documentWasModified();
+}
+
+bool FileManager::eventFilter(QObject*obj,QEvent*event)
+{
+    if(event->type() == QEvent::MouseButtonDblClick && obj == mTabWidget)
+    {
+        newFile();
+        return true;
+    }
+    else{
+        return QObject::eventFilter(obj,event);
+    }
 }

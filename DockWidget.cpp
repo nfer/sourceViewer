@@ -47,6 +47,8 @@ class ProjectFrame : public DockFrame
 public:
     ProjectFrame(QWidget *parent);
     void updateFileList();
+    void open();
+    bool eventFilter(QObject*obj,QEvent*event);
 
 signals:
     void onFileSelected(const QString &);
@@ -78,6 +80,7 @@ ProjectFrame::ProjectFrame(QWidget *parent)
             this, SLOT(currentIndexChanged(int)));
     connect(mFileComboBox, SIGNAL(currentTextChanged(const QString & )),
             this, SLOT(currentTextChanged(const QString & )));
+    mFileComboBox->installEventFilter(this);
 
     mFileListView = new QListView;
     mFileListModel = new QStandardItemModel;
@@ -124,6 +127,34 @@ void ProjectFrame::updateFileList()
     }
 
     mFileListModel->sort(0);
+}
+
+void ProjectFrame::open()
+{
+    mFileComboBox->setFocus();
+}
+
+bool ProjectFrame::eventFilter(QObject*obj,QEvent*event)
+{
+    if(event->type() == QEvent::KeyPress && obj == mFileComboBox)
+    {
+        QKeyEvent*keyEvent = static_cast<QKeyEvent*>(event);
+        int key = keyEvent->key();
+        switch(key)
+        {
+        case Qt::Key_Escape:
+            mFileComboBox->clearEditText();
+            mFileComboBox->clearFocus();
+            return true;
+
+        default:
+            break;
+        }
+        return QObject::eventFilter(obj,event);
+    }
+    else{
+        return QObject::eventFilter(obj,event);
+    }
 }
 
 void ProjectFrame::currentIndexChanged(int index)
@@ -173,6 +204,13 @@ void ProjectDock::updateFileList()
 
     ProjectFrame * dock = (ProjectFrame *)widget();
     dock->updateFileList();
+}
+
+void ProjectDock::open()
+{
+    show();
+    ProjectFrame * dock = (ProjectFrame *)widget();
+    dock->open();
 }
 
 #include "DockWidget.moc"

@@ -178,6 +178,11 @@ void MainWindow::manageProjFile()
     mProjectWindow->updateFileList();
 }
 
+void MainWindow::open()
+{
+    mProjectWindow->open();
+}
+
 void MainWindow::createActions()
 {
     newAct = new Action(tr("&New"), tr("Create a new file"),
@@ -186,7 +191,7 @@ void MainWindow::createActions()
 
     openAct = new Action(tr("&Open..."), tr("Open an existing file"),
         QKeySequence::Open, QIcon(":/images/open.png"),
-        this, SLOT(open()), mFileManager);
+        this, SLOT(open()));
 
     closeAct = new Action(tr("&Close"), tr("Closes the current file."),
         QKeySequence::listFromString(tr("Ctrl+W")),

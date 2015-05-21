@@ -34,8 +34,6 @@ private:
 
     void enableProjectAcion(bool enabled);
     void openLastProject();
-    void openLastOpenedFiles();
-    void snapshotOpenedFiles();
 
     QMenu *fileMenu;
     QMenu *editMenu;

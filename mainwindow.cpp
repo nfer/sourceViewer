@@ -38,18 +38,8 @@ void MainWindow::openLastProject()
 
         mProjectWindow->updateFileList();
         enableProjectAcion(true);
-        openLastOpenedFiles();
+        mFileManager->openLastOpenedFiles();
     }
-}
-
-void MainWindow::openLastOpenedFiles()
-{
-    //FIXME: invoke FileManager api
-}
-
-void MainWindow::snapshotOpenedFiles()
-{
-    //FIXME: invoke FileManager api
 }
 
 void MainWindow::enableProjectAcion(bool enabled)
@@ -103,7 +93,7 @@ void MainWindow::newProject()
 
     mProjectWindow->updateFileList();
     enableProjectAcion(true);
-    openLastOpenedFiles();
+    mFileManager->openLastOpenedFiles();
 }
 
 void MainWindow::openProject()
@@ -124,7 +114,7 @@ void MainWindow::openProject()
 
     mProjectWindow->updateFileList();
     enableProjectAcion(true);
-    openLastOpenedFiles();
+    mFileManager->openLastOpenedFiles();
 }
 
 void MainWindow::removeProject()
@@ -153,7 +143,7 @@ void MainWindow::closeProject()
     if (mProjStorePath.isEmpty() || mProjName.isEmpty())
         return;
 
-    snapshotOpenedFiles();
+    mFileManager->snapshotOpenedFiles();
 
     setWindowTitle("(No Project)");
 

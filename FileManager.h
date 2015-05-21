@@ -36,6 +36,8 @@ public slots:
     void paste();
     void documentWasModified();
     void openSelectFile(const QString & fileName);
+    void openLastOpenedFiles();
+    void snapshotOpenedFiles();
 
 private slots:
     void removeSubTab(int index);

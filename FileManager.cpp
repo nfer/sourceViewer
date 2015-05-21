@@ -164,6 +164,16 @@ void FileManager::openSelectFile(const QString & fileName)
     loadFile(fileName);
 }
 
+void FileManager::openLastOpenedFiles()
+{
+    qDebug() << "openLastOpenedFiles";
+}
+
+void FileManager::snapshotOpenedFiles()
+{
+    qDebug() << "snapshotOpenedFiles";
+}
+
 void FileManager::removeSubTab(int index)
 {
     if (maybeSave()){

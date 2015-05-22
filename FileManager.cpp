@@ -37,7 +37,9 @@ void FileManager::newFile()
 {
     CodeEditor * editor = new CodeEditor();
     QString fileName = "new " + QString::number(mNewFileIndex++);
-    addEditor(editor, fileName);
+    mFileNameHash.insert(editor, fileName);
+    mTabWidget->addTab(editor, fileName);
+    mTabWidget->setCurrentWidget(editor);
 }
 
 void FileManager::open()
@@ -167,11 +169,25 @@ void FileManager::openSelectFile(const QString & fileName)
 void FileManager::openLastOpenedFiles()
 {
     qDebug() << "openLastOpenedFiles";
+    QStringList openedFiles = Utils::enstance()->readStringList(OPENEDFILELIST);
+    for(int i=0; i<openedFiles.count(); i++){
+        loadFile(openedFiles.at(i));
+    }
 }
 
 void FileManager::snapshotOpenedFiles()
 {
+    CHECK_EDITOR();
     qDebug() << "snapshotOpenedFiles";
+    QStringList openedFiles;
+    while (mTabWidget->count()){
+        CodeEditor * editor = (CodeEditor *)mTabWidget->widget(0);
+        openedFiles += mFileNameHash.value(editor);
+        mFileNameHash.remove(editor);
+        delete editor;
+    }
+    qDebug() << "openedFiles:" << openedFiles;
+    Utils::enstance()->writeStringList(OPENEDFILELIST, openedFiles);
 }
 
 void FileManager::removeSubTab(int index)
@@ -200,13 +216,7 @@ void FileManager::showStatusBarMsg(const QString & message, int timeout)
         mWindow->statusBar()->showMessage(message, timeout);
 }
 
-void FileManager::addEditor(CodeEditor * editor, const QString & fileName)
-{
-    mFileNameHash.insert(editor, fileName);
-    mTabWidget->addTab(editor, fileName);
-    mTabWidget->setCurrentWidget(editor);
-}
-
+// FIXME: maybeSave not always save current editor
 bool FileManager::maybeSave()
 {
     CHECK_EDITOR_BOOL();
@@ -249,8 +259,11 @@ void FileManager::loadFile(const QString &fileName)
     editor->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 
-    addEditor(editor, QFileInfo(fileName).fileName());
     // FIXME: whether we need close this file after load contents
+
+    mFileNameHash.insert(editor, fileName);
+    mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
+    mTabWidget->setCurrentWidget(editor);
 
     showStatusBarMsg(tr("File loaded"));
 }

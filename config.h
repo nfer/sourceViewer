@@ -8,6 +8,7 @@
 #define CURPROJNAME         "CURPROJNAME"
 #define PROJSTOREPATH       "PROJSTOREPATH"
 #define SRCROOTPATH         "SRCROOTPATH"
+#define CURTABINDEX         "CURTABINDEX"
 
 // macro for readStringList/writeStringList
 #define IGNOREFOLDERLIST    "IGNOREFOLDERLIST"

@@ -46,7 +46,7 @@ void FileManager::open()
 {
     QString fileName = QFileDialog::getOpenFileName(mWindow);
     if (!fileName.isEmpty())
-        loadFile(fileName);
+        openSelectFile(fileName);
 }
 
 void FileManager::close()
@@ -164,21 +164,24 @@ void FileManager::documentWasModified()
 void FileManager::openSelectFile(const QString & fileName)
 {
     loadFile(fileName);
+    mTabWidget->setCurrentIndex(mTabWidget->count());
 }
 
 void FileManager::openLastOpenedFiles()
 {
-    qDebug() << "openLastOpenedFiles";
     QStringList openedFiles = Utils::enstance()->readStringList(OPENEDFILELIST);
     for(int i=0; i<openedFiles.count(); i++){
         loadFile(openedFiles.at(i));
     }
+
+    if (openedFiles.count() > 0)
+        mTabWidget->setCurrentIndex(Utils::enstance()->readInt(CURTABINDEX));
 }
 
 void FileManager::snapshotOpenedFiles()
 {
-    CHECK_EDITOR();
-    qDebug() << "snapshotOpenedFiles";
+    Utils::enstance()->writeInt(CURTABINDEX, mTabWidget->currentIndex());
+
     QStringList openedFiles;
     while (mTabWidget->count()){
         CodeEditor * editor = (CodeEditor *)mTabWidget->widget(0);
@@ -186,7 +189,6 @@ void FileManager::snapshotOpenedFiles()
         mFileNameHash.remove(editor);
         delete editor;
     }
-    qDebug() << "openedFiles:" << openedFiles;
     Utils::enstance()->writeStringList(OPENEDFILELIST, openedFiles);
 }
 
@@ -263,7 +265,6 @@ void FileManager::loadFile(const QString &fileName)
 
     mFileNameHash.insert(editor, fileName);
     mTabWidget->addTab(editor, QFileInfo(fileName).fileName());
-    mTabWidget->setCurrentWidget(editor);
 
     showStatusBarMsg(tr("File loaded"));
 }

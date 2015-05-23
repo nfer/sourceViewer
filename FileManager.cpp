@@ -176,6 +176,8 @@ void FileManager::openLastOpenedFiles()
 
     if (openedFiles.count() > 0)
         mTabWidget->setCurrentIndex(Utils::enstance()->readInt(CURTABINDEX));
+    else
+        setCurrentFile(""); // we need update window title after open a project
 }
 
 void FileManager::snapshotOpenedFiles()
